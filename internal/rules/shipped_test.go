@@ -1,0 +1,217 @@
+package rules_test
+
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+
+	"github.com/scriptedworld/qwark/internal/rules"
+)
+
+// COVERS: FR-10.9 | property
+func TestTheRegistrationRefusesWhenQwarkDies(t *testing.T) {
+	t.Parallel()
+
+	// The `|| exit 2` is not belt and braces. **FACT 2026-08-20: exit 0 with no
+	// JSON is no decision and the command proceeds, and any non-zero exit other
+	// than 2 is a non_blocking_error and the command also proceeds.** Only exit
+	// 2 blocks. A registration without the guard therefore lets the command
+	// through whenever qwark segfaults, is killed, or exits 1 -- and the shipped
+	// fragment is where somebody copies that from.
+	body, err := os.ReadFile(filepath.Join("..", "..", "install", "settings-fragment.json"))
+	if err != nil {
+		t.Fatalf("reading the shipped registration: %v", err)
+	}
+
+	var fragment struct {
+		Hooks struct {
+			PreToolUse []struct {
+				Matcher string `json:"matcher"`
+				Hooks   []struct {
+					Type    string `json:"type"`
+					Command string `json:"command"`
+				} `json:"hooks"`
+			} `json:"PreToolUse"`
+		} `json:"hooks"`
+	}
+	if err := json.Unmarshal(body, &fragment); err != nil {
+		t.Fatalf("the shipped registration is not valid JSON: %v", err)
+	}
+
+	if len(fragment.Hooks.PreToolUse) == 0 {
+		t.Fatal("the shipped registration declares no PreToolUse hook")
+	}
+	group := fragment.Hooks.PreToolUse[0]
+
+	if group.Matcher != "Bash" {
+		t.Errorf("matcher = %q, want Bash: qwark's first mode gates that tool",
+			group.Matcher)
+	}
+	if len(group.Hooks) == 0 {
+		t.Fatal("the matcher group holds no hook")
+	}
+	if command := group.Hooks[0].Command; !strings.Contains(command, "|| exit 2") {
+		t.Errorf("command = %q, want the `|| exit 2` guard: without it a qwark "+
+			"that dies lets the command run", command)
+	}
+}
+
+// COVERS: FR-4.21 | positive
+func TestTheShippedRulesDenyWrappersByName(t *testing.T) {
+	t.Parallel()
+
+	// Wrappers are refused by an explicit rule rather than by being undeclared,
+	// so that the refusal states why, records that they were considered rather
+	// than forgotten, and survives someone later declaring one for a harmless
+	// flag. An absence provides none of the three -- and an absence is also
+	// what this test would be checking if it merely asserted they do not run.
+	set, err := rules.Load([]string{filepath.Join("..", "..", "rules")})
+	if err != nil {
+		t.Fatalf("the repository's rule files do not load: %v", err)
+	}
+
+	group, declared := set.Groups["wrapper"]
+	if !declared {
+		t.Fatal("no group names the command wrappers")
+	}
+	for _, want := range []string{"env", "xargs", "sudo", "exec", "command"} {
+		if !contains(group.Members, want) {
+			t.Errorf("the wrapper group does not name %q", want)
+		}
+	}
+
+	if !deniedByName(set, "wrapper") {
+		t.Error("no deny rule names the wrapper group, so wrappers are refused " +
+			"only by being undeclared")
+	}
+}
+
+func contains(members []string, want string) bool {
+	for _, member := range members {
+		if member == want {
+			return true
+		}
+	}
+	return false
+}
+
+// deniedByName reports whether some deny rule has a clause naming the group.
+func deniedByName(set *rules.Set, group string) bool {
+	for _, rule := range set.Rules {
+		if rule.Action != rules.ActionDeny {
+			continue
+		}
+		for _, clause := range rule.Clause {
+			if clause.Group == group {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// shippedVerdict judges a command against this repository's own rule files and
+// returns the verdict with the rule ids that produced it.
+func shippedVerdict(t *testing.T, src string) (rules.Outcome, []string) {
+	t.Helper()
+
+	set, err := rules.Load([]string{filepath.Join("..", "..", "rules")})
+	if err != nil {
+		t.Fatalf("the repository's rule files do not load: %v", err)
+	}
+
+	outcome := set.Evaluate(parseFor(t, src), rules.Context{})
+
+	var fired []string
+	for _, finding := range outcome.Findings {
+		fired = append(fired, finding.Rule)
+	}
+	return outcome, fired
+}
+
+// COVERS: FR-4.3 | positive
+func TestTheShippedRulesForbidTierOneAsOneProperty(t *testing.T) {
+	t.Parallel()
+
+	// The four are one property -- that a command's effect is fixed by its own
+	// text -- and the shipped rules must actually say so, not merely be
+	// described as saying so.
+	//
+	// A pipe and a logical concatenation are refused before the rules run,
+	// because each of them IS more than one command and the engine refuses
+	// that outright. Their reason names the construct, so the refusal is still
+	// specific; the rules exist for the case where the engine's check is ever
+	// relaxed.
+	cases := []struct {
+		name    string
+		src     string
+		mention string
+	}{
+		{name: "redirection", src: `cat a > b`, mention: "Redirections are not permitted"},
+		{name: "substitution", src: `cat $HOME`, mention: "Substitutions are not permitted"},
+		{name: "pipe", src: `cat a | grep b`, mention: "One command at a time"},
+		{name: "logical", src: `cat a && cat b`, mention: "One command at a time"},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+
+			outcome, fired := shippedVerdict(t, c.src)
+			if !outcome.Denied() {
+				t.Fatalf("%q was not refused; rules that fired: %v", c.src, fired)
+			}
+
+			// Everything is refused by this rule set, so "denied" alone proves
+			// nothing. The reason has to be about the construct.
+			var found bool
+			for _, reason := range outcome.Reasons() {
+				if strings.Contains(reason, c.mention) {
+					found = true
+				}
+			}
+			if !found {
+				t.Errorf("%q was refused, but for no reason mentioning %q; reasons: %v",
+					c.src, c.mention, outcome.Reasons())
+			}
+		})
+	}
+}
+
+// COVERS: FR-4.10 | positive
+func TestTheShippedRulesRefuseAHeredocWriteInItsOwnRight(t *testing.T) {
+	t.Parallel()
+
+	// The here-document ban is subsumed by the redirection ban, and is stated
+	// separately because its reason is separate: such content was never a diff
+	// and leaves nothing to review. That separateness is only real if the
+	// separate reason actually reaches the reader -- otherwise it is a comment
+	// in a file rather than something the gate says.
+	outcome, fired := shippedVerdict(t, "cat > f.go <<EOF\npackage main\nEOF")
+
+	if !outcome.Denied() {
+		t.Fatalf("a here-document write was not refused; rules that fired: %v", fired)
+	}
+
+	if !contains(fired, "no-heredoc-write") {
+		t.Errorf("no-heredoc-write did not fire; rules that fired: %v", fired)
+	}
+	// And the redirection rule fires too, which is the point of listing every
+	// reason rather than the first.
+	if !contains(fired, "no-redirection") {
+		t.Errorf("no-redirection did not fire; rules that fired: %v", fired)
+	}
+
+	var reviewable bool
+	for _, reason := range outcome.Reasons() {
+		if strings.Contains(reason, "never a diff") {
+			reviewable = true
+		}
+	}
+	if !reviewable {
+		t.Errorf("the separate reason never reached the reader; reasons: %v",
+			outcome.Reasons())
+	}
+}
