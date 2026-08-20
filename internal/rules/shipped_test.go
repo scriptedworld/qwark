@@ -58,6 +58,59 @@ func TestTheRegistrationRefusesWhenQwarkDies(t *testing.T) {
 	}
 }
 
+// COVERS: FR-10.10 | property
+func TestTheRegistrationCarriesTheDenyListQwarkCannotEnforce(t *testing.T) {
+	t.Parallel()
+
+	// qwark gates Bash and nothing else. Write and Edit reach the rule files,
+	// the shell snapshot, .git/hooks and a task definition without passing
+	// through it, so a path protected only by a rule in 20-paths.toml is
+	// protected against a shell and against nothing else.
+	//
+	// This was documented in DESIGN-NOTES and shipped as prose: the fragment
+	// explained at length that a permissions.deny twin was needed and carried
+	// none. A control that exists only in the paragraph describing it is the
+	// failure this test exists to catch.
+	body, err := os.ReadFile(filepath.Join("..", "..", "install", "settings-fragment.json"))
+	if err != nil {
+		t.Fatalf("reading the shipped registration: %v", err)
+	}
+
+	var fragment struct {
+		Permissions struct {
+			Deny []string `json:"deny"`
+		} `json:"permissions"`
+	}
+	if err := json.Unmarshal(body, &fragment); err != nil {
+		t.Fatalf("the shipped registration is not valid JSON: %v", err)
+	}
+
+	if len(fragment.Permissions.Deny) == 0 {
+		t.Fatal("the shipped registration carries no permissions.deny list, so " +
+			"every path rule is enforced against Bash and against nothing else")
+	}
+
+	// One representative of each class the rule files protect. Naming them
+	// individually means a class dropped from the list fails here rather than
+	// being noticed by whoever is attacked through it.
+	classes := map[string]string{
+		"qwark's own rules":    "/etc/qwark/",
+		"the shell snapshot":   "shell-snapshots",
+		"a shell startup file": ".zshrc",
+		"git's hooks":          ".git/hooks",
+		"a task definition":    "justfile",
+	}
+
+	joined := strings.Join(fragment.Permissions.Deny, "\n")
+	for class, want := range classes {
+		if !strings.Contains(joined, want) {
+			t.Errorf("permissions.deny covers no path for %s (looked for %q): "+
+				"rules/20-paths.toml protects it and Write reaches it anyway",
+				class, want)
+		}
+	}
+}
+
 // COVERS: FR-4.21 | positive
 func TestTheShippedRulesDenyWrappersByName(t *testing.T) {
 	t.Parallel()
@@ -85,6 +138,46 @@ func TestTheShippedRulesDenyWrappersByName(t *testing.T) {
 	if !deniedByName(set, "wrapper") {
 		t.Error("no deny rule names the wrapper group, so wrappers are refused " +
 			"only by being undeclared")
+	}
+}
+
+// COVERS: FR-4.21 | positive
+func TestTheShippedRulesDenyTaskRunnersByName(t *testing.T) {
+	t.Parallel()
+
+	// Owner, 2026-08-20: `I worry about letting them run bolt ... running
+	// ANYTHING that isn't one of our standard jigs ... same with JUST or POE
+	// etc ... if they can write a new file, then they can then get the agent to
+	// approve anything.`
+	//
+	// FACT 2026-08-20, measured: `just checks` was refused by `no-executors`,
+	// which names the threat. `bolt run` was refused by "(engine) deny by
+	// default", which names nothing -- and bolt is this project's own gate.
+	//
+	// The list is not what makes this safe: deny-by-default already refuses an
+	// unnamed command. What the list buys is a refusal that explains itself, so
+	// the same command is not retried in five spellings. That is FR-4.21, and
+	// it is why this test asserts the NAME is present rather than asserting the
+	// command does not run.
+	set, err := rules.Load([]string{filepath.Join("..", "..", "rules")})
+	if err != nil {
+		t.Fatalf("the repository's rule files do not load: %v", err)
+	}
+
+	group, declared := set.Groups["executor"]
+	if !declared {
+		t.Fatal("no group names the task runners")
+	}
+	for _, want := range []string{"bolt", "just", "poe", "make", "task", "pre-commit"} {
+		if !contains(group.Members, want) {
+			t.Errorf("the executor group does not name %q, so its refusal will "+
+				"say only that nothing permitted it", want)
+		}
+	}
+
+	if !deniedByName(set, "executor") {
+		t.Error("no deny rule names the executor group, so a task runner is " +
+			"refused only by being undeclared")
 	}
 }
 
@@ -153,6 +246,11 @@ func TestTheShippedRulesForbidTierOneAsOneProperty(t *testing.T) {
 		{name: "substitution", src: `cat $HOME`, mention: "Substitutions are not permitted"},
 		{name: "pipe", src: `cat a | grep b`, mention: "One command at a time"},
 		{name: "logical", src: `cat a && cat b`, mention: "One command at a time"},
+		// A glob is the fifth member of the property and was the one with no
+		// rule. What `*` matches is decided by the directory at the moment it
+		// runs, and it hands a path rule a word that denotes no path -- so the
+		// protected-path rules are silent on `rm *` entirely.
+		{name: "glob", src: `cat *`, mention: "wildcard is not permitted"},
 	}
 
 	for _, c := range cases {

@@ -242,8 +242,16 @@ func TestAMainSessionCallCarriesNoAgentAndIsStillRead(t *testing.T) {
 	// work for subagents and quietly not for the session they run inside --
 	// the worst shape of gap, because the tested path is the rarer one.
 	//
-	// qwark does not require them: which rule files apply is chosen outside,
-	// and qwark is told rather than working it out.
+	// REVISED 2026-08-20: this used to add that qwark need not care, because
+	// which rule files apply is chosen outside. That was wrong -- the
+	// registration is fixed for a session, so a subagent inherits its parent's
+	// command line and a per-agent partition chosen by the launcher collapses.
+	//
+	// What the emptiness asserted below is really worth is the opposite of a
+	// gap. **The main session is the one caller reliably carrying no agent
+	// type**, so absence identifies it exactly, and a rule can name that case
+	// the way it names any other role (FR-7.13). This test is what makes that
+	// dependable rather than assumed.
 	const mainSession = `{
 	  "session_id": "s-1",
 	  "cwd": "/home/ancient/.projects/qwark",
