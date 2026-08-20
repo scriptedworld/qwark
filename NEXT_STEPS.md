@@ -73,10 +73,12 @@ them.
 - **The read-only git allowance is a waypoint.** It stands because it was ruled
   on, and the direction above says the eventual answer is narrower. It is the
   first thing to remove once the specific surfaces exist.
-- **The duplication is open.** An agent's prompt saying what it may run and a
-  rule file deciding what it may run are two statements of one fact. Either the
-  rules generate the agent text or the agent text references the rules; the
-  owner named both directions and settled neither.
+- **The duplication is settled, 2026-08-20.** The proxies hold the details of
+  what they expose, so the exposed surface is both the statement of what an
+  agent may do and the thing that enforces it — one artifact, nothing to keep in
+  step. How much it settles depends on how narrow the tools are: a surface says
+  *which operations*, not *with what values*, so whatever argument-level
+  constraint remains is what rules are still for.
 
 ### The engine carries the separation, and it is buildable now
 
@@ -117,10 +119,38 @@ to a role.
 
 **Still to do.** `rules/` carries no agent-scoped rule, because which agent
 types exist is not qwark's to invent — the vocabulary in `00-structure.toml`
-documents the clause and the policy waits on the roles being named. And nothing
-calls `hook.Run` yet, so the payload's `agent_type` reaches `rules.Context` only
-through `judge`; the decider that closes that gap is the same one the `hook`
-subcommand needs.
+documents the clause and the policy waits on the roles being named.
+
+## Mode one runs: `qwark hook`
+
+**Owner, 2026-08-20:** *"Mode One is the most useful here & now because I don't
+have the rest of the system built, so that development needs further quality
+controls."*
+
+**BUILT 2026-08-20.** `internal/hook.Run` had been written and tested with
+nothing calling it, which meant every other subcommand was a way of asking
+qwark questions rather than a gate. `qwark hook RULES...` reads one call from
+stdin, judges it, and answers on stdout — the subcommand
+`install/settings-fragment.json` has been naming all along.
+
+    printf '{"hook_event_name":"PreToolUse","tool_name":"Bash",
+             "tool_input":{"command":"git status"}}' | ./bin/qwark hook rules/
+
+The payload's `agent_type` reaches `rules.Context`, so the agent clause is fed
+rather than merely expressible.
+
+Every path was exercised: a decision exits 0 with the verdict in the JSON; a
+truncated payload exits 2; **so does invoking it with no rules path**, which
+reads oddly for a usage error and is the only correct answer, since every other
+non-zero status is a `non_blocking_error` that lets the command run. A rule set
+that will not load denies with the file named and points at the Edit tool — the
+way out must not need the thing just taken away. A tool qwark does not model is
+refused rather than waved through, so a matcher wide enough to send Write here
+blocks loudly instead of judging nothing while looking installed.
+
+**Not yet installed.** `qwark` is not on `PATH` as a gate and `settings.json`
+carries no hook entry, so nothing is gated yet. That is the next step, and it is
+the one that turns this from a program into a control.
 
 **Two limits to know before relying on it.** Two *main sessions* are
 indistinguishable — if writer and runner are both top-level launches, no clause
@@ -194,6 +224,15 @@ Both found by running the rules rather than by reading them.
    2026-08-20 — the shape is settled and the foundation is in place, but there
    will be no store until there are concrete scenarios worth limiting this way.
    Nine requirements sit behind it (FR-4.7, 4.13, and section 8).
+
+   **The blocker is not the shape, it is the writer.** `40-state.toml` requires
+   that tag state not be writable by the user qwark runs as — and qwark runs as
+   the agent's user, so any file it maintains the agent can rewrite with the
+   Write tool. The leading candidate, an appended file trimmed each run, is
+   precisely the option that fails that. Mode two's log inherits it, and worse:
+   a log with entries removed reads as a clean history. **The proxy is the way
+   out** — a long-lived process the agent reaches only by typed call is a writer
+   the subject is not. See **The leaking bucket has no honest home in mode one**.
 2. **The observability log**: where it lives, whether it rotates, and the list
    of environment variables whose values are withheld. Three requirements
    (FR-4.8, 4.9, 4.9a). The withhold model is a denylist by the owner's choice,

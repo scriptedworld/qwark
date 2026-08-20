@@ -852,6 +852,48 @@ Two facts bear on the locking, neither of them settling it:
   held off. A scheme that locks both alike pays the expensive price on the
   common path.
 
+### The leaking bucket has no honest home in mode one
+
+**Owner, 2026-08-20:** *"there are also still things that are going to need a
+way to deal with this leaking bucket for the ttl tracking."*
+
+There is a contradiction between the options above and a constraint already
+stated in `40-state.toml`, and it is worth naming rather than discovering later:
+
+> Tag state must not be writable by the user qwark runs as. A countdown the
+> subject can reset is not a constraint on the subject.
+
+**qwark runs as the agent's user.** It is a hook the agent's own session spawns,
+with the agent's uid. So anything qwark can write, the agent can write —
+directly, with the Write tool, without a shell. The leading candidate above, an
+appended file the run trims, is exactly the option that cannot satisfy the
+constraint: qwark needs to write it, therefore the subject can rewrite it,
+therefore the countdown is advisory.
+
+Nor does deriving it from the log escape this. A log qwark appends to is written
+with the same uid, so "was there a rebase in the last six commands" is answered
+from a file the subject can edit. **Mode two inherits the same problem**, and it
+is sharper there: a log with selectively removed entries reads as a clean
+history rather than as a damaged one.
+
+**So the bucket needs a writer the subject is not**, and that is a deployment
+fact rather than a thing more code can fix. Two ways out, and the second is
+already coming:
+
+- A store owned by another uid — the sideboard process above. Its cost was
+  named as a daemon that must be up, which under fail-closed means a daemon
+  outage becomes a Bash outage.
+- **The proxy is that process.** Once tool calls go through a long-lived server
+  the agent reaches only by typed call and never through the filesystem, the
+  natural place for the count is inside it. The daemon objection loses most of
+  its force at that point, because the daemon is already there and Bash is
+  already narrowed to whatever the proxy does not cover.
+
+Two properties the count must keep wherever it lands, both already decided and
+easy to lose in a reimplementation: **a denied command advances nothing**
+(FR-4.24 — it did not happen), and **tags do not stack**, so setting one that is
+live replaces it, TTL and all.
+
 ## The mechanicals — the shapes a rule can be written in
 
 **PREFERENCE, owner, 2026-08-20**, asked what a "library of useful mechanicals"
@@ -977,11 +1019,29 @@ because it was ruled on this session, and the direction above says the eventual
 answer is narrower, not wider. It is the first thing to remove when the specific
 surfaces exist.
 
-**The duplication is the open question.** An agent's prompt saying what it may
-run and a rule file deciding what it may run are two statements of one fact, and
-two statements of one fact drift. Either the rule files generate the agent text,
-or the agent text references the rule files — the owner named both directions
-and settled neither, so it stays open rather than being guessed at.
+**The duplication was the open question, and the proxy settles it.** An agent's
+prompt saying what it may run and a rule file deciding what it may run are two
+statements of one fact, and two statements of one fact drift. The owner first
+named both directions — generate the prompt from the rules, or have the prompt
+reference them — and then **resolved it a third way, 2026-08-20:**
+
+> The proxies then ALSO hold the details on what they expose, meaning they
+> include the details on what those agents can do … so we aren't repeating those
+> details any more (once we're there).
+
+That is the strongest available answer, because it is not two artifacts kept in
+step but one artifact doing both jobs: **the exposed surface is simultaneously
+the statement of what an agent may do and the thing that enforces it.** Nothing
+can drift from itself. A capability list that is documentation somewhere and
+configuration somewhere else has a wrong version; a tool that is simply not
+exposed has no second version to be wrong.
+
+**How much it settles depends on how narrow the tools are**, and that is worth
+knowing in advance. A proxy exposing `run_command(cmd)` is Bash with extra
+steps and moves nothing. A proxy exposing `git_log(ref)` still needs something
+to say which `ref` — a surface says *which operations*, not *with what values*.
+So the duplication disappears to the extent the tools are narrow, and whatever
+argument-level constraint remains is what rules are still for.
 
 ## Configuration
 
