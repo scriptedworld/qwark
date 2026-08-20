@@ -1,0 +1,29 @@
+# bolt.qwark.yaml — qwark's overlay on the standard Go quality definition.
+#
+# Run as:
+#
+#     bolt -c .../bolt.go-std-quality.yaml -c bolt.qwark.yaml
+#
+# Later files win and tasks merge by id field by field, so everything not named
+# here is inherited. Only what is genuinely specific to qwark appears below —
+# an overlay that restated the definition would be a second copy of it, free to
+# drift from the first.
+
+version: 1
+
+tasks:
+  # The standard definition builds ./cmd/bolt and runs `bolt help`, which is
+  # bolt's own entry point rather than a property of a Go project. Only the
+  # command is overridden; description, tags, timeout and the declared output
+  # are inherited.
+  #
+  # The purpose is unchanged: main() holds one statement that no test process
+  # can reach, because nothing in a test calls main(). Building with -cover and
+  # running the binary once measures it rather than exempting it.
+  - id: entrypoint
+    command: >-
+      go build -cover -covermode=atomic -coverpkg=./... -o "$BOLT_SCRATCH/qwark" ./cmd/qwark &&
+      mkdir -p "$BOLT_SCRATCH/covdata" &&
+      GOCOVERDIR="$BOLT_SCRATCH/covdata" "$BOLT_SCRATCH/qwark" help &&
+      go tool covdata textfmt -i="$BOLT_SCRATCH/covdata" -o="$BOLT_SCRATCH/entrypoint.out" &&
+      tail -n +2 "$BOLT_SCRATCH/entrypoint.out" >> coverage.out

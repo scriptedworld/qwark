@@ -1,0 +1,14 @@
+# Build output and run artifacts.
+bin/
+coverage.out
+
+# bolt writes here; a run's artifacts belong to the run, not the repo. One
+# directory per run, stamped with when it started, so `.bolt*` rather than a
+# single name.
+.bolt*/
+
+# Working files for this project.
+.ephemera/
+
+# Session handoff. Ephemeral by design; state lives in the tracked documents.
+START_HERE.md
