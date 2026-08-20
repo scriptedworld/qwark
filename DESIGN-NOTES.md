@@ -273,7 +273,7 @@ never reads `.zshrc`, and `.zshenv`, `.zprofile` and `.zlogin` do not exist on
 this machine.
 
 **The aliases arrive anyway, from Claude Code's own shell snapshot**,
-`~/.claude/shell-snapshots/snapshot-zsh-*.sh`, which replays 64 of them:
+`~/.claude/shell-snapshots/snapshot-zsh-*.sh`, which replays them:
 
     3: unalias -a 2>/dev/null || true
   449: alias -- ls='eza --long --header --icons --git …'
@@ -381,8 +381,20 @@ shell function it does nothing:
     command ls  -> real binary
     /usr/bin/ls -> real binary
 
-The snapshot carries **24 functions** as well as its 64 aliases, so this is a
-live mechanism here, not a hypothetical one.
+The snapshot carries functions as well as aliases, so this is a live mechanism
+here and not a hypothetical one.
+
+**The set is not stable, which matters more than its size.** ~~64 aliases and 24
+functions~~ was measured on 2026-08-20 against one snapshot; **re-measured the
+same day against a newer one after the shell configuration was rebuilt: 13
+aliases and 21 functions.** Both readings were correct when taken. A rule
+written against "the aliases" is therefore written against a moving target,
+which is the argument for requiring an absolute path rather than consulting the
+snapshot to find out what a name currently means.
+
+Count them with:
+
+    grep -c '^alias -- ' "$(ls -t ~/.claude/shell-snapshots/*.sh | head -1)"
 
 **FACT 2026-08-20, and the one that settles it.** Both zsh and bash accept a
 function whose name contains slashes, and it shadows the path:
