@@ -24,6 +24,8 @@ usage:
   qwark judge [--agent=T] RULES COMMAND...
                                   judge a command against a rule set, as the
                                   agent type T -- default none, the main session
+  qwark hook RULES...             run as the PreToolUse hook: read one call
+                                  from stdin, judge it, answer on stdout
   qwark help                      this text
 
 With no command argument, ast and facts read the command from stdin. --debug
@@ -60,6 +62,8 @@ func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return check(args[1:], stdout, stderr)
 	case "judge":
 		return judge(args[1:], stdout, stderr)
+	case "hook":
+		return gate(args[1:], stdin, stdout, stderr)
 	case "help", "-h", "--help":
 		_, _ = fmt.Fprint(stdout, Usage)
 		return statusOK
