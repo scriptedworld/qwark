@@ -142,6 +142,40 @@ nothing here is ever expanded to find out."""
   [[rule.clause]]
   nodes = ["CmdSubst", "ProcSubst", "ParamExp", "ArithmExp"]
 
+# A wildcard belongs in tier one for the same reason a substitution does, and
+# it was the one member of the class with no rule. Owner, 2026-08-20: deny, no
+# exception.
+#
+# WHY IT IS NOT MERELY UNTIDY. A rule about where a command reaches reads the
+# words it was given. `rm *` gives it one word that denotes no path at all --
+# so every path rule in 20-paths.toml is silent on it, and what actually gets
+# removed is whatever the directory happened to hold at the moment it ran.
+#
+# FACT 2026-08-20, and this is the argument that settles it: zsh executes code
+# from inside a glob. `rm *(e:'rm -rf /':)` carries no substitution, no pipe,
+# no redirection and no logical concatenation -- it satisfies every other rule
+# in this file -- and zsh runs the quoted command as a glob qualifier. Measured
+# against qwark before this rule existed, that command was ALLOWED.
+#
+# Quoting decides it, so this does not reach `grep "*" file`: the fact is an
+# unquoted literal whose content holds a wildcard, and a quoted asterisk is a
+# string the shell will pass through untouched.
+#
+# THE COST, stated because it is real: `ls *.go` and `grep x *.md` are refused.
+# The way through is to name the files, which is also the only way the verdict
+# can be about the files.
+
+[[rule]]
+id     = "no-glob"
+action = "deny"
+reason = """
+A wildcard is not permitted. What it matches is decided by what happens to be
+in the directory when it runs, not by the command's own text -- which is the
+property every other tier-one rule exists to hold. Name the files."""
+
+  [[rule.clause]]
+  fact = "glob"
+
 [[rule]]
 id     = "no-redirection"
 action = "deny"
