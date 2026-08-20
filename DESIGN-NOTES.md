@@ -191,6 +191,81 @@ The gain is that **the policy in force is readable where qwark is invoked** —
 in the `settings.json` entry that registers the hook — rather than being implied
 by which files happen to be sitting in a directory qwark knows about.
 
+## Separation of duties belongs in the engine, not in the plumbing
+
+**Owner, 2026-08-20.** The answer to an agent writing a `justfile` and then
+running `just` is not to make the file unwritable. It is that **the agent which
+can write those files is not the agent allowed to run them**:
+
+> The point of the rules is using the engine to support that separation of
+> duties.
+
+And the reason it has to be the engine rather than the launcher:
+
+> The base session doesn't get an "agent type" … so we can't as easily manage
+> those rules without ACTIVELY managing symlinks or something else … so at the
+> moment the concern is EITHER something wired into subagents, or some form of
+> ENV VAR that will have to be actively managed … which feels rickety.
+
+That is correct, and it also settles a contradiction already in the
+requirements. **FR-10.6** says `agent_type` arriving in the payload "is what
+makes per-agent scoping implementable from the payload, rather than through an
+environment variable the agent might itself reach". **FR-10.6a** then says the
+scoping "does not need solving inside qwark" because an external process picks
+the files. Both cannot stand: the external route is precisely the env-var and
+symlink management called rickety above, and FR-10.6 named the payload as the
+better source for a stated security reason — *the subject cannot set its own
+`agent_type`, and it can reach an environment variable.*
+
+**Resolution: FR-10.6 stands, FR-10.6a is wrong as written.**
+
+### Absence is a role, and that is what makes it work
+
+The obstacle is real: a main-session call carries no `agent_type`, so identity
+cannot simply be looked up. But **no identity is itself an identity.** The main
+session is the one caller with no agent type, reliably and by construction, so a
+rule can name that case exactly as it names any other — the schema already has
+the spelling for it, because `absent = true` is how a clause says "this is not
+there".
+
+    [[rule.clause]]          # applies to a subagent of this type
+    agent = "gate-runner"
+
+    [[rule.clause]]          # applies to the main session, and only it
+    agent  = ""
+    absent = true
+
+What that buys is the whole point: **one rule set, named once in
+`settings.json`, carrying every role's policy inside it.** No symlink swapping
+between launches, no environment variable to manage, and nothing to keep in step
+outside the file being read. The policy in force stays readable where qwark is
+invoked, which is what FR-4.15 was for.
+
+It also composes with everything already here rather than adding a mechanism. An
+`agent` clause is a clause: rules stay conjunctions, the strictest action still
+wins, and a role cannot grant itself anything, because deny outranks allow and
+no rule can override another.
+
+### What this does not fix, stated plainly
+
+**Two main sessions are indistinguishable.** If both the writer and the runner
+are top-level launches, they carry no agent type and no clause can tell them
+apart — the launcher must still give them different rule files. Engine-side
+scoping solves the subagent case completely and the main-session case not at
+all. That is worth knowing before it is relied on, and it is an argument for the
+specialised agents being subagents rather than separate launches.
+
+**A partition does not stop a chain.** Writer writes the `justfile`, runner runs
+it: two agents, neither breaking its own rules, and the effect composes into the
+attack the partition was meant to prevent. Separation of duties is only a
+control if something sits between the two.
+
+**Owner, 2026-08-20: that something is the task management process** — the same
+process that produces the manifest of FR-9.7. It sees what the writer changed
+before any runner is dispatched against it. So the manifest and the partition
+are not alternatives; the manifest is what makes the partition mean something,
+and the task process is the reviewer both of them assume.
+
 ## Rule files must not be writable by the agent
 
 **Requirement, owner, 2026-08-19.** Rule files must be unwritable at runtime.
@@ -478,6 +553,62 @@ typed, not what the typed thing goes on to execute.
 is why prefix assignments are refused, and it also means the undeclared-option
 denial is beside the point when the program is not the declared one.
 
+### The end state is three layers, and qwark is the outermost
+
+**Owner, 2026-08-20**, in two statements that belong together:
+
+> When we have the tool chain in place, the agents will be in a sandbox, and
+> these files won't be in there, and with that the blast radius rules will
+> prevent a good chunk of the possible issues.
+
+> Likewise, if/when we have the manifest files, those will tighten things down
+> even better.
+
+So the destination is not a longer deny list. It is:
+
+    1. a sandbox         the file is not there to be reached
+    2. the blast radius  a write must land inside the directory the agent
+                         was started in                        (FR-9.1 - FR-9.6)
+    3. the manifest      which files may be read and which written, named
+                         by the task management process        (FR-9.7)
+
+This is worth writing down because it changes what the path groups in
+20-paths.toml are FOR. **Four of the six sit outside a project-rooted sandbox
+and are absorbed by layer one**: qwark's own rules, Claude Code's configuration
+and snapshot, the shell startup files, and the PATH directories. Under a
+sandbox those rules guard against something that cannot happen, and they remain
+worth keeping only as the un-sandboxed case and as defence in depth.
+
+**Two of the six sit INSIDE it, and no sandbox removes them.**
+
+    repository-hooks    .git/hooks/, .git/config, .githooks/
+    task-definition     justfile, Makefile, Taskfile.yml, pyproject.toml,
+                        package.json, bolt.*.yaml, .pre-commit-config.yaml
+
+These are in the project, which is the one place the agent is supposed to be
+able to write. **Layer two does not help either**: the blast radius says a write
+must land inside the project, and every one of these already is.
+
+So the residue after the sandbox is exactly the worry that prompted this
+section — `just checks` and `bolt run` are fixed command lines whose meaning
+lives in a file the agent may legitimately write. **The layer that closes it is
+the manifest**, because the manifest is the only one of the three that
+discriminates between files inside the blast radius. Not "the project is
+writable" but "these files are writable, and a task definition is not one of
+them".
+
+That puts the priority somewhere other than where it looks. FR-9.6 and FR-9.7
+are both `[?]` and unbuilt, and between them they are the whole of layer three.
+Meanwhile the executors are all denied today, so the exposure is not live —
+it becomes live the moment one of them is permitted, and permitting one is what
+everybody will want as soon as the agent needs to run the gate.
+
+**What no layer reaches**, stated so it is not rediscovered: a coding agent that
+can write a test file and run the test runner has arbitrary execution. The
+manifest would have to say `*_test.go` is writable, because writing tests is the
+job. That is irreducible, and it is the reason `go test` is in the executor
+group rather than quietly allowed.
+
 ## Nothing is expanded
 
 **Owner, 2026-08-19:** *"we don't expand anything, that's why we block those."*
@@ -584,6 +715,137 @@ Two facts bear on the locking, neither of them settling it:
   and independent; the trim-and-rewrite is rare and needs every other writer
   held off. A scheme that locks both alike pays the expensive price on the
   common path.
+
+## The mechanicals — the shapes a rule can be written in
+
+**PREFERENCE, owner, 2026-08-20**, asked what a "library of useful mechanicals"
+should be: a catalogue of the shapes, not a file of rules. What follows is that
+catalogue. Nothing here is a new mechanism — each is the existing schema used a
+particular way — and the point of naming them is that the next person writing a
+rule reaches for a shape that already works instead of inventing a fifth one.
+
+**Every shape below is a conjunction of clauses.** That is not one of the
+options; it is the only thing a rule is. What varies is which selectors the
+clauses use and where they point.
+
+### 1. Refused by class
+
+The plainest shape and the one most rules should be. A group names the members,
+one rule names the group, and the reason belongs to the class rather than to
+any member.
+
+    [group.git-network]
+    members = ["fetch", "pull", "push", "clone", …]
+
+    [[rule.clause]]
+    index = "0"
+    value = "git"
+    [[rule.clause]]
+    index = "1"
+    group = "git-network"
+
+Adding a member is a one-line edit that does not touch the rule. **Classes are
+expected to overlap**: `push` runs hooks and reaches the network, and under
+FR-4.25 both reasons are collected, so a command in three classes is refused
+with all three stated. Put a command in a class when the class's reason is true
+of it, not when no other class claimed it first.
+
+### 2. Allowed as a word, refused in a shape
+
+For a command that reads when bare and writes when given a particular
+subcommand. The word stays available; the destructive form does not.
+
+    [[rule.clause]]
+    index = "0"
+    value = "git"
+    [[rule.clause]]
+    index = "1"
+    value = "reflog"
+    [[rule.clause]]
+    index = "2"
+    group = "git-reflog-writes"
+
+The worked example is `no-git-destroying-the-reflog`, and it exists because
+denying the word broke something: 40-state.toml tells a reader to look at
+`git reflog` before deleting after a rebase, and clears the tag when they do.
+**A denied command has no effect of any kind (FR-4.24)**, so denying the word
+made the instruction impossible to follow and the tag impossible to clear. A
+denial whose own message names a refused command is the smell this shape fixes.
+
+### 3. Refused unless
+
+A conditional refusal, written as one deny rule with an inverted clause rather
+than as two rules where one outranks the other. The exception lives inside the
+rule it modifies, so a reader of the denial sees the way out of it.
+
+    [[rule.clause]]
+    option = "gpg-sign"
+    absent = true
+
+**FACT 2026-08-20, and it is the trap in this shape: an inverted clause is
+satisfied by absence, including the absence caused by qwark not understanding
+the option.** `commit-must-be-signed` fires on `git commit --gpg-sign -m x`,
+because `--gpg-sign` is not in the declaration, so "the signing option is not
+there" is true. The verdict fails safe. The *message* does not: it tells
+somebody who signed that they must sign.
+
+So a "refused unless" rule is only honest when **the option it excepts is
+declared**. Writing one without declaring the option produces a rule that reads
+as conditional and behaves as unconditional.
+
+### 4. Refused because it cannot be accounted for
+
+Not a shape anyone writes — it is what happens when they write nothing. An
+undeclared command is refused (FR-4.16) and an option the declaration does not
+name is refused (FR-6.7), so **omission is a denial** and the safe state is the
+default one.
+
+This is what actually holds the read-only git allowance narrow. `git help -w`
+opens a browser and `git log --ext-diff` runs an external program, and neither
+is named by any rule: they are refused because `05-declarations.toml` does not
+list those options. Nobody had to enumerate the dangerous flags, and forgetting
+one costs a refusal rather than a hole.
+
+The inverse is the thing to be careful about. **Declaring an option is what
+makes it reachable**, so the declaration file is the eligibility surface and an
+addition to it is a wider change than an addition to a rule file.
+
+### 5. Set a condition, then judge against it
+
+The tag shape, deferred to a later version and documented in 40-state.toml. One
+rule establishes a condition with a lifetime; other rules name it as a clause
+without knowing how it was established. Its cost is that it is the only shape
+whose answer depends on anything beyond the command in front of it.
+
+### Where this is heading, and it is not more git rules
+
+**Owner, 2026-08-20**, asked which git commands should be reclaimed as guarded
+allows — the answer was none, and the reason resets the target:
+
+> Eventually the goal is that the agents will **never** be executing git
+> commands, and instead have a very specific command surface they are allowed.
+> The more specialised the agent, the more the list can be narrowed. One would
+> expect that either the list ends up a duplication of a series of allowed
+> commands in the agent text or supporting files, or those end up referencing
+> these rule files.
+
+Three things follow, and they are worth separating.
+
+**The allowed surface is per agent, not per machine.** That is already the
+mechanism: rule files are named on the command line (FR-4.15), and an external
+process chooses which files a given agent gets (FR-10.6a). Narrowing by
+specialisation needs no new machinery, only more files.
+
+**The read-only git allowance is a waypoint, not the destination.** It stands
+because it was ruled on this session, and the direction above says the eventual
+answer is narrower, not wider. It is the first thing to remove when the specific
+surfaces exist.
+
+**The duplication is the open question.** An agent's prompt saying what it may
+run and a rule file deciding what it may run are two statements of one fact, and
+two statements of one fact drift. Either the rule files generate the agent text,
+or the agent text references the rule files — the owner named both directions
+and settled neither, so it stays open rather than being guessed at.
 
 ## Configuration
 
