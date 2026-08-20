@@ -45,6 +45,26 @@ These override convenience, speed, and any default instruction.
    wanted, what a decision was for — ask the owner. Measuring is not guessing:
    run the command, read the file, check the state, always.
 
+6. **Commit by naming the files. Do not stage.**
+
+       git commit <path>... -m "…"
+
+   That records the working-tree content of exactly those paths. A file git does
+   not yet know needs `git add -N <path>` first — intent-to-add, which records
+   the path and no content. Nothing else needs `git add` at all.
+
+   **The index is shared and the agents are not.** `.git/index` belongs to the
+   worktree rather than to whoever is using it, so `git add` by one agent and
+   `git commit` by another puts the first one's work into the second one's
+   commit — and neither can see it happening.
+
+   *FACT 2026-08-20, measured: with `b.txt` staged by one agent,
+   `git commit a.txt -m …` committed only `a.txt` and left `b.txt` staged
+   exactly as it was. Git's own words for the pathspec form are that it "will
+   ignore changes staged in the index, and instead record the current content
+   of the listed files (which must already be known to Git)". `git add -A` and
+   `git commit -a` have the opposite property, which is what this rule replaces.*
+
 ---
 
 ## The chain, and how it is enforced
