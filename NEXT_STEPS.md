@@ -1,94 +1,89 @@
 # qwark — what is not done
 
-State at 2026-08-19. `REQUIREMENTS.md` states the same ground as requirements;
-this file says what to do about it and what is blocked.
+State at 2026-08-20. `REQUIREMENTS.md` states the same ground as requirements;
+this file says what to do about it and what is waiting on an answer.
 
 ---
 
-## Built and passing the gate
+## Built, committed, and passing the gate
 
-The reading half. Nothing here decides anything yet.
+**FACT 2026-08-20**, measured this session: `just checks` passes all twelve
+tasks; coverage 94.1% with every file above the 80% per-file floor; 186 tests
+carrying a `COVERS` line; 125 requirements of which 19 are deferred and **every
+testable one has a test**.
 
-- `internal/shell` — parse as Bash, recover any node's exact source, and gather
-  every structural fact in one walk.
-- `internal/command` — lift a simple command into ordinals, and report a word's
-  value only where its text fixes it. Index specifications with `..` ranges and
-  negative ordinals.
-- `internal/cli` — `qwark ast` and `qwark facts`, so rules are authored against
-  a visible vocabulary rather than a remembered one.
-- The gate: twelve bolt tasks, all passing.
+- `internal/shell` — parse as Bash, gather every fact in one walk, and record
+  the parser's own vocabularies (node types, operators, statement flags).
+- `internal/command` — ordinals, escape resolution, option decomposition
+  against a declared table.
+- `internal/rules` — TOML loading, validation, ownership checking, and the
+  evaluator.
+- `internal/hook` — the PreToolUse contract, and the guarantee that every path
+  ends in a decision or exit 2.
+- `internal/reach`, `internal/repo` — blast-radius containment; branch read
+  without running git.
+- `internal/cli` — `ast`, `facts`, `rules`, `judge`.
+- `rules/` — 39 draft rules across five files. Illustrative, not final.
 
-## Settled, and not to be re-litigated
+## Next: the actual command set
 
-Recorded here because a question that has been answered should stop being asked.
-The reasoning is in `DESIGN-NOTES.md`.
+**Owner, 2026-08-20.** The next piece of work is the concrete list of commands
+to let through, and the guards over git.
 
-- Actions are `allow`, `deny`, `ask`, `tag`.
-- Rules are conjunctions of clauses; `or` becomes sibling rules.
-- Tier one bans redirections, substitutions, pipes and logical concatenation —
-  and substitutions include parameter expansion, so `$HOME` and `$PWD` go too.
-- Writing code or a file through a here-document is refused.
-- Ordinals: 0 is the command, negatives count from the end, ranges use `..`.
-- Rules and the per-command option table are TOML, in several files aggregated.
-- An unparseable rule file makes Bash unusable.
-- An unparseable command is denied, with the parser's own message returned.
-- A denied command does not advance the tool-usage count.
-- Nothing is expanded, ever.
+> **MOST git commands are NOT okay for the agent to execute.**
+
+That is the starting position, not a detail. `rules/10-commands.toml` currently
+denies a handful of git subcommands (`git-executes`) and says nothing about the
+rest, which under deny-by-default means the rest are refused anyway — but
+refused for the wrong reason, with a message that says "undeclared" rather than
+saying why. Per FR-4.21 the refusals worth having are explicit.
+
+Useful facts for that work:
+
+- `declarations: 0` today. Nothing is declared, so nothing runs. Check with
+  `./bin/qwark rules rules/`.
+- Try a rule before trusting it: `./bin/qwark judge rules/ -- git commit -m x`.
+- A declaration grants understanding, not permission. Declaring git is what
+  lets a rule say something precise about `git push --force`; it permits
+  nothing on its own.
+- `.ephemera/demo-allow.toml` holds throwaway declarations and allow rules used
+  to exercise the chain. It is not part of the rule set and is gitignored.
 
 ## Waiting on an answer
 
-**These block the engine. They are not to be guessed at.**
+1. **How tag state survives between calls.** Deferred by the owner on
+   2026-08-20 — the shape is settled and the foundation is in place, but there
+   will be no store until there are concrete scenarios worth limiting this way.
+   Nine requirements sit behind it (FR-4.7, 4.13, and section 8).
+2. **The observability log**: where it lives, whether it rotates, and the list
+   of environment variables whose values are withheld. Three requirements
+   (FR-4.8, 4.9, 4.9a). The withhold model is a denylist by the owner's choice,
+   with pattern matching added because naming secrets one at a time fails open.
+3. **Which commands write.** FR-9.6 says any path given to a writing command
+   must stay in the blast radius, and nothing yet says which commands write.
+   That is a declaration question: a `writes` flag per command, or per option.
+4. **The manifest** (FR-9.7) — created by the task management process, read at
+   runtime, saying which files may be read and which written.
 
-1. **When two rules match with different actions, which wins?** `rm -rf` matches
-   both the deny on `-f` and the ask on `-r`. Deny beating ask is the obvious
-   reading of the owner's example, but that is a guess about whether precedence
-   is by action or by order. With several rule files aggregated, order also
-   needs defining across files, not only within one.
+## Known limits, written down so they are not rediscovered
 
-2. **Where do rule files live, and in what order are they aggregated?** A fixed
-   directory, a per-project one, silo, or a declared list. Whether a later file
-   may override an earlier file's rule, or only add to it.
+- **qwark gates Bash only.** The Write and Edit tools reach the rule files, the
+  shell snapshot, `.git/hooks` and `settings.json` without passing through it.
+  Every class-three rule needs a `permissions.deny` twin plus ownership.
+- **A coding agent that can write files and run its tests has arbitrary
+  execution** regardless of qwark. `go test` runs code the agent just wrote.
+  What qwark constrains is what is typed, not what the typed thing executes.
+- **The hook registration is fixed for a session.** An external process can
+  choose rule files per session launch, but a subagent spawned inside a running
+  session gets the same command line. Varying policy per subagent would need
+  qwark reading `agent_type` after all.
+- **`SHELL` decides the Bash tool's shell at session start** and cannot be
+  changed by a hook afterwards. Forcing bash means exporting it before
+  launching Claude Code. **FACT 2026-08-20: this machine runs zsh 5.9 there.**
 
-3. **What happens to a command with no declared option table?** And to an option
-   a declared command does not declare — `rm --wibble`? The candidates are treat
-   as unknown and ask, or let only the rules that do match apply. This decides
-   qwark's behaviour for every tool not yet described, which is most of them.
+## Deferred to a later version
 
-4. **How does state survive between calls?** Owner's own open question. An
-   appended ephemeral file each run trims and rewrites under a lock, or a
-   sideboard process such as Redis. See `DESIGN-NOTES.md` for what bears on it,
-   including that the observability log may already answer what a store is for.
-
-5. **Does the tool-usage count count Bash calls only, or every tool call?** "No
-   deleting for six commands" means something different under each.
-
-6. **Which environment variables may be logged by value?** Proposed: names
-   always, values only where declared, undeclared recorded as present-but-
-   withheld. Needs the declared list. Also where the log lives and whether it
-   rotates.
-
-7. **Should a prefix assignment be refused too?** `FOO=bar cmd` changes what the
-   command does without appearing in it. Detectable already as `assignment`;
-   nothing has been said about whether it should be banned alongside `$VAR`.
-
-## Next, once those are answered
-
-- `internal/option` — decompose a command's words against its declared table:
-  bundled short options, `--` as terminator, `--long=value`, and long options
-  resolved through abbreviation rather than compared as text.
-- `internal/rules` — TOML rule files, aggregated, fail-closed on any that will
-  not parse (FR-4.5), naming file, line and text (FR-4.6).
-- `internal/hook` — the `PreToolUse` contract: read the payload, emit the
-  decision as JSON on stdout, **exit 0 regardless**. A non-zero exit reports
-  that the hook failed to run, which is a different claim from a denial.
-- Evaluation in cost order, with `tag` enriching what later tiers match on.
-
-## Not yet designed
-
-- Modes for tools other than Bash. The shape is meant to take them; nothing has
-  been decided about what they gate.
-- How qwark is installed and registered. `silo` holds the Claude configuration
-  and has a wired-but-empty `hooks/` slot; qwark is a standalone repository that
-  silo links to, following silo's own rule that a tool substantial enough to
-  stand alone gets its own repository. Registration is a `settings.json` entry
-  there, plus a build step of the kind `linux.dotfiles` uses for `milton`.
+- **Tags** (section 8) — foundation in place, no store, no scenarios yet.
+- **Cost ordering** (FR-4.2) — cannot change a verdict, only how much work
+  happens before it is known. The seam is `order` in the evaluator, today the
+  identity.
