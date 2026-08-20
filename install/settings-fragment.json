@@ -1,0 +1,45 @@
+{
+  "_comment": [
+    "qwark's registration, to be merged into settings.json. Not loadable as-is:",
+    "settings.json has no comment syntax, so this key is here for a reader and",
+    "must not survive into the real file.",
+    "",
+    "TWO THINGS IN THE COMMAND LINE ARE LOad-BEARING.",
+    "",
+    "1. `|| exit 2` is not belt and braces, it is the only fail-closed exit.",
+    "   FACT 2026-08-20, confirmed in the Claude Code binary and its docs: exit 0",
+    "   with no JSON is NO DECISION and the command proceeds, and any non-zero",
+    "   exit other than 2 is a `non_blocking_error` and the command ALSO",
+    "   proceeds. Only exit 2 blocks. So a qwark that segfaults, is killed for",
+    "   running out of memory, or exits 1 the way a Unix program usually reports",
+    "   failure, lets the command through. qwark recovers from its own panics and",
+    "   runs in a single goroutine so that it can; this catches everything it",
+    "   cannot catch itself.",
+    "",
+    "2. The rule paths are given here rather than found, so the policy in force",
+    "   is readable where the hook is registered rather than implied by which",
+    "   files happen to be sitting in a directory.",
+    "",
+    "THE RULE FILES MUST NOT BE WRITABLE BY THE USER CLAUDE CODE RUNS AS, nor",
+    "may the directory holding them: a writable directory permits",
+    "unlink-and-replace, which defeats an unwritable file. qwark gates Bash, and",
+    "the Write and Edit tools reach those paths without passing through it, so",
+    "this wants ownership and a permissions.deny entry beside it -- not merely a",
+    "location outside the working directory."
+  ],
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "qwark hook /etc/qwark/rules || exit 2",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

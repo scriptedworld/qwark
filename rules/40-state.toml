@@ -1,0 +1,166 @@
+# qwark — tags and their lifetimes. DRAFT 2026-08-20, not yet loaded by anything.
+#
+# A rule whose action is `tag` decides nothing. It attaches a name to the
+# evaluation, with a TTL measured in commands, and that name becomes a clause
+# criterion for every other rule.
+#
+#   action = "tag"          set it
+#   tag    = "post-rebase"
+#   ttl    = 6              in COMMANDS, not seconds
+#
+#   action = "untag"        unset it, whatever its TTL had left
+#   tag    = "post-rebase"
+#
+#   [[rule.clause]]
+#   tag = "post-rebase"     matches while the tag is live
+#
+# This is the fourth and most expensive rule class, and it is the only one whose
+# answer depends on anything outside the command in front of it.
+#
+# ---------------------------------------------------------------------------
+# SETTLED
+#
+#   - The count is ALLOWED OR APPROVED BASH COMMANDS. A denied command does not
+#     advance any TTL, and no other tool advances it either.
+#
+#   - Tags are SET or UNSET by a rule, never toggled. A rule states which it
+#     does, so its effect never depends on what the tag already was.
+#
+#   - TAGS DO NOT STACK. Setting one that is already set replaces it, TTL and
+#     all: six commands after the most recent rebase, not twelve after two.
+#     There is no count of how many rules set it and no order of unsetting.
+#
+# PROPOSED, needs your ruling
+#
+#   - A tag with no `ttl` lives for the current evaluation only. An unbounded
+#     tag would be indistinguishable from a command permanently changing
+#     policy, which is not a thing a command should be able to do.
+#
+# THE SECURITY CONSTRAINT, which is not negotiable and not yet built
+#
+#   Tag state must not be writable by the user qwark runs as. A countdown the
+#   subject can reset is not a constraint on the subject. This is the rule-file
+#   requirement one level down, and it is reachable by the Write tool with no
+#   shell involved -- so it needs a `permissions.deny` entry as well as
+#   ownership. How the state is stored at all is still open: an appended file
+#   each run trims under a lock, or a sideboard process. See DESIGN-NOTES.
+# ---------------------------------------------------------------------------
+
+# ============================================================================
+# The worked example
+# ============================================================================
+#
+# Owner, 2026-08-19: "if a rule had just done a rebase, maybe we say for 6
+# commands, you aren't allowed to delete anything."
+#
+# The rebase is what makes this worth having. Immediately after one, the tree
+# and the reflog disagree with what anybody remembers, so a deletion taken on a
+# stale mental model destroys the one copy that could have corrected it.
+
+[[rule]]
+id     = "note-rebase"
+action = "tag"
+tag    = "post-rebase"
+ttl    = 6
+reason = """
+A rebase has just rewritten history, so what is on disk no longer matches what
+anyone remembers being there."""
+
+  [[rule.clause]]
+  index = "0"
+  value = "git"
+
+  [[rule.clause]]
+  index = "1"
+  value = "rebase"
+
+[[rule]]
+id     = "no-deleting-after-a-rebase"
+action = "deny"
+reason = """
+A rebase happened within the last few commands. Deleting now acts on a tree
+whose history was just rewritten, and the copy that would have shown what was
+lost is the thing being deleted. Look at `git reflog` first."""
+
+  [[rule.clause]]
+  tag = "post-rebase"
+
+  [[rule.clause]]
+  option = "delete"
+
+# The same tag, reached by a different rule. This is the point of tags being
+# criteria rather than actions: the condition is established once and consulted
+# by as many rules as need it, none of which has to know how it was established.
+
+[[rule]]
+id     = "no-force-pushing-after-a-rebase"
+action = "deny"
+reason = """
+A rebase happened within the last few commands. Force-pushing now publishes the
+rewritten history before anyone has confirmed it is the intended one, and the
+remote stops being the copy that could correct it."""
+
+  [[rule.clause]]
+  tag = "post-rebase"
+
+  [[rule.clause]]
+  index = "0"
+  value = "git"
+
+  [[rule.clause]]
+  index = "1"
+  value = "push"
+
+# Unsetting closes the loop the denial opened. `no-deleting-after-a-rebase`
+# tells the reader to look at the reflog first; looking at it is what clears the
+# condition. The tag therefore expires either by being satisfied or by running
+# out of commands, and the message names the thing that satisfies it.
+
+[[rule]]
+id     = "rebase-reviewed"
+action = "untag"
+tag    = "post-rebase"
+reason = "The reflog has been read, so what the rebase moved has been seen."
+
+  [[rule.clause]]
+  index = "0"
+  value = "git"
+
+  [[rule.clause]]
+  index = "1"
+  value = "reflog"
+
+# ============================================================================
+# A second example, to show the shape is general
+# ============================================================================
+#
+# Nothing about this class is specific to git. Any command that leaves the tree
+# in a state where the next command is more dangerous than usual can set a tag.
+
+[[rule]]
+id     = "note-hard-reset"
+action = "tag"
+tag    = "post-destructive-git"
+ttl    = 3
+reason = "A hard reset has just discarded uncommitted work with no copy kept."
+
+  [[rule.clause]]
+  index = "0"
+  value = "git"
+
+  [[rule.clause]]
+  index = "1"
+  value = "reset"
+
+  [[rule.clause]]
+  option = "hard"
+
+[[rule]]
+id     = "ask-after-destructive-git"
+action = "ask"
+reason = """
+Something destructive to the working tree happened within the last few
+commands. Confirm the tree holds what you expect before adding to it."""
+
+  [[rule.clause]]
+  tag = "post-destructive-git"

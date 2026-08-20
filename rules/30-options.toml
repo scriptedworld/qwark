@@ -1,0 +1,164 @@
+# qwark — denials by option. DRAFT 2026-08-20, not yet loaded by anything.
+#
+# These rules depend on the DECLARATION table, which is what says that `-f`
+# means force to `rm` and file to `tar`. Without a declaration for a command,
+# no clause here can fire -- and that is not a gap, because an undeclared
+# command is denied outright.
+#
+#   option = "force"   an option whose DECLARED MEANING is force was given,
+#                      however it was spelled
+#
+# FACT 2026-08-20, why this matches meaning rather than text: `rm -f`, `rm -rf`,
+# `rm -fr`, `rm -r -f`, `rm --force`, `rm --forc`, `rm --fo` and `rm --f` all
+# force. GNU accepts any unambiguous abbreviation, and short options bundle, so
+# a clause comparing an argument against `-f` or `--force` sees it in two of
+# those eight. It also correctly does NOT fire on `rm -- -f`, where the `-f` is
+# a filename.
+#
+# `option` is PROPOSED and needs your ruling.
+
+# ============================================================================
+# The worked example
+# ============================================================================
+#
+# Your three cases, 2026-08-19:
+#
+#     rm -r -f   forbidden, because of -f
+#     rm -r      no -f: ask, warning that it is recursive
+#     rm -f      no -r: forbidden
+#
+# Written as two rules rather than three, because the strictest action wins.
+# `rm -rf` matches BOTH rules below and the deny takes it -- so the middle case
+# does not need to say "and no -f", and neither rule has to know the other
+# exists. That is what the precedence decision bought.
+
+[[rule]]
+id     = "rm-force"
+action = "deny"
+reason = """
+`rm` with force suppresses every check it has: it does not ask, and it does not
+report what was missing. If the file should go, name it and let rm say whether
+it was there."""
+
+  [[rule.clause]]
+  index = "0"
+  value = "rm"
+
+  [[rule.clause]]
+  option = "force"
+
+[[rule]]
+id     = "rm-recursive"
+action = "ask"
+reason = """
+This is recursive. Check the path is the one you mean before it is walked."""
+
+  [[rule.clause]]
+  index = "0"
+  value = "rm"
+
+  [[rule.clause]]
+  option = "recursive"
+
+# ============================================================================
+# Forbidden UNLESS
+# ============================================================================
+#
+# A conditional refusal, written as one rule with an inverted clause rather
+# than as two rules where one outranks the other.
+#
+#   absent = true    the clause holds when what it names is NOT there
+#
+# This is where the cost of "the strictest action wins" is paid, and it is a
+# cost worth paying: the exception sits inside the rule it modifies, so anyone
+# reading the denial sees the way out of it. Written as a second rule that
+# overrode the first, the exception would live in another file, and knowing
+# what a command does would mean reading every file to find out which one won.
+
+[[rule]]
+id     = "commit-must-be-signed"
+action = "deny"
+reason = """
+`git commit` is refused unless it is signed. An unsigned commit cannot later be
+shown to have come from where it says it came from, and that is not something
+that can be added afterwards."""
+
+  [[rule.clause]]
+  index = "0"
+  value = "git"
+
+  [[rule.clause]]
+  index = "1"
+  value = "commit"
+
+  [[rule.clause]]
+  option = "gpg-sign"
+  absent = true
+
+# ============================================================================
+# Force, generally
+# ============================================================================
+#
+# Not a group of commands but a single clause with no command named at all:
+# ANY declared command given an option meaning force. A rule that named the
+# commands would need editing every time a declaration is added, and would be
+# wrong in the interval.
+
+[[rule]]
+id     = "no-forcing-anything"
+action = "deny"
+reason = """
+Forcing is not permitted. A force option exists to suppress the check that
+would otherwise have stopped the command, which makes it the one option a gate
+cannot let past."""
+
+  [[rule.clause]]
+  option = "force"
+
+[[rule]]
+id     = "no-preserve-root"
+action = "deny"
+reason = "`--no-preserve-root` exists only to permit destroying the root filesystem."
+
+  [[rule.clause]]
+  option = "no-preserve-root"
+
+# ============================================================================
+# Options that name a program to run
+# ============================================================================
+#
+# These belong with the interpreters in 10-commands.toml by reason, and here by
+# shape: the command is ordinary and one option turns it into an interpreter.
+
+[[rule]]
+id     = "no-option-supplied-program"
+action = "deny"
+reason = """
+This option supplies a program for the command to run. The program is not
+visible to any rule here, so permitting the option is permitting whatever it
+names."""
+
+  [[rule.clause]]
+  option = "execute"
+
+# ============================================================================
+# Destructive by meaning
+# ============================================================================
+
+[[rule]]
+id     = "ask-before-hard-reset"
+action = "ask"
+reason = """
+A hard reset discards uncommitted work with no copy kept. Confirm the tree
+holds nothing you want."""
+
+  [[rule.clause]]
+  option = "hard"
+
+[[rule]]
+id     = "ask-before-pruning"
+action = "ask"
+reason = "Pruning deletes whatever the command considers unreachable."
+
+  [[rule.clause]]
+  option = "prune"

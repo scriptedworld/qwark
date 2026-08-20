@@ -1,0 +1,196 @@
+# qwark — denials by command name. DRAFT 2026-08-20, not yet loaded by anything.
+#
+# Groups exist so that a class of commands sharing one reason is written as a
+# list rather than as twenty near-identical rules or as one regex alternation.
+# A list is greppable, diffable, and adding a command to a class is a one-line
+# edit that does not touch the rule.
+#
+# A group is a set-membership test in ONE clause, so it does not reintroduce
+# the `or` that rules deliberately lack: the clause still either matches or
+# does not, and the rule still needs all its clauses.
+#
+# PROPOSED, needs your ruling: the `[group.…]` tables and the `group = "…"`
+# clause key.
+#
+# **A group declares how its members are compared.** `match` defaults to
+# "value", the whole word exactly. A group of paths must say `match = "partial"`
+# -- see 20-paths.toml -- because paths are prefixes and comparing them exactly
+# would silently never match, which is the worst way for a deny rule to fail.
+#
+# An empty group should be a configuration error, for the same reason an empty
+# `partial` is: a deny rule whose group someone emptied stops firing while
+# still reading as an active rule.
+
+# ============================================================================
+# Groups
+# ============================================================================
+
+# The command word is not the command. `env rm -rf x` puts `env` at ordinal 0,
+# so every rule about `rm` is silent on it.
+#
+# `time` is NOT here: FACT 2026-08-20, it is a keyword and never a command
+# word, so it is denied by fact in 00-structure.toml instead.
+[group.wrapper]
+members = [
+  "env", "xargs", "sudo", "doas", "su", "runuser",
+  "nohup", "timeout", "nice", "ionice", "setsid", "stdbuf", "chrt",
+  "watch", "command", "builtin", "exec", "chroot", "unshare", "parallel",
+]
+
+# The program is an argument rather than a file, so what runs is never visible
+# to a gate that reads command lines.
+#
+# TRADE-OFF, your call: `sed` and `awk` are here because both execute --
+# GNU sed's `e` command and awk's `system()` -- and both are everyday text
+# tools. Allowing them safely would mean parsing their programs, which is a
+# second language. Denying them costs real convenience. Nothing in between is
+# honest.
+[group.interpreter]
+members = [
+  "sh", "bash", "zsh", "dash", "ksh", "fish", "csh", "tcsh",
+  "python", "python2", "python3", "perl", "ruby", "node", "deno", "bun",
+  "php", "lua", "tclsh", "Rscript",
+  "awk", "gawk", "mawk", "nawk", "sed",
+  "ed", "vi", "vim", "nvim", "emacs", "gdb", "lldb",
+]
+
+# These change what a LATER command resolves to or does. Their damage is not in
+# the call that runs them.
+#
+# `export`, `declare`, `readonly`, `local` and `typeset` are NOT here: they
+# parse as declaration keywords rather than command words, and are denied by
+# the `declaration` fact in 00-structure.toml.
+[group.resolution]
+members = [
+  "eval", "source", ".", "alias", "unalias",
+  "set", "shopt", "setopt", "unsetopt", "hash", "trap", "unset",
+  "ulimit", "umask", "enable", "disable",
+]
+
+# These execute content from the working tree -- recipes, test files, hooks --
+# all of which the agent can write with no shell involved.
+#
+# THIS IS THE GROUP TO DECIDE DELIBERATELY. Allowing any of them is allowing
+# arbitrary execution; it is not a loophole to be closed by a cleverer rule.
+# `go test` running this project's own suite is the obvious case, and if it is
+# permitted it should be an explicit, reasoned exception with that written
+# beside it -- never a quiet allow.
+[group.executor]
+members = [
+  "make", "just", "npm", "yarn", "pnpm", "npx", "bunx",
+  "cargo", "pytest", "tox", "nox", "rake", "gradle", "mvn", "ant",
+  "docker", "podman", "ansible", "ansible-playbook", "terraform", "vagrant",
+  "systemctl", "cron", "crontab", "at", "batch",
+]
+
+# Subcommands of `go` that compile and run code, as opposed to inspecting it.
+[group.go-executes]
+members = ["test", "run", "generate", "tool"]
+
+# Subcommands of `git` that run hooks or filters from the repository.
+[group.git-executes]
+members = [
+  "commit", "merge", "rebase", "am", "push", "pull", "clone", "filter-branch",
+]
+
+# ============================================================================
+# Rules
+# ============================================================================
+
+[[rule]]
+id     = "no-wrappers"
+action = "deny"
+reason = """
+This command runs another command, so the rules about that other command do not
+apply to it. Run the intended command directly."""
+
+  [[rule.clause]]
+  index = "0"
+  group = "wrapper"
+
+[[rule]]
+id     = "no-interpreters"
+action = "deny"
+reason = """
+This runs code supplied as an argument, which no rule here can read. Put the
+code in a file with the file tools if it needs to exist."""
+
+  [[rule.clause]]
+  index = "0"
+  group = "interpreter"
+
+[[rule]]
+id     = "no-resolution-changes"
+action = "deny"
+reason = """
+This changes what later commands resolve to or how they behave. Its effect is
+not in this call, which is exactly why it cannot be judged by looking at this
+call."""
+
+  [[rule.clause]]
+  index = "0"
+  group = "resolution"
+
+[[rule]]
+id     = "no-executors"
+action = "deny"
+reason = """
+This executes content from the working tree -- a recipe, a test file, a hook --
+which is content that can be written without a shell. Permitting it is
+permitting arbitrary execution, so it is permitted only by name, per command,
+with a reason recorded."""
+
+  [[rule.clause]]
+  index = "0"
+  group = "executor"
+
+# Two commands that are mostly fine and have a few subcommands that are not.
+# The clauses compose: ordinal 0 names the command, ordinal 1 the subcommand,
+# and BOTH must match for the rule to apply -- so `go build` is untouched by
+# this rule and settled elsewhere.
+
+[[rule]]
+id     = "no-go-execution"
+action = "deny"
+reason = """
+`go test`, `go run`, `go generate` and `go tool` compile and execute code from
+this tree, including code written moments ago. `go build` and `go vet` do not."""
+
+  [[rule.clause]]
+  index = "0"
+  value = "go"
+
+  [[rule.clause]]
+  index = "1"
+  group = "go-executes"
+
+[[rule]]
+id     = "no-git-hook-running"
+action = "deny"
+reason = """
+This git subcommand runs hooks from .git/hooks, which are files that can be
+written without a shell. `git status`, `git log`, `git diff` and `git show` do
+not."""
+
+  [[rule.clause]]
+  index = "0"
+  value = "git"
+
+  [[rule.clause]]
+  index = "1"
+  group = "git-executes"
+
+[[rule]]
+id     = "no-git-config-override"
+action = "deny"
+reason = """
+`git -c` sets configuration for one invocation, including values such as
+core.pager and core.hooksPath that name a program to run."""
+
+  [[rule.clause]]
+  index = "0"
+  value = "git"
+
+  [[rule.clause]]
+  index = "1"
+  value = "-c"

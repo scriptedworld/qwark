@@ -1,0 +1,179 @@
+# qwark — protected paths. DRAFT 2026-08-20, not yet loaded by anything.
+#
+# These are class-three rules: they ask where a command reaches, not what it is
+# called. That needs two things the earlier files do not:
+#
+#   kind = "path"     select every word the DECLARATION says denotes a path --
+#                     `rm`'s operands, `tar -f`'s value -- and not the message
+#                     in `git commit -m "…"`. Which words are paths is declared
+#                     per command, never guessed.
+#
+#   match = "partial" on the group, because a protected path is a PREFIX. A
+#                     group of paths compared for exact equality would match
+#                     `/home/ancient/.claude` and miss
+#                     `/home/ancient/.claude/settings.json`, which is every
+#                     case that matters. Silent non-matching is the worst way
+#                     for a deny rule to fail.
+#
+# Both are PROPOSED and need your ruling.
+#
+# ---------------------------------------------------------------------------
+# THE LIMIT OF THIS FILE, stated because a control whose limits are unwritten
+# gets trusted past them:
+#
+# qwark gates Bash. **The Write and Edit tools reach every path below without
+# passing through it.** Each of these therefore needs its other half -- a
+# `permissions.deny` entry in settings.json -- and settings.json must itself be
+# unwritable. The predecessor of this project ended on exactly this finding
+# from the other direction.
+#
+# These rules also read the INTERPRETED value, which is the default and is
+# load-bearing here: FACT 2026-08-20, `rm /home/ancient/.cl\aude/x` reaches
+# .claude, and a rule reading what was written sees `.cl\aude` and misses.
+# ---------------------------------------------------------------------------
+#
+# ###########################################################################
+# WRITE THESE PATHS IN RESOLVED FORM. This is the footgun.
+#
+# A command's path is resolved through its symbolic links before it is matched,
+# so a group member written as the LINK matches nothing at all -- silently,
+# which is the worst way for a deny rule to fail.
+#
+# FACT 2026-08-20, measured on this machine:
+#
+#   ~/.claude/settings.json -> /home/ancient/.projects/dotfiles/claude/settings.json
+#
+# So `partial = "/.claude/settings.json"` never fires: by the time the rule
+# sees it, the path is the dotfiles one. Written in resolved form the rule
+# catches BOTH spellings, because both resolve to the same file -- which is the
+# whole reason resolution is worth doing.
+#
+# The members below are still written in link form and are therefore WRONG for
+# any of them that is a symlink on the machine they run on. They need checking
+# against `readlink -f` before this file is used.
+# ###########################################################################
+
+# ============================================================================
+# Groups
+# ============================================================================
+
+# qwark's own control surfaces. An agent that can edit these is not constrained
+# by them.
+[group.qwark-control]
+match = "partial"
+members = [
+  "/etc/qwark/",
+  "/var/lib/qwark/",
+]
+
+# Claude Code's own configuration and runtime state.
+#
+# The shell snapshot earns its place: FACT 2026-08-20, it replays 64 aliases
+# and 24 functions into every Bash call, and it is writable by the agent's own
+# user. A function defined there shadows any command of the same name -- and a
+# backslash does not suppress a function, nor does an absolute path, since both
+# shells accept a function named `/usr/bin/ls`.
+[group.claude-control]
+match = "partial"
+members = [
+  "/.claude/settings.json",
+  "/.claude/settings.local.json",
+  "/.claude/shell-snapshots/",
+  "/.claude/hooks/",
+  "/.claude/plugins/",
+]
+
+# Files a shell reads at startup, which is how the snapshot above gets its
+# contents in the first place.
+[group.shell-config]
+match = "partial"
+members = [
+  "/.bashrc", "/.bash_profile", "/.bash_login", "/.profile",
+  "/.zshrc", "/.zshenv", "/.zprofile", "/.zlogin", "/.zlogout",
+  "/.config/zsh/", "/.config/fish/", "/.inputrc", "/.env",
+]
+
+# Executed by git commands that otherwise look harmless.
+[group.repository-hooks]
+match = "partial"
+members = [
+  "/.git/hooks/",
+  "/.git/config",
+  "/.githooks/",
+]
+
+# Anything here is a candidate for every unqualified command name.
+# FACT 2026-08-20, demonstrated: with a directory prepended to PATH, a script
+# named `rm` in it ran instead of the real one.
+[group.executable-path]
+match = "partial"
+members = [
+  "/home/ancient/bin/",
+  "/home/ancient/.local/bin/",
+  "/usr/local/bin/",
+  "/usr/bin/",
+  "/bin/",
+  "/usr/sbin/",
+  "/sbin/",
+]
+
+# ============================================================================
+# Rules
+# ============================================================================
+
+[[rule]]
+id     = "no-touching-qwark"
+action = "deny"
+reason = """
+This reaches qwark's own rules or state. A rule set the subject can edit is not
+a constraint on the subject."""
+
+  [[rule.clause]]
+  kind  = "path"
+  group = "qwark-control"
+
+[[rule]]
+id     = "no-touching-claude-config"
+action = "deny"
+reason = """
+This reaches Claude Code's configuration or runtime state. The shell snapshot
+in particular is replayed into every command, so anything written there runs
+with everything that follows."""
+
+  [[rule.clause]]
+  kind  = "path"
+  group = "claude-control"
+
+[[rule]]
+id     = "no-touching-shell-config"
+action = "deny"
+reason = """
+This reaches a shell startup file. What is defined there becomes an alias or a
+function in every later shell, and a function shadows any command of the same
+name -- which neither a backslash nor an absolute path escapes."""
+
+  [[rule.clause]]
+  kind  = "path"
+  group = "shell-config"
+
+[[rule]]
+id     = "no-touching-hooks"
+action = "deny"
+reason = """
+This reaches git's hooks or config. A hook is a file that ordinary git commands
+execute, so writing one turns `git commit` into arbitrary execution."""
+
+  [[rule.clause]]
+  kind  = "path"
+  group = "repository-hooks"
+
+[[rule]]
+id     = "no-touching-path-directories"
+action = "deny"
+reason = """
+This reaches a directory on PATH. A file placed there answers to a bare command
+name, so it decides what every later unqualified command runs."""
+
+  [[rule.clause]]
+  kind  = "path"
+  group = "executable-path"
