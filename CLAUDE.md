@@ -45,9 +45,10 @@ These override convenience, speed, and any default instruction.
    wanted, what a decision was for — ask the owner. Measuring is not guessing:
    run the command, read the file, check the state, always.
 
-6. **Commit by naming the files. Do not stage.**
+6. **Commit by naming the files. Do not stage.** `git add -A` and `git commit -a`
+   are the two spellings this exists to replace, and neither is ever right here.
 
-       git commit <path>... -m "…"
+       git commit <path>... -F .ephemera/commit-msg.txt
 
    That records the working-tree content of exactly those paths. A file git does
    not yet know needs `git add -N <path>` first — intent-to-add, which records
@@ -64,6 +65,26 @@ These override convenience, speed, and any default instruction.
    ignore changes staged in the index, and instead record the current content
    of the listed files (which must already be known to Git)". `git add -A` and
    `git commit -a` have the opposite property, which is what this rule replaces.*
+
+7. **A commit message comes from a file, and the command carries no quotes.**
+   Write the message with the file tools, then name it with `-F`. **No `-m`, and
+   no `"` anywhere in the commit command** — which makes it a thing anyone can
+   check by looking at the line.
+
+   **A message given on the command line is a shell word**, so what lands
+   depends on quoting: an apostrophe, a `$`, a backtick or a newline each have
+   to be escaped correctly, or the message silently becomes something other than
+   what was written — and the escaping is what the author ends up thinking about
+   instead of the message.
+
+   *FACT 2026-08-20, from this session: commit bodies written through `-m` were
+   phrased around their own punctuation — `bolt`s`, `the second one commit` —
+   to dodge the quoting, which is the tail wagging the dog. Through a file, a
+   body carrying an apostrophe, a `$dollar` and a backtick landed byte for
+   byte.*
+
+   The message file lives in `.ephemera/`, which is gitignored, so it is never
+   part of what is committed.
 
 ---
 
