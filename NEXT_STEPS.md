@@ -92,20 +92,35 @@ which feels rickety"*. FR-10.6 had already chosen the payload over an
 environment variable, for the reason that **the subject can reach an environment
 variable and cannot set its own `agent_type`.**
 
-Two requirements state the shape, both `[?]` and unbuilt:
+**BUILT 2026-08-20.** Two requirements state the shape and both now carry tests:
 
-- **FR-7.12** — a clause may name the agent the request came from.
+- **FR-7.12** — a clause may name the agent the request came from, compared
+  whole. `agent = "gate-runner"`.
 - **FR-7.13** — **absence is a role.** A main-session call reliably carries no
-  agent type, so `agent` with `absent = true` names the main session exactly.
+  agent type, so `agent = ""` names it exactly — while stating no `agent` at all
+  remains the distinct case that covers every caller. The clause records whether
+  the key was stated, not only what it said, so the two cannot collapse.
 
 FR-7.13 is what removes the ricketiness: **one rule set, named once in
 `settings.json`, carrying every role's policy inside it.** No symlink swapping,
 no environment variable, nothing to keep in step outside the file being read.
 
-The build is small — `Agent` on `Clause`, an agent type on `Context`, the
-plumbing in `hook`, and the tests. It composes rather than adding a mechanism: an
-`agent` clause is a clause, rules stay conjunctions, strictest still wins, and a
-role cannot grant itself anything because deny outranks allow.
+Try it:
+
+    ./bin/qwark judge --agent=gate-runner rules/ -- git status
+
+It composed rather than adding a mechanism: an `agent` clause is a clause, rules
+stay conjunctions, strictest still wins, and a role cannot grant itself anything
+because deny outranks allow. An agent allowance also reaches only the command
+its rule names — the clause narrows a rule rather than attaching a permission
+to a role.
+
+**Still to do.** `rules/` carries no agent-scoped rule, because which agent
+types exist is not qwark's to invent — the vocabulary in `00-structure.toml`
+documents the clause and the policy waits on the roles being named. And nothing
+calls `hook.Run` yet, so the payload's `agent_type` reaches `rules.Context` only
+through `judge`; the decider that closes that gap is the same one the `hook`
+subcommand needs.
 
 **Two limits to know before relying on it.** Two *main sessions* are
 indistinguishable — if writer and runner are both top-level launches, no clause

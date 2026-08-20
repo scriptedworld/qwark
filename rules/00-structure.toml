@@ -38,6 +38,20 @@
 #   option = "force"          an option with this declared MEANING was given
 #   kind = "path"             every word the declaration says denotes a path
 #
+#   agent = "gate-runner"     the request came from this agent type, so one
+#                             rule set carries a different policy per role --
+#                             the agent that may WRITE a task definition is not
+#                             the agent that may RUN it.
+#   agent = ""                THE MAIN SESSION, which reliably carries no agent
+#                             type. Absence is a role rather than a gap, which
+#                             is what lets one file cover every caller instead
+#                             of a launcher swapping files between sessions.
+#                             **Stating no `agent` at all is the different
+#                             case: it covers every caller.** The two do not
+#                             collapse -- a rule meant for the main session
+#                             that silently became a rule for everybody would
+#                             hand out permission nobody granted.
+#
 #   value / partial / pattern   the whole word / anywhere within / a regex over
 #                               the whole word (anchored)
 #   reading = "interpreted"     what the shell will pass (DEFAULT)
