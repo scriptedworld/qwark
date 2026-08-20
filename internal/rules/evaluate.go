@@ -47,6 +47,10 @@ const (
 	reasonUndeclared = "This command has no declaration, so qwark cannot account " +
 		"for what its options mean or which of its words are paths. Nothing runs " +
 		"unless it has been described."
+	reasonUnaccounted = "This word is not accounted for by the command's " +
+		"declaration, so what the command was told to do is not fully known. A " +
+		"declaration exists to stop a verdict resting on a reading qwark already " +
+		"knows to be incomplete:"
 	reasonNothingAllowed = "Nothing permitted this. Being allowed means an allow " +
 		"rule matched, and none did."
 )
@@ -56,6 +60,7 @@ const (
 const (
 	ruleOneCommand  = "(engine) one command at a time"
 	ruleDeclared    = "(engine) declared commands only"
+	ruleAccounted   = "(engine) accounted options only"
 	ruleNoAllowance = "(engine) deny by default"
 )
 
@@ -108,7 +113,35 @@ func (s *Set) Evaluate(parsed *shell.Parsed, ctx Context) Outcome {
 		}}, out.Findings...)
 	}
 
+	// A command can be declared and still hold a word the declaration does not
+	// account for. Decomposition records each such word rather than stopping at
+	// the first, and the verdict has to consult that record: an option nobody
+	// declared is exactly the case where qwark does not know what the command
+	// was told to do, which is the same ignorance that refuses an undeclared
+	// command one level up.
+	if faults := unaccounted(options); len(faults) > 0 {
+		out.Action = ActionDeny
+		out.Findings = append(faults, out.Findings...)
+	}
+
 	return settle(out)
+}
+
+// unaccounted turns each fault decomposition recorded into a finding of its
+// own, so a refusal names every word it could not account for rather than the
+// first. One denial that says everything wrong is one round trip; three that
+// each say one thing are three.
+func unaccounted(options command.Options) []Finding {
+	findings := make([]Finding, 0, len(options.Faults))
+	for _, fault := range options.Faults {
+		findings = append(findings, Finding{
+			Rule:   ruleAccounted,
+			Action: ActionDeny,
+			Reason: reasonUnaccounted + " " + fault.Err.Error() + ".",
+			Cause:  fault.Text,
+		})
+	}
+	return findings
 }
 
 // judge runs every rule and gathers what applied. The verdict is settled by

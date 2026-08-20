@@ -416,3 +416,63 @@ reason = "Redirections are not permitted."
 		t.Error("a rule that needed no declaration to answer was not consulted")
 	}
 }
+
+// COVERS: FR-6.7 | negative
+func TestAnUndeclaredOptionIsRefused(t *testing.T) {
+	t.Parallel()
+
+	// Decomposition recorded this from the beginning and the verdict did not
+	// consult it, so `rm -Z x` was permitted by the allow rule below while the
+	// fault sat unread beside it. An option nobody declared is the same
+	// ignorance that refuses an undeclared command one level up: qwark does not
+	// know what the command was told to do.
+	outcome := judgeWith(t, ruleSet(`
+[[rule]]
+id = "allow-rm"
+action = "allow"
+reason = "Removing a named file."
+  [[rule.clause]]
+  index = "0"
+  value = "rm"
+`), `rm -Z x`)
+
+	if !outcome.Denied() {
+		t.Fatalf("Action = %q, want deny for an option the table does not declare",
+			outcome.Action)
+	}
+	if !strings.Contains(outcome.Findings[0].Cause, "-Z") {
+		t.Errorf("cause = %q, want the word that could not be accounted for",
+			outcome.Findings[0].Cause)
+	}
+}
+
+// COVERS: FR-6.8 | property
+func TestEveryUnaccountedWordReachesTheVerdict(t *testing.T) {
+	t.Parallel()
+
+	// Reporting one fault at a time sends its reader round once per fault. The
+	// decomposition gathers all of them precisely so a single refusal can say
+	// everything that is wrong, and that is only true if the verdict carries
+	// every one through.
+	outcome := judgeWith(t, ruleSet(""), `rm -Z --nope x`)
+
+	if !outcome.Denied() {
+		t.Fatalf("Action = %q, want deny", outcome.Action)
+	}
+
+	var sawShort, sawLong bool
+	for _, finding := range outcome.Findings {
+		switch finding.Cause {
+		case "-Z":
+			sawShort = true
+		case "--nope":
+			sawLong = true
+		}
+	}
+
+	if !sawShort || !sawLong {
+		t.Errorf("findings = %v, want one for -Z and one for --nope: a refusal "+
+			"that names the first fault only is a refusal its reader has to earn twice",
+			outcome.Findings)
+	}
+}
