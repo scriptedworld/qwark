@@ -141,5 +141,6 @@ func (c Clause) selectsSomething() bool {
 		c.Index != "" ||
 		c.Option != "" ||
 		c.Kind != "" ||
-		c.Tag != ""
+		c.Tag != "" ||
+		c.Agent != nil
 }

@@ -12,6 +12,11 @@ type Context struct {
 	// Tags live at this moment, whether set by an earlier command or
 	// calculated afresh from the world.
 	Tags map[string]bool
+
+	// Agent is the `agent_type` the request carried, empty for a main-session
+	// call. It comes from the payload rather than the environment because the
+	// subject can reach an environment variable and cannot set this.
+	Agent string
 }
 
 // A Finding is one rule that applied, with what it said and what set it off.
@@ -100,6 +105,7 @@ func (s *Set) Evaluate(parsed *shell.Parsed, ctx Context) Outcome {
 		simple:  simple,
 		options: options,
 		tags:    ctx.Tags,
+		agent:   ctx.Agent,
 		groups:  s.Groups,
 	})
 

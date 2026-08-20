@@ -152,6 +152,22 @@ type Clause struct {
 	// command or calculated afresh from the world.
 	Tag string `toml:"tag"`
 
+	// Agent names which agent the request came from, so one rule set can carry
+	// a different policy per role -- the agent that may write a task definition
+	// is not the agent that may run it.
+	//
+	// The value is the `agent_type` from the payload. It is deliberately not an
+	// environment variable: the subject can reach one of those and cannot set
+	// its own agent type.
+	//
+	// **`agent = ""` names the main session**, which is why this is a pointer.
+	// A main-session call reliably carries no agent type, so absence is not a
+	// gap but the one identity that is always available -- and telling
+	// "not stated" from "stated as empty" is the whole difference between a
+	// clause that ignores the agent and a clause that requires there to be
+	// none.
+	Agent *string `toml:"agent"`
+
 	// Reading says which form of a word is tested: the interpreted value the
 	// shell will pass, or the source as written. Interpreted is the default,
 	// because testing what was written is what lets `/home/x/.cl\aude/y` past

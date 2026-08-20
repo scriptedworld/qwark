@@ -17,6 +17,7 @@ type subject struct {
 	simple  command.Simple
 	options command.Options
 	tags    map[string]bool
+	agent   string
 	groups  map[string]Group
 }
 
@@ -73,6 +74,8 @@ func (sub *subject) evaluate(clause Clause) (bool, string) {
 		return sub.factHolds(clause.Fact)
 	case clause.Tag != "":
 		return sub.tags[clause.Tag], clause.Tag
+	case clause.Agent != nil:
+		return sub.agentIs(*clause.Agent)
 	case clause.Option != "":
 		return sub.optionHolds(clause)
 	case clause.Kind != "":
@@ -93,6 +96,28 @@ func (sub *subject) anyPresent(
 		}
 	}
 	return false, ""
+}
+
+// agentIs reports whether the request came from this agent, comparing the whole
+// value: an agent type is a name the dispatcher assigned, not a path or a
+// prefix, so there is nothing for a partial match to be right about.
+//
+// **The empty name is the main session**, which carries no agent type at all.
+// That is a value here rather than a missing one, and it is what lets a single
+// rule set carry every role's policy: the caller with no identity is still a
+// caller a rule can name, so nothing outside the file has to vary.
+//
+// The cause is worded so a refusal reads correctly either way. "caused by:
+// (main session)" says what matched; the bare empty string would say nothing
+// and leave the reader to guess which clause fired.
+func (sub *subject) agentIs(name string) (bool, string) {
+	if sub.agent != name {
+		return false, ""
+	}
+	if name == "" {
+		return true, "(main session)"
+	}
+	return true, name
 }
 
 func (sub *subject) factHolds(name string) (bool, string) {
