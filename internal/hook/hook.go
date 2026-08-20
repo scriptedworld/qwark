@@ -72,7 +72,19 @@ type Request struct {
 
 // A BashCall is the Bash tool's own input.
 type BashCall struct {
-	Command     string `json:"command"`
+	Command string `json:"command"`
+
+	// Description is the caller's own account of what the command does.
+	//
+	// **Deliberately unconsulted.** Owner, 2026-08-20: asking each tool usage
+	// to state its intention is the proxy's job, not this gate's. It is read
+	// because reading the payload faithfully is the contract (FR-10.1), and it
+	// is not a rule input that somebody forgot to wire up.
+	//
+	// It could not be one safely without care. This is the only field here the
+	// subject authors freely -- the command text is fixed by the shell grammar,
+	// `agent_type` is assigned by the dispatcher -- so a rule permitting on the
+	// strength of it would be defeated by writing the expected words.
 	Description string `json:"description"`
 	Timeout     int    `json:"timeout"`
 	Background  bool   `json:"run_in_background"`
