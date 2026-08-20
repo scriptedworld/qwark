@@ -102,6 +102,47 @@ members = [
   "/.githooks/",
 ]
 
+# The files that DEFINE what a task runner runs.
+#
+# Owner, 2026-08-20, and this is the sharpest statement of the threat in this
+# project so far:
+#
+# > I worry about letting them run bolt ... running ANYTHING that isn't one of
+# > our standard jigs ... same with JUST or POE etc ... **if they can write a
+# > new file, then they can then get the agent to approve anything.**
+#
+# The point is not that `just` is dangerous. It is that `just checks` is a
+# fixed, familiar, obviously-safe-looking command line whose meaning lives in a
+# file in the working tree -- so permitting the command permits whatever the
+# file says tomorrow. The command line a gate reads is not where the behaviour
+# is.
+#
+# **This group is half a control, and the smaller half.** Bash can barely reach
+# these files anyway: writing one needs a redirection, an interpreter or an
+# editor, and tier one refuses all three. What actually reaches them is Write
+# and Edit, which never pass through qwark. So this group is here for
+# completeness and for the `permissions.deny` list it should be kept in step
+# with -- see install/settings-fragment.json.
+#
+# Written as basenames with a leading slash, because a relative path is
+# resolved against the directory the command runs in (FR-9.3) before it is
+# compared -- so `justfile` is `<cwd>/justfile` by the time a rule sees it.
+[group.task-definition]
+match = "partial"
+members = [
+  "/justfile", "/Justfile", "/.justfile",
+  "/makefile", "/Makefile", "/GNUmakefile",
+  "/Taskfile.yml", "/Taskfile.yaml",
+  "/Rakefile", "/noxfile.py", "/tox.ini", "/dodo.py",
+  "/pyproject.toml", "/package.json", "/composer.json",
+  "/Earthfile", "/dagger.json", "/BUILD", "/BUILD.bazel", "/WORKSPACE",
+  "/CMakeLists.txt", "/meson.build", "/build.gradle", "/pom.xml",
+  "/turbo.json", "/nx.json", "/lerna.json",
+  "/.pre-commit-config.yaml", "/lefthook.yml", "/lefthook.yaml",
+  "/.envrc", "/.mise.toml", "/mise.toml", "/.tool-versions",
+  "/bolt.yaml", "/bolt.qwark.yaml",
+]
+
 # Anything here is a candidate for every unqualified command name.
 # FACT 2026-08-20, demonstrated: with a directory prepended to PATH, a script
 # named `rm` in it ran instead of the real one.
@@ -166,6 +207,19 @@ execute, so writing one turns `git commit` into arbitrary execution."""
   [[rule.clause]]
   kind  = "path"
   group = "repository-hooks"
+
+[[rule]]
+id     = "no-touching-task-definitions"
+action = "deny"
+reason = """
+This reaches the file that decides what a task runner runs. `just checks` is a
+fixed command line whose meaning lives in the working tree, so whoever writes
+that file chooses what the command does -- and the command line a gate reads
+says nothing about it."""
+
+  [[rule.clause]]
+  kind  = "path"
+  group = "task-definition"
 
 [[rule]]
 id     = "no-touching-path-directories"

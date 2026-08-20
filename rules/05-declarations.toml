@@ -1,0 +1,124 @@
+# qwark — what a command's words mean. DRAFT 2026-08-20.
+#
+# ############################################################################
+# THIS FILE IS THE ELIGIBILITY SURFACE. Treat it as the most dangerous one here.
+#
+# A declaration grants understanding, not permission (FR-4.23) -- it says how a
+# command's options decompose so that rules can be written about them, and it
+# permits nothing by existing. But an UNDECLARED command is refused outright
+# (FR-4.16), so adding a declaration is what moves a command from "denied
+# because qwark cannot account for it" to "eligible, and now decided by rules".
+#
+# DESIGN-NOTES puts it plainly: `[command.sh]` is a complete bypass written as
+# configuration. That is why declarations sit in a file of their own rather
+# than beside the rules that use them -- so that adding one is a deliberate
+# edit to the eligibility surface, not something that happens by accident while
+# somebody is editing a denial three lines further down.
+#
+# It also means this file needs the protection FR-4.17 demands of every rule
+# file, and its `permissions.deny` twin in settings.json, since Write and Edit
+# reach it without passing through qwark at all.
+# ############################################################################
+#
+# ----------------------------------------------------------------------------
+# THE RULE FOR ADDING AN OPTION, and it is not obvious
+# ----------------------------------------------------------------------------
+#
+# **The declaration is per command WORD. git's options are per SUBCOMMAND.**
+# There is one `[command.git]` table and it is consulted for every git
+# subcommand alike, so declaring an option for the sake of one subcommand
+# declares it for all of them.
+#
+# FACT 2026-08-20, the case that decides the shape of this file:
+#
+#     git diff -w      ignore all whitespace          harmless
+#     git help -w      open the topic in a BROWSER    launches a program
+#
+# One `-w`, two meanings, one table. Declaring it for `git diff` would hand
+# `git help -w` a browser, and `help` is on the allowed list.
+#
+# So an option goes in here only when BOTH hold:
+#
+#   1. It means the same thing on every subcommand that can reach it, because
+#      `means` is what rules match on and a wrong meaning makes a rule misfire
+#      rather than fail loudly.
+#   2. It is harmless on every one of them.
+#
+# "Can reach it" is narrower than "exists", because deny outranks allow: an
+# option cannot be exploited through a subcommand a rule already refuses. Only
+# the git-reads set in 10-commands.toml can reach these.
+#
+# The list is therefore short and mostly long-form, and that is the intended
+# state rather than an unfinished one. **Leaving an option out is not a gap.**
+# An option this table does not name is refused (FR-6.7), so the read-only
+# allowance fails closed by construction: nobody had to enumerate the dangerous
+# flags, and forgetting one costs a refusal rather than a hole.
+#
+# DELIBERATELY NOT DECLARED, with the reason, so they are not added later by
+# somebody who assumes they were forgotten:
+#
+#   --exec-path=      changes where git finds its subcommands -- arbitrary
+#                     execution, and it is a top-level option so it reaches
+#                     every subcommand including the allowed ones
+#   --git-dir=        operates on a different repository than the one the
+#   --work-tree=      command appears to be about
+#   --namespace=
+#   --ext-diff        runs the program named by diff.external
+#   --output=         `git diff --output=<file>` writes a file
+#   -O                `git grep -O <prog>` launches that program
+#   -w, --web         `git help -w` opens a browser
+#   -o                `git format-patch -o <dir>` writes into it
+#   -n                takes a value on `log` and takes none on `grep`, so one
+#                     declaration would mis-read one of them
+#   -s                means short on `status` and no-patch on `show`; the
+#                     meaning is what rules match on, so a single `means` here
+#                     would be wrong somewhere
+
+# ============================================================================
+# git
+# ============================================================================
+#
+# Operands are text rather than paths. git's non-option arguments are refs,
+# pathspecs and subcommands mixed together, and declaring them as paths would
+# have every path rule in 20-paths.toml read `HEAD` and `main` as filenames.
+# Declaring them as text means no path rule fires on a git operand -- which is
+# sound only while the allowed subcommands write nothing, and is the reason
+# that list is held to exactly that.
+
+[command.git]
+operands = "text"
+
+  short.p = { means = "patch" }
+
+  long.patch          = { means = "patch" }
+  long.no-patch       = { means = "no-patch" }
+  long.oneline        = { means = "oneline" }
+  long.graph          = { means = "graph" }
+  long.decorate       = { means = "decorate" }
+  long.no-decorate    = { means = "no-decorate" }
+  long.abbrev-commit  = { means = "abbrev-commit" }
+  long.stat           = { means = "stat" }
+  long.numstat        = { means = "numstat" }
+  long.shortstat      = { means = "shortstat" }
+  long.name-only      = { means = "name-only" }
+  long.name-status    = { means = "name-status" }
+  long.word-diff      = { means = "word-diff" }
+  long.find-renames   = { means = "find-renames" }
+  long.reverse        = { means = "reverse" }
+  long.follow         = { means = "follow" }
+  long.all            = { means = "all" }
+  long.short          = { means = "short" }
+  long.porcelain      = { means = "porcelain" }
+  long.cached         = { means = "cached" }
+  long.staged         = { means = "cached" }
+  long.ignore-case    = { means = "ignore-case" }
+  long.color          = { means = "color" }
+  long.no-color       = { means = "no-color" }
+
+  long.max-count = { means = "max-count", takes_value = true, kind = "text" }
+  long.since     = { means = "since",     takes_value = true, kind = "text" }
+  long.until     = { means = "until",     takes_value = true, kind = "text" }
+  long.author    = { means = "author",    takes_value = true, kind = "text" }
+  long.grep      = { means = "grep",      takes_value = true, kind = "text" }
+  long.pretty    = { means = "pretty",    takes_value = true, kind = "text" }
+  long.format    = { means = "format",    takes_value = true, kind = "text" }
