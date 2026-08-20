@@ -289,3 +289,28 @@ func TestAnUnreadableStdinIsReported(t *testing.T) {
 		t.Errorf("stderr = %q, want it to say what could not be read", got)
 	}
 }
+
+// COVERS: FR-7.12 | positive
+func TestJudgeCanBeToldWhichAgentIsAsking(t *testing.T) {
+	t.Parallel()
+
+	// A rule set that has never judged anything is a policy nobody has run, and
+	// that goes double for one whose verdicts differ by role: an agent clause
+	// nobody can exercise from the command line is a rule nobody can check
+	// before it is the reason something failed.
+	//
+	// The flag is taken from the front only. Everything after the rules path
+	// may be the command being judged, and a gate that ate an argument out of
+	// the middle of a command would be judging something other than what was
+	// typed -- so this also proves the split still works around it.
+	out, errOut, status := invoke(t, "",
+		"judge", "--agent=gate-runner", "../../rules", "--", "git", "status")
+
+	if status != statusOK {
+		t.Fatalf("status = %d, want %d; stderr = %q", status, statusOK, errOut)
+	}
+	if !strings.HasPrefix(out, "allow") {
+		t.Errorf("verdict = %q, want allow: the flag should have been consumed "+
+			"rather than read as a rules path or as part of the command", out)
+	}
+}

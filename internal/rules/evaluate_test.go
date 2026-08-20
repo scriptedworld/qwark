@@ -38,6 +38,165 @@ func judgeWith(t *testing.T, files map[string]string, src string) rules.Outcome 
 	return set.Evaluate(parsed, rules.Context{})
 }
 
+// judgeAs judges one command as a given agent type. The empty type is the main
+// session rather than an absent value, so it is a case worth passing on purpose.
+func judgeAs(t *testing.T, files map[string]string, agent, src string) rules.Outcome {
+	t.Helper()
+
+	set, err := rules.Load([]string{inFiles(t, files)})
+	if err != nil {
+		t.Fatalf("Load = %v", err)
+	}
+	return set.Evaluate(parseFor(t, src), rules.Context{Agent: agent})
+}
+
+// duties is one rule set carrying two roles, which is the whole point of the
+// agent clause: the policy for every caller is in one file, named once where
+// the hook is registered, rather than spread across files a launcher has to
+// select between.
+const duties = `
+[[rule]]
+id = "runner-may-read"
+action = "allow"
+reason = "The gate runner reads the repository."
+  [[rule.clause]]
+  agent = "gate-runner"
+  [[rule.clause]]
+  index = "0"
+  value = "git"
+
+[[rule]]
+id = "writer-may-not-read"
+action = "deny"
+reason = "The writer has no business running git."
+  [[rule.clause]]
+  agent = "file-writer"
+  [[rule.clause]]
+  index = "0"
+  value = "git"
+
+[[rule]]
+id = "main-session-may-read"
+action = "allow"
+reason = "The main session reads the repository."
+  [[rule.clause]]
+  agent = ""
+  [[rule.clause]]
+  index = "0"
+  value = "git"
+`
+
+// COVERS: FR-7.12 | positive
+func TestAClauseNamesTheAgentTheRequestCameFrom(t *testing.T) {
+	t.Parallel()
+
+	// One rule set, two roles, opposite verdicts on the same command. This is
+	// what separation of duties needs from the engine: the agent that may write
+	// a task definition is not the agent that may run it, and saying so should
+	// not mean a launcher swapping files between sessions.
+	files := ruleSet(duties)
+
+	if outcome := judgeAs(t, files, "gate-runner", `git status`); outcome.Denied() {
+		t.Errorf("Action = %q, want allow for the runner", outcome.Action)
+	}
+	if outcome := judgeAs(t, files, "file-writer", `git status`); !outcome.Denied() {
+		t.Errorf("Action = %q, want deny for the writer", outcome.Action)
+	}
+}
+
+// COVERS: FR-7.12 | negative
+func TestAnAgentClauseDoesNotApplyToAnotherAgent(t *testing.T) {
+	t.Parallel()
+
+	// A role cannot pick up another role's allowance by being some third thing.
+	// The agent type is compared whole: it is a name a dispatcher assigned, not
+	// a path, so there is nothing for a prefix to be right about.
+	outcome := judgeAs(t, ruleSet(duties), "gate-runner-2", `git status`)
+
+	if !outcome.Denied() {
+		t.Errorf("Action = %q, want deny: no rule names this agent, and being "+
+			"permitted means an allow rule matched", outcome.Action)
+	}
+}
+
+// COVERS: FR-7.12 | edge
+func TestAnAgentAllowanceReachesOnlyTheCommandItsRuleNames(t *testing.T) {
+	t.Parallel()
+
+	// The agent clause narrows a rule; it is not a role saying "and this agent
+	// may do things". `runner-may-read` names git as well as the agent, and all
+	// clauses must hold -- so the runner's allowance stops at git and does not
+	// become a general permission attached to the role.
+	//
+	// This is the direction worth testing, because getting it wrong turns a
+	// per-command allowance into a per-agent one, which is how a role quietly
+	// accumulates everything anybody ever granted it.
+	outcome := judgeAs(t, ruleSet(duties), "gate-runner", `rm x`)
+
+	if !outcome.Denied() {
+		t.Errorf("Action = %q, want deny: no rule permits rm for this agent, "+
+			"and being allowed means an allow rule matched", outcome.Action)
+	}
+}
+
+// COVERS: FR-7.13 | positive
+func TestTheMainSessionIsNamedByHavingNoAgentType(t *testing.T) {
+	t.Parallel()
+
+	// **FACT 2026-08-20: agent_id and agent_type appear only for a subagent**,
+	// so a main-session call carries neither. That is what makes absence
+	// dependable rather than a gap: the main session is the one caller reliably
+	// without an agent type, so `agent = ""` names it exactly and one rule set
+	// covers every caller.
+	//
+	// Without this the main session would be the one role no clause could
+	// address, and a launcher would have to vary what it passes -- which is the
+	// symlink and environment-variable management this exists to avoid.
+	files := ruleSet(duties)
+
+	if outcome := judgeAs(t, files, "", `git status`); outcome.Denied() {
+		t.Errorf("Action = %q, want allow: the main session is a role, not a gap",
+			outcome.Action)
+	}
+
+	// And it is a role rather than a wildcard: a subagent the rule set says
+	// nothing about is not covered by the main session's allowance.
+	if outcome := judgeAs(t, files, "unnamed-agent", `git status`); !outcome.Denied() {
+		t.Errorf("Action = %q, want deny: `agent = \"\"` names the main session, "+
+			"not every caller", outcome.Action)
+	}
+}
+
+// COVERS: FR-7.13 | edge
+func TestTheMainSessionClauseIsToldFromNoClauseAtAll(t *testing.T) {
+	t.Parallel()
+
+	// The distinction the pointer exists for. A rule that states no agent
+	// applies to every caller; a rule stating `agent = ""` applies to the main
+	// session only. Written as a plain string those two would be one, and the
+	// second would silently become the first -- turning a rule meant for one
+	// role into a rule for all of them, in an allow rule, which is the
+	// direction that hands out permission nobody granted.
+	const anyCaller = `
+[[rule]]
+id = "any-caller"
+action = "allow"
+reason = "No agent is named, so every caller is covered."
+  [[rule.clause]]
+  index = "0"
+  value = "git"
+`
+
+	if outcome := judgeAs(t, ruleSet(anyCaller), "some-agent", `git status`); outcome.Denied() {
+		t.Errorf("Action = %q, want allow: a rule naming no agent covers every caller",
+			outcome.Action)
+	}
+	if outcome := judgeAs(t, ruleSet(duties), "some-agent", `git status`); !outcome.Denied() {
+		t.Errorf("Action = %q, want deny: `agent = \"\"` is the main session, and "+
+			"stating no agent at all is what covers everybody", outcome.Action)
+	}
+}
+
 // parseFor parses a command, failing the test if it will not.
 func parseFor(t *testing.T, src string) *shell.Parsed {
 	t.Helper()
