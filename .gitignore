@@ -12,3 +12,9 @@ coverage.out
 
 # Session handoff. Ephemeral by design; state lives in the tracked documents.
 START_HERE.md
+
+# This machine's hook registration. It names absolute paths that exist here and
+# nowhere else -- /etc/qwark/rules, and qwark on PATH -- so it is a local
+# arrangement rather than something to hand to whoever clones this.
+# install/settings-fragment.json is the tracked account of what it should say.
+.claude/settings.local.json
