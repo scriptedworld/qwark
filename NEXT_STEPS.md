@@ -72,20 +72,42 @@ Two things qwark must fix to adopt, both found by reading the toolbox files:
    currently supplies only `command` and says the rest is inherited; under the
    toolbox jig there is nothing to inherit, so it needs `description`, `tags`,
    `requires`, `timeout` and the declared `output` as well.
-2. **`bin/` is gitignored here, and the `go` set links into it.**
-   `toolbox/jigs.yaml` requires `bin/test-traceability.py` and
-   `bin/suppression-register.py` *at those exact relative paths* — `{configdir}`
-   resolves through the link back to this root, so they cannot go elsewhere. The
-   ignore has to narrow to the build output (`bin/qwark`) or the binary has to
-   move, otherwise the links land untracked.
+2. **The `.gitignore` needs the linked set added.** Not `bin/` — that one is
+   already right.
 
-   **Worth handing to `link-jigs` itself.** The owner's design is that it detects
-   the repository's type to choose the file list — and this failure is not a
-   property of the type. Any Go project may ignore `bin/`, so linking would
-   succeed, `git status` would stay clean, and the adoption would look done while
-   the links exist on one machine and in no clone. That is the shape of failure
-   this whole project is about: something that looks installed and is not.
-   Refusing, or saying so, beats linking quietly into an ignored path.
+   **Owner, 2026-08-20:** *the things linked from the other repo should be
+   gitignored, as should any Go executable we generate — it's obviously
+   regenerateable.* So `bin/` covering both `bin/qwark` and the two linked
+   checker scripts is the intended state rather than a collision.
+
+   *Corrected from an earlier note here that called the ignored `bin/` a problem
+   and suggested handing it to `link-jigs` as a failure to refuse. It is not a
+   failure. A tracked symlink would store its target path as content, which
+   encodes where `../toolbox` sits — and committing the jig at all is vendoring,
+   which is the thing the no-vendoring rule already forbids. Adoption is a step
+   run per clone, like fetching modules; a missing link makes bolt fail loudly on
+   a path that is not there, which is the safe direction.*
+
+   What still needs entries, since only `bin/`, `coverage.out` and `.bolt*/` are
+   ignored today: `bolt.common-quality.yaml`, `bolt.go-std-quality.yaml`,
+   `adapters/`, and `config/go-std-quality.golangci.yml`. **`bolt.qwark.yaml`
+   stays tracked** — the overlay is this project's own content, and is exactly
+   the part a shared definition must not carry.
+
+   **Owner, 2026-08-20: the jig files also get baked into the anvil images**, so
+   a project's overlay refers to them there when its own file builds on top of
+   the anvil. That makes the symlinks the local-development route and the image
+   the built one, with the same set reached either way — and it is why ignoring
+   them is right rather than merely tolerable: in the image they come from the
+   layer beneath, so a copy committed here would be a third statement of the
+   same thing.
+
+   Reading `anvil/README.md` and `toolbox/GLOSSARY.md` rather than inferring:
+   bolt runs the checks, toolbox holds the jigs, anvil is what you run them on,
+   and none of the three depends on the other two in a circle. **An image
+   installs exactly the `requires:` of its matching jig** — *"the image manifest
+   is the jig, not a second list"*, which is the no-second-copy rule again, one
+   layer down.
 
 ## Done 2026-08-20: the stated denials, and git classified
 
