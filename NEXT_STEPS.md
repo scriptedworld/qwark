@@ -7,14 +7,26 @@ this file says what to do about it and what is waiting on an answer.
 
 ## Built, committed, and passing the gate
 
-**FACT 2026-08-20**, measured this session: `just checks` passes all twelve
-tasks; coverage 94.2% with every file above the 80% per-file floor; 188 tests
-carrying a `COVERS` line; **124** requirements of which 19 are deferred and
-**every testable one has a test**.
+**FACT 2026-08-20**, measured this session: the jig passes all twelve tasks;
+coverage 94.3% with every file above the 80% per-file floor; 207 tests carrying
+a `COVERS` line; **127** requirements of which 19 have no test, and every one of
+those is deferred.
 
-*Corrected 2026-08-20: this said 125 requirements. There are 124 —*
+    bolt -c ../bolt/bolt.go-std-quality.yaml -c bolt.qwark.yaml
+
+*Corrected 2026-08-20: this said 125 requirements when there were 124 —*
 *`grep -oE 'FR-[0-9]+\.[0-9]+[a-z]?' REQUIREMENTS.md | sort -u | wc -l`, and*
-*bolt's traceability task reports the same count independently.*
+*bolt's traceability task reports the count independently. It is 127 now:*
+*FR-10.10, FR-7.12 and FR-7.13 were added this session.*
+
+**REMOVED 2026-08-20: the `justfile`.** The owner did not add it — it arrived in
+`c812a9e`, the scaffold commit, and `CLAUDE.md` then recorded `just checks` as
+"the gate" as though that had been decided. Every recipe was either a one-line
+wrapper around the command above or a copy of a task bolt already defines, and
+its `tests` recipe was **byte-for-byte** bolt's `tests` command — the second
+copy free to drift that the no-vendoring rule exists to forbid. It also made
+qwark's own repository carry an executor and an agent-writable task definition
+inside the blast radius, which is the thing qwark is being built to refuse.
 
 - `internal/shell` — parse as Bash, gather every fact in one walk, and record
   the parser's own vocabularies (node types, operators, statement flags).
@@ -26,9 +38,54 @@ carrying a `COVERS` line; **124** requirements of which 19 are deferred and
   ends in a decision or exit 2.
 - `internal/reach`, `internal/repo` — blast-radius containment; branch read
   without running git.
-- `internal/cli` — `ast`, `facts`, `rules`, `judge`.
+- `internal/cli` — `ast`, `facts`, `rules`, `judge`, `hook`.
+- `internal/gate` — the join: a rule set and a request become a decision.
 - `rules/` — 50 rules across six files, and one declaration. Read the counts
   out of `./bin/qwark rules rules/` rather than from here.
+
+## Adopting the toolbox jigs
+
+**Owner, 2026-08-20:** the jigs and their supporting files belong to
+`../toolbox`; qwark and bolt should both be symlinks of them, and `link-jigs` is
+being built to do the symlinking. **`bolt` may still hold a copy from before
+that fixing started** — measured, it does.
+
+**FACT 2026-08-20**, measured, not inherited:
+
+- **The definition has been split in toolbox and bolt's copy predates it.**
+  `bolt.common-quality.yaml` carries `traceability`, `suppressions`,
+  `complexity`; `bolt.go-std-quality.yaml` carries `format`, `tidy`, `build`,
+  `vet`, `lint`, `tests`, `coverage`, `vuln`. Eleven between them. Bolt's single
+  file still has all twelve in one, `entrypoint` included.
+- **qwark passes the newer, stricter traceability today**, run directly against
+  it: `108 of 108` requirements held to coverage are covered, and the 19 with no
+  test are all `[?]` — *open and exempt*. **This is why bolt was not failing on
+  uncovered requirements: it is running the older checker**, which reported them
+  as context rather than holding settled ones to a test.
+
+Two things qwark must fix to adopt, both found by reading the toolbox files:
+
+1. **`entrypoint` must be defined in full, not overridden.** It is
+   *deliberately* absent from the shared jig — *"a shared definition carries the
+   rule and never the subject"*, and a task naming `./cmd/bolt` fails for every
+   adopter in a way that looks like the adopter's fault. `bolt.qwark.yaml`
+   currently supplies only `command` and says the rest is inherited; under the
+   toolbox jig there is nothing to inherit, so it needs `description`, `tags`,
+   `requires`, `timeout` and the declared `output` as well.
+2. **`bin/` is gitignored here, and the `go` set links into it.**
+   `toolbox/jigs.yaml` requires `bin/test-traceability.py` and
+   `bin/suppression-register.py` *at those exact relative paths* — `{configdir}`
+   resolves through the link back to this root, so they cannot go elsewhere. The
+   ignore has to narrow to the build output (`bin/qwark`) or the binary has to
+   move, otherwise the links land untracked.
+
+   **Worth handing to `link-jigs` itself.** The owner's design is that it detects
+   the repository's type to choose the file list — and this failure is not a
+   property of the type. Any Go project may ignore `bin/`, so linking would
+   succeed, `git status` would stay clean, and the adoption would look done while
+   the links exist on one machine and in no clone. That is the shape of failure
+   this whole project is about: something that looks installed and is not.
+   Refusing, or saying so, beats linking quietly into an ignored path.
 
 ## Done 2026-08-20: the stated denials, and git classified
 

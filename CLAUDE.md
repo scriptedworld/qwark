@@ -76,15 +76,42 @@ its row and the question that justified it.
 
 ## The gate
 
-**`just checks` is the gate.** It runs bolt against bolt's standard Go quality
-definition, overlaid with `bolt.qwark.yaml`.
+**Running the jig is the gate.** There is no task runner in between:
 
-    just checks     everything            just plan       what would run
-    just quick      the quick subset      just results    read the verdict back
+    bolt -c ../bolt/bolt.go-std-quality.yaml -c bolt.qwark.yaml            everything
+    bolt -c ../bolt/bolt.go-std-quality.yaml -c bolt.qwark.yaml quick      the quick subset
+    bolt plan -c ../bolt/bolt.go-std-quality.yaml -c bolt.qwark.yaml       what would run
+    bolt results                                                           read the verdict back
 
-**FACT 2026-08-19: twelve tasks, all passing; coverage 89.9% total with every
-file above the 80% per-file floor.** Read the task count out of the definition
-rather than from here.
+**That path is temporary and is being fixed. FACT 2026-08-20:** the jigs belong
+to `../toolbox`, which is the source of truth; **bolt's copy predates the split
+being made there and differs from it.** A project adopts a jig by symlinking a
+declared *set* of files — `toolbox/jigs.yaml` says which — at the same relative
+paths, because `{configdir}` resolves through the link back to the project's own
+root. `link-jigs` is being built to do that. Until it lands, the command above
+is what actually runs; afterwards the `-c` paths become local links. See
+`NEXT_STEPS.md` for the two things qwark must fix to adopt.
+
+**FACT 2026-08-20: twelve tasks, all passing; coverage 94.3% with every file
+above the 80% per-file floor.** Read the task count out of the definition rather
+than from here.
+
+**REMOVED 2026-08-20: there was a `justfile`, and it should not have been.** The
+owner did not add it — it arrived in `c812a9e`, the scaffold commit, and this
+file then recorded `just checks` as "the gate" as though that had been decided.
+Everything it did was either a one-line wrapper around the command above or a
+copy of a task bolt already defines: **its `tests` recipe was byte-for-byte
+bolt's `tests` command**, which is precisely the second copy free to drift that
+the paragraph below exists to forbid.
+
+It also cost something qwark of all projects should not pay. A task runner is an
+executor: `just checks` is a fixed command line whose meaning lives in a file in
+the working tree, so permitting it permits whatever that file says next. One
+fewer executor, and one fewer agent-writable definition inside the blast radius.
+
+*`bolt.qwark.yaml` is still such a file* — it overrides `entrypoint` with a
+shell command — so this narrows the surface rather than closing it. That is the
+manifest's job (FR-9.7).
 
 qwark does **not** vendor the definition. What does the checking — the adapters,
 the checker scripts, the linter config — resolves against `{configdir}`, which
@@ -92,7 +119,7 @@ is bolt's own directory; what is checked — `REQUIREMENTS.md`, `SUPPRESSIONS`,
 the source — stays relative to this one. Vendoring would be a second copy of a
 definition bolt already maintains, free to drift from it.
 
-*Set `BOLT_REPO` if bolt is not at `../bolt`.*
+*Give a different path to `-c` if bolt is not at `../bolt`.*
 
 **qwark is the first adopter of that definition**, which bolt's own CLAUDE.md
 flags as the untested case (FR-7.8). **FACT 2026-08-19: the split resolves
