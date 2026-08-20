@@ -609,6 +609,53 @@ manifest would have to say `*_test.go` is writable, because writing tests is the
 job. That is irreducible, and it is the reason `go test` is in the executor
 group rather than quietly allowed.
 
+### The second mode is a proxy, and the engine is what carries over
+
+**Owner, 2026-08-20:**
+
+> The next layer will be more than this as a gate, and will be an MCP that
+> becomes the proxy for the tools & mechanicals we want to allow. Then the
+> situation gets much more simple. … Once we have the proxy, then we can have
+> these kinds of rules for the various tools per agent type.
+
+This lands on a seam that was already left. The first line of `REQUIREMENTS.md`
+says **the *first* mode gates the Bash tool** — a proxy is the second, and the
+engine does not care which it is judging. A rule is clauses that must all hold;
+whether a clause selects a word of a command line or a field of a tool call is
+an adapter question, not a design one.
+
+**It turns denying into enumerating, and that is the whole gain.** qwark denies
+by default across the infinite space of things somebody might type. A proxy
+exposes a finite set of operations, so what exists is what was written down.
+Every hard problem in mode one is a consequence of the space being infinite and
+the text being ambiguous: quoting, escapes, aliases, shell functions, `PATH`,
+wrappers, interpreters, globs, substitutions. **A typed call cannot hide its own
+effect the way a command line can**, which is what the whole of tier one exists
+to force.
+
+The mechanicals mostly become API design. "Allowed as a word, refused in a
+shape" stops being a rule and becomes a parameter that is not offered — a
+`reflog` operation with no `expire`. "Refused unless" becomes a required
+argument. That is a better place for the constraint, because an operation that
+cannot be named cannot be attempted, and a refusal never has to be understood.
+
+**What carries over is the part worth keeping**: rules as conjunctions with no
+disjunction inside one, the strictest action winning so order never matters,
+deny as the engine's default rather than a rule's, a declaration granting
+understanding and not permission, groups so a class is a list rather than twenty
+rules, and a refusal that states its reason.
+
+**This is what makes FR-7.12 and FR-7.13 foundational rather than interim.**
+"These kinds of rules for the various tools per agent type" *is* the agent
+clause: the discriminator that is awkward to arrange in the plumbing is the
+natural one here, and it is the same clause either way.
+
+**What the proxy does not dissolve** is the residue everything else left. If the
+proxy exposes an operation that runs `just checks`, the `justfile` still decides
+what that does — the call is typed and its meaning is still in a file in the
+tree. The proxy has to own the recipe, or the recipe has to sit outside what the
+agent may write. Same residue as the sandbox, same answer: the manifest.
+
 ## Nothing is expanded
 
 **Owner, 2026-08-19:** *"we don't expand anything, that's why we block those."*

@@ -8,9 +8,13 @@ this file says what to do about it and what is waiting on an answer.
 ## Built, committed, and passing the gate
 
 **FACT 2026-08-20**, measured this session: `just checks` passes all twelve
-tasks; coverage 94.1% with every file above the 80% per-file floor; 186 tests
-carrying a `COVERS` line; 125 requirements of which 19 are deferred and **every
-testable one has a test**.
+tasks; coverage 94.2% with every file above the 80% per-file floor; 188 tests
+carrying a `COVERS` line; **124** requirements of which 19 are deferred and
+**every testable one has a test**.
+
+*Corrected 2026-08-20: this said 125 requirements. There are 124 —*
+*`grep -oE 'FR-[0-9]+\.[0-9]+[a-z]?' REQUIREMENTS.md | sort -u | wc -l`, and*
+*bolt's traceability task reports the same count independently.*
 
 - `internal/shell` — parse as Bash, gather every fact in one walk, and record
   the parser's own vocabularies (node types, operators, statement flags).
@@ -23,31 +27,151 @@ testable one has a test**.
 - `internal/reach`, `internal/repo` — blast-radius containment; branch read
   without running git.
 - `internal/cli` — `ast`, `facts`, `rules`, `judge`.
-- `rules/` — 39 draft rules across five files. Illustrative, not final.
+- `rules/` — 50 rules across six files, and one declaration. Read the counts
+  out of `./bin/qwark rules rules/` rather than from here.
 
-## Next: the actual command set
+## Done 2026-08-20: the stated denials, and git classified
 
-**Owner, 2026-08-20.** The next piece of work is the concrete list of commands
-to let through, and the guards over git.
+Three things the project had already said it never wanted, which no rule
+enforced. Each was measured before and after.
 
-> **MOST git commands are NOT okay for the agent to execute.**
+- **Globs.** `fact = "glob"` was computed by the engine and consumed by no
+  rule, so `rm *`, `rm ?.txt` and `rm *(e:'rm -rf /':)` were all allowed. Now
+  `no-glob` in tier one, where the property it defends is stated. Owner's
+  ruling: deny, no exception.
+- **Undeclared options.** FR-6.7 held in `internal/command` and did not reach
+  the verdict — `rm -Z x` was allowed. `internal/rules/evaluate.go` now
+  consults `Options.Faults`, and reports every one of them rather than the
+  first.
+- **`git config`.** Refused only by deny-by-default, saying nothing, while
+  `git -c` was denied by name. The persistent spelling was the unguarded one.
 
-That is the starting position, not a detail. `rules/10-commands.toml` currently
-denies a handful of git subcommands (`git-executes`) and says nothing about the
-rest, which under deny-by-default means the rest are refused anyway — but
-refused for the wrong reason, with a message that says "undeclared" rather than
-saying why. Per FR-4.21 the refusals worth having are explicit.
+**git is classified across all 64 porcelain commands**, checked mechanically
+against `git --list-cmds` rather than by eye. Nine groups, each carrying its own
+reason; overlaps are intended and every reason is collected. Read-only is
+allowed per the owner's ruling, and that allowance is narrow because
+`05-declarations.toml` omits the dangerous options, not because a rule names
+them.
 
-Useful facts for that work:
+## Next: per-agent command surfaces
 
-- `declarations: 0` today. Nothing is declared, so nothing runs. Check with
-  `./bin/qwark rules rules/`.
-- Try a rule before trusting it: `./bin/qwark judge rules/ -- git commit -m x`.
-- A declaration grants understanding, not permission. Declaring git is what
-  lets a rule say something precise about `git push --force`; it permits
-  nothing on its own.
-- `.ephemera/demo-allow.toml` holds throwaway declarations and allow rules used
-  to exercise the chain. It is not part of the rule set and is gitignored.
+**Owner, 2026-08-20**, and this resets the target rather than extending it:
+
+> Eventually the goal is that the agents will **never** be executing git
+> commands, and instead have a very specific command surface they are allowed.
+> The more specialised the agent, the more the list can be narrowed. One would
+> expect that either the list ends up a duplication of a series of allowed
+> commands in the agent text or supporting files, or those end up referencing
+> these rule files.
+
+- **CORRECTED 2026-08-20: the mechanism does *not* already exist.** This said
+  the external process chooses rule files per agent (FR-10.6a) and that
+  narrowing needed more files rather than more machinery. That holds only when
+  every specialised agent is its own session. **The registration is fixed for a
+  session, so a subagent inherits its parent's command line** and a partition
+  chosen by the launcher collapses. FR-10.6a is revised; see below.
+- **The read-only git allowance is a waypoint.** It stands because it was ruled
+  on, and the direction above says the eventual answer is narrower. It is the
+  first thing to remove once the specific surfaces exist.
+- **The duplication is open.** An agent's prompt saying what it may run and a
+  rule file deciding what it may run are two statements of one fact. Either the
+  rules generate the agent text or the agent text references the rules; the
+  owner named both directions and settled neither.
+
+### The engine carries the separation, and it is buildable now
+
+**Owner, 2026-08-20:** *"The point of the rules is using the engine to support
+that separation of duties."* The answer to an agent writing a `justfile` and
+then running `just` is not an unwritable file — it is that **the agent that can
+write those files is not the agent allowed to run them.**
+
+The owner ruled out doing it in the plumbing: the base session has no
+`agent_type`, so a launcher-side partition means *"actively managing symlinks or
+something else … some form of ENV VAR that will have to be actively managed …
+which feels rickety"*. FR-10.6 had already chosen the payload over an
+environment variable, for the reason that **the subject can reach an environment
+variable and cannot set its own `agent_type`.**
+
+Two requirements state the shape, both `[?]` and unbuilt:
+
+- **FR-7.12** — a clause may name the agent the request came from.
+- **FR-7.13** — **absence is a role.** A main-session call reliably carries no
+  agent type, so `agent` with `absent = true` names the main session exactly.
+
+FR-7.13 is what removes the ricketiness: **one rule set, named once in
+`settings.json`, carrying every role's policy inside it.** No symlink swapping,
+no environment variable, nothing to keep in step outside the file being read.
+
+The build is small — `Agent` on `Clause`, an agent type on `Context`, the
+plumbing in `hook`, and the tests. It composes rather than adding a mechanism: an
+`agent` clause is a clause, rules stay conjunctions, strictest still wins, and a
+role cannot grant itself anything because deny outranks allow.
+
+**Two limits to know before relying on it.** Two *main sessions* are
+indistinguishable — if writer and runner are both top-level launches, no clause
+tells them apart and the launcher must still differ. And a partition does not
+stop a chain: writer writes, runner runs, neither breaks its own rules.
+**Owner, 2026-08-20: the task management process is what sits between them** —
+the same process that produces the manifest of FR-9.7. So the manifest and the
+partition are not alternatives; the manifest is what makes the partition mean
+something.
+
+Useful when working on it:
+
+- `./bin/qwark rules rules/` for the counts; `./bin/qwark judge rules/ -- <cmd>`
+  to try a rule before trusting it.
+- A declaration grants understanding, not permission — but it *is* the
+  eligibility surface, so adding one is a wider change than adding a rule.
+  `05-declarations.toml` says so at the top and lists what is deliberately left
+  out.
+- `.ephemera/demo-allow.toml` holds throwaway declarations used to exercise the
+  chain. It is not part of the rule set and is gitignored.
+
+## The horizon: a proxy, and what survives it
+
+**Owner, 2026-08-20:** the next layer is an MCP server that becomes the proxy
+for the tools and mechanicals to be allowed — *"then the situation gets much
+more simple … once we have the proxy, then we can have these kinds of rules for
+the various tools per agent type."*
+
+`REQUIREMENTS.md` already says **the *first* mode gates the Bash tool**, so this
+is the second rather than a replacement. It matters for what to invest in now:
+
+- **The engine carries over.** Conjunctions, strictest-wins, deny-by-default,
+  declarations, groups, reasons that explain themselves — none of that is about
+  shells.
+- **The shell half is mode-one adapter.** Tier one exists because a command line
+  can hide its own effect; a typed tool call cannot, so quoting, aliases,
+  functions, `PATH`, wrappers and globs stop being problems rather than being
+  solved.
+- **FR-7.12 and FR-7.13 are foundational, not interim.** "Rules for the various
+  tools per agent type" is the agent clause. Build them.
+- **The mechanicals become API design.** Allowed-as-a-word-refused-in-a-shape
+  becomes a parameter that is not offered.
+- **The residue survives.** A proxy operation that runs `just checks` still has
+  its meaning in the `justfile`. The proxy owns the recipe, or the manifest
+  keeps it out of the agent's write surface.
+
+## Two contradictions inside the rule set
+
+Both found by running the rules rather than by reading them.
+
+1. **`commit-must-be-signed` fires on a signed commit.** `--gpg-sign` is not
+   declared, so the `absent = true` clause holds and the rule tells somebody who
+   signed that they must sign. The verdict fails safe; the message does not.
+   **A "refused unless" rule is only honest when the option it excepts is
+   declared** — written up as shape 3 in DESIGN-NOTES. Moot while `git commit`
+   is denied by class, live the moment it is not.
+2. **The post-rebase tag machinery cannot fire.** `git rebase` is denied, and a
+   denied command has no effect of any kind (FR-4.24), so `note-rebase` never
+   sets the tag and everything in 40-state.toml that depends on it is
+   unreachable. That file is illustrative and tags are deferred, so this is not
+   a fault — but it does mean the worked example is not exercised by anything.
+
+   The related break in it *was* real and is fixed: `git reflog` had been denied
+   as history-rewriting, which made `no-deleting-after-a-rebase`'s own
+   instruction impossible to follow. The word is allowed and `expire`, `delete`
+   and `drop` are denied at ordinal 2.
 
 ## Waiting on an answer
 
@@ -64,6 +188,20 @@ Useful facts for that work:
    That is a declaration question: a `writes` flag per command, or per option.
 4. **The manifest** (FR-9.7) — created by the task management process, read at
    runtime, saying which files may be read and which written.
+
+**Owner, 2026-08-20: 3 and 4 are the priority, and not for the reason they look
+like.** The end state is three layers — a sandbox, the blast radius, then the
+manifest. The sandbox absorbs four of the six path groups in `20-paths.toml`,
+because those files are simply not in it. **Two are inside the sandbox and no
+sandbox removes them**: `repository-hooks` and `task-definition`. The blast
+radius does not help there either, since a `justfile` is already inside the
+project — which is the one place the agent must be able to write.
+
+So the manifest is the only layer of the three that discriminates between files
+inside the blast radius, and it is therefore the layer that answers "if they can
+write a new file, they can get the agent to approve anything". Both of its
+requirements are `[?]` and unbuilt. See the design note **The end state is three
+layers**.
 
 ## Known limits, written down so they are not rediscovered
 
