@@ -63,7 +63,7 @@ func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	case "judge":
 		return judge(args[1:], stdout, stderr)
 	case "hook":
-		return gate(args[1:], stdin, stdout, stderr)
+		return runHook(args[1:], stdin, stdout, stderr)
 	case "help", "-h", "--help":
 		_, _ = fmt.Fprint(stdout, Usage)
 		return statusOK

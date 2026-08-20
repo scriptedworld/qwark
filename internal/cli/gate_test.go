@@ -46,7 +46,12 @@ func decisionIn(t *testing.T, out string) (string, string) {
 	return reply.Specific.Decision, reply.Specific.Reason
 }
 
-// ruleFile writes one rule file into a temporary directory and returns the path.
+// ruleFile writes a rule file into a directory this user can write, which is
+// every directory a test can make.
+//
+// That is exactly the condition the hook refuses, so these tests are about the
+// refusals. What the gate does once it believes its rule set is
+// `internal/gate`'s to prove, and it is a separate package for that reason.
 func ruleFile(t *testing.T, body string) string {
 	t.Helper()
 
@@ -57,59 +62,80 @@ func ruleFile(t *testing.T, body string) string {
 	return dir
 }
 
-// COVERS: FR-10.3 | positive
-func TestTheHookDecidesAndSaysSoInTheJSON(t *testing.T) {
+// COVERS: FR-4.17 | negative
+func TestARewritableRuleSetPermitsNothing(t *testing.T) {
 	t.Parallel()
 
-	// **The exit status is not the answer.** A hook that has decided exits 0
-	// and puts the decision in the JSON; a non-zero exit claims the hook failed
-	// to run, which is a different thing and one the caller treats differently.
+	// The refusal that matters most, and the one that was easiest not to
+	// notice: CheckOwnership was written, tested and exported -- and called by
+	// nothing, so the gate would happily load rules the subject can edit.
 	//
-	// Until this subcommand existed, everything else here was a way of asking
-	// qwark questions. internal/hook.Run was built and tested with nothing
-	// calling it, so no payload had ever produced a decision.
-	out, errOut, status := invoke(t, payload(t, "git status"), "hook", "../../rules")
+	// An agent constrained by rules it can rewrite is constrained by nothing,
+	// and it needs no shell to rewrite them: Write and Edit reach those files
+	// without passing through this gate at all. So a writable rule set is not a
+	// degraded gate to run with a warning -- it is the absence of one.
+	//
+	// This is also why the repository's own `rules/` cannot be the installed
+	// path. A draft is writable by whoever is drafting it.
+	writable := ruleFile(t, "[[rule]]\nid = \"x\"\naction = \"deny\"\n"+
+		"reason = \"y\"\n  [[rule.clause]]\n  index = \"0\"\n  value = \"z\"\n")
+
+	out, _, status := invoke(t, payload(t, "git status"), "hook", writable)
 
 	if status != statusOK {
-		t.Fatalf("status = %d, want %d; stderr = %q", status, statusOK, errOut)
-	}
-
-	decision, reason := decisionIn(t, out)
-	if decision != "allow" {
-		t.Errorf("decision = %q, want allow; reason = %q", decision, reason)
-	}
-	if !strings.Contains(reason, "allow-reading-the-repository") {
-		t.Errorf("reason = %q, want it to name the rule that decided", reason)
-	}
-}
-
-// COVERS: FR-4.25 | property
-func TestTheHookReturnsEveryReasonRatherThanTheFirst(t *testing.T) {
-	t.Parallel()
-
-	// A refusal naming one problem out of three sends its reader round three
-	// times. The evaluator gathers every reason precisely so it does not have
-	// to, and that is only worth anything if the reply carries them.
-	out, _, status := invoke(t,
-		payload(t, "git push --force"), "hook", "../../rules")
-
-	if status != statusOK {
-		t.Fatalf("status = %d, want %d", status, statusOK)
+		t.Fatalf("status = %d, want a decision rather than a dead process", status)
 	}
 
 	decision, reason := decisionIn(t, out)
 	if decision != "deny" {
-		t.Fatalf("decision = %q, want deny", decision)
+		t.Errorf("decision = %q, want deny for a rule set this user can rewrite",
+			decision)
+	}
+	if !strings.Contains(reason, "rewritten by the user qwark runs as") {
+		t.Errorf("reason = %q, want it to say the rule set is not a constraint",
+			reason)
+	}
+	if !strings.Contains(reason, "root-owned") {
+		t.Errorf("reason = %q, want it to say where the rules should live: the "+
+			"fix is deployment, not configuration", reason)
+	}
+}
+
+// COVERS: FR-4.5, FR-4.6 | negative
+func TestABrokenRuleSetPermitsNothingAndSaysWhere(t *testing.T) {
+	t.Parallel()
+
+	// A gate that becomes permissive when its own configuration is broken
+	// reports success while guarding nothing. The cost is that a typo denies
+	// every command until it is fixed -- so the refusal has to name where, and
+	// the way out must not itself need Bash.
+	//
+	// Both faults are reported. This rule set is unparseable AND rewritable,
+	// and saying only the graver one sends its reader back for the other --
+	// the same reason a refusal lists every rule that objected rather than the
+	// first one.
+	broken := ruleFile(t, "[[rule]]\nid = \"unclosed\n")
+
+	out, _, status := invoke(t, payload(t, "git status"), "hook", broken)
+
+	if status != statusOK {
+		t.Fatalf("status = %d, want a decision rather than a dead process", status)
 	}
 
-	for _, want := range []string{
-		"no-git-hook-running",
-		"no-git-reaching-the-network",
-		"accounted options only",
-	} {
-		if !strings.Contains(reason, want) {
-			t.Errorf("reason does not mention %q; reason = %q", want, reason)
-		}
+	decision, reason := decisionIn(t, out)
+	if decision != "deny" {
+		t.Errorf("decision = %q, want deny", decision)
+	}
+	if !strings.Contains(reason, "00.toml") {
+		t.Errorf("reason = %q, want it to name the file", reason)
+	}
+	if !strings.Contains(reason, "Edit tool") {
+		t.Errorf("reason = %q, want a way out that does not need Bash -- which "+
+			"is the one thing this refusal has taken away", reason)
+	}
+	if !strings.Contains(reason, "rewritten by the user") {
+		t.Errorf("reason = %q, want both faults reported, not only the graver one",
+			reason)
 	}
 }
 
@@ -121,7 +147,7 @@ func TestTheHookExitsTwoWhenItCannotDecide(t *testing.T) {
 	// no JSON is no decision and the call proceeds; every other non-zero status
 	// is a non_blocking_error and the call also proceeds. So a truncated
 	// payload has to exit 2, or a broken connection becomes an approval.
-	_, errOut, status := invoke(t, `{"tool_name"`, "hook", "../../rules")
+	_, errOut, status := invoke(t, `{"tool_name"`, "hook", ruleFile(t, ""))
 
 	if status != 2 {
 		t.Errorf("status = %d, want 2: any other status lets the command run", status)
@@ -146,131 +172,5 @@ func TestTheHookWithNoRulesPathBlocks(t *testing.T) {
 	}
 	if !strings.Contains(errOut, "rules path") {
 		t.Errorf("stderr = %q, want it to say what was missing", errOut)
-	}
-}
-
-// COVERS: FR-4.5, FR-4.6 | negative
-func TestABrokenRuleSetPermitsNothingAndSaysWhere(t *testing.T) {
-	t.Parallel()
-
-	// A gate that becomes permissive when its own configuration is broken
-	// reports success while guarding nothing. The cost is that a typo denies
-	// every command until it is fixed -- so the refusal has to name where, and
-	// the way out must not itself need Bash.
-	broken := ruleFile(t, "[[rule]]\nid = \"unclosed\n")
-
-	out, _, status := invoke(t, payload(t, "git status"), "hook", broken)
-
-	if status != statusOK {
-		t.Fatalf("status = %d, want a decision rather than a dead process", status)
-	}
-
-	decision, reason := decisionIn(t, out)
-	if decision != "deny" {
-		t.Errorf("decision = %q, want deny: a rule set that will not load "+
-			"permits nothing", decision)
-	}
-	if !strings.Contains(reason, "00.toml") {
-		t.Errorf("reason = %q, want it to name the file", reason)
-	}
-	if !strings.Contains(reason, "Edit tool") {
-		t.Errorf("reason = %q, want a way out that does not need Bash -- which "+
-			"is the one thing this refusal has taken away", reason)
-	}
-}
-
-// COVERS: FR-4.12 | negative
-func TestTheHookRefusesWhatItCannotParse(t *testing.T) {
-	t.Parallel()
-
-	// A command qwark cannot parse is one it cannot judge, and that is a
-	// verdict rather than an absence of findings. The parser's own message goes
-	// back because it carries the line and column.
-	out, _, status := invoke(t, payload(t, "echo a )"), "hook", "../../rules")
-
-	if status != statusOK {
-		t.Fatalf("status = %d, want a decision", status)
-	}
-
-	decision, reason := decisionIn(t, out)
-	if decision != "deny" {
-		t.Errorf("decision = %q, want deny", decision)
-	}
-	if !strings.Contains(reason, "could not parse") {
-		t.Errorf("reason = %q, want it to say parsing was what failed", reason)
-	}
-}
-
-// COVERS: FR-4.20 | negative
-func TestTheHookRefusesAToolItDoesNotModel(t *testing.T) {
-	t.Parallel()
-
-	// Finding no command to check is not the same as finding nothing to check.
-	// A matcher wide enough to send Write here blocks loudly, which is the
-	// failure worth having: the alternative is a gate that judges nothing while
-	// looking installed.
-	request := `{"hook_event_name":"PreToolUse","tool_name":"Write",` +
-		`"tool_input":{"file_path":"/tmp/x","content":"y"}}`
-
-	out, _, status := invoke(t, request, "hook", "../../rules")
-
-	if status != statusOK {
-		t.Fatalf("status = %d, want a decision", status)
-	}
-
-	decision, reason := decisionIn(t, out)
-	if decision != "deny" {
-		t.Errorf("decision = %q, want deny", decision)
-	}
-	if !strings.Contains(reason, "matcher") {
-		t.Errorf("reason = %q, want it to name the misconfiguration and its fix",
-			reason)
-	}
-}
-
-// COVERS: FR-7.12 | positive
-func TestTheHookJudgesAsTheAgentThePayloadNames(t *testing.T) {
-	t.Parallel()
-
-	// The payload's agent_type has to reach the evaluator, or the agent clause
-	// is a mechanism nothing feeds. This is the wiring that makes separation of
-	// duties real rather than expressible.
-	rules := ruleFile(t, `
-[command.echo]
-operands = "text"
-
-[[rule]]
-id = "only-the-runner"
-action = "allow"
-reason = "The gate runner may echo."
-  [[rule.clause]]
-  agent = "gate-runner"
-  [[rule.clause]]
-  index = "0"
-  value = "echo"
-`)
-
-	as := func(agent string) string {
-		body, err := json.Marshal(map[string]any{
-			"hook_event_name": "PreToolUse",
-			"tool_name":       "Bash",
-			"agent_type":      agent,
-			"tool_input":      map[string]any{"command": "echo hello"},
-		})
-		if err != nil {
-			t.Fatalf("building the payload: %v", err)
-		}
-		return string(body)
-	}
-
-	out, _, _ := invoke(t, as("gate-runner"), "hook", rules)
-	if decision, reason := decisionIn(t, out); decision != "allow" {
-		t.Errorf("decision = %q for the runner, want allow; reason = %q",
-			decision, reason)
-	}
-
-	out, _, _ = invoke(t, as("file-writer"), "hook", rules)
-	if decision, _ := decisionIn(t, out); decision != "deny" {
-		t.Errorf("decision = %q for the writer, want deny", decision)
 	}
 }
