@@ -18,3 +18,18 @@ START_HERE.md
 # arrangement rather than something to hand to whoever clones this.
 # install/settings-fragment.json is the tracked account of what it should say.
 .claude/settings.local.json
+
+# The adopted jig links. `toolbox/jigs.yaml` declares the set; `link-jigs` makes
+# them. They are ignored because in a built image the same files arrive from the
+# anvil layer beneath, so a committed copy would be a third statement of one
+# thing -- and a tracked symlink stores its target path as content, which would
+# encode where ../toolbox happens to sit.
+#
+# Named one at a time rather than as `bolt.*.yaml`, because that glob would also
+# swallow `bolt.qwark.yaml` -- this project's own overlay, which IS tracked and
+# is the one part a shared definition must never carry.
+bolt.common-quality.yaml
+bolt.go-std-quality.yaml
+bolt.secrets.yaml
+adapters/
+config/

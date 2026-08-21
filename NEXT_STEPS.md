@@ -358,3 +358,16 @@ layers**.
 - **Cost ordering** (FR-4.2) — cannot change a verdict, only how much work
   happens before it is known. The seam is `order` in the evaluator, today the
   identity.
+
+## The open questions DESIGN-NOTES used to carry
+
+Moved here on 2026-08-21 when that document was split, and **three of the four
+had been settled without the list being updated** — which is the argument for
+keeping open questions in one place rather than at the end of a design record.
+
+| Question | State |
+|---|---|
+| Does a *denied* command decrement a sticky tag's countdown? | **SETTLED.** FR-4.24: a denied command has no effect of any kind. The Redis shape makes it structural rather than remembered — a denied command issues no update, so it cannot tick. |
+| `substitution.parameter` bans `$HOME` and `$PWD` along with the rest. Intended? | **SETTLED, and intended.** `rules/00-structure.toml` says so outright: *"command, process, arithmetic and parameter alike, so $HOME and $PWD are included."* |
+| Verdict for a command qwark cannot parse. | **SETTLED.** FR-4.12 — denied, with the parser's own message, which carries the line and column. |
+| Which environment variables may be logged by value; where the log lives; whether it rotates. | **STILL OPEN.** FR-4.8, FR-4.9, FR-4.9a, all `[?]`. This is mode two, the audit, and the same store question the leaking bucket runs into. |
