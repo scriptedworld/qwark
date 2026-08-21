@@ -1094,7 +1094,9 @@ argument-level constraint remains is what rules are still for.
 
 **PREFERENCE, owner, 2026-08-19.** TOML, in multiple rule files that are
 aggregated. `github.com/BurntSushi/toml` — already the house library
-(`linux.dotfiles/go/internal/manifest`), and its `ParseError.ErrorWithPosition`
+(`dotfiles/go/internal/manifest` — that repository was named `linux.dotfiles`
+when this was written, and took over the `dotfiles` name on 2026-08-20), and its
+`ParseError.ErrorWithPosition`
 renders a source excerpt with line and column, which this design needs:
 
 **If any rule file is unparseable, Bash is unusable.** Fail-closed. A gate that
