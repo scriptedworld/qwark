@@ -34,7 +34,7 @@
     "with the groups in rules/20-paths.toml; they are one control written twice",
     "because two different mechanisms enforce the two halves.",
     "",
-    "WHY A TASK DEFINITION IS ON THIS LIST. Owner, 2026-08-20: `if they can",
+    "WHY A TASK DEFINITION IS ON THIS LIST. 2026-08-20: `if they can",
     "write a new file, then they can then get the agent to approve anything`.",
     "`just checks` is a fixed, familiar command line whose meaning lives in a",
     "file in the working tree. Permitting the command permits whatever that file",

@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**Requirement, owner, 2026-08-19.** Rule files must be unwritable at runtime.
+**Requirement, 2026-08-19.** Rule files must be unwritable at runtime.
 
 This is the same finding the predecessor ended on, arriving from the other
 direction. `archive-guard.sh` concluded that a tool-layer gate cannot be the

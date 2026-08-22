@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**Owner, 2026-08-20:**
+**2026-08-20:**
 
 > The next layer will be more than this as a gate, and will be an MCP that
 > becomes the proxy for the tools & mechanicals we want to allow. Then the
@@ -76,7 +76,7 @@ rules, and a refusal that states its reason.
 clause: the discriminator that is awkward to arrange in the plumbing is the
 natural one here, and it is the same clause either way.
 
-**A proxy per agent type is the stronger form**, and the owner raised it as an
+**A proxy per agent type is the stronger form**, and raised as an
 alternative or an addition: *"if we encode a PROXY for each of the agent types …
 which would likewise limit everything"*. It is stronger for the same reason
 enumeration beats denial — **an unexposed tool cannot be called at all**, while
@@ -88,7 +88,7 @@ is the duplication problem in another dress. One proxy with agent-scoped rules
 keeps the policy in one readable file; a proxy per agent type puts it in the
 wiring. Unless the surfaces are generated from a single source — and the rule
 files are the obvious candidate, which is the "those end up referencing these
-rule files" branch the owner named.
+rule files" branch named.
 
 That also says what the agent clause is for once proxies exist: not the primary
 control, but a check on the wiring rather than the wiring itself — and the

@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**Owner, 2026-08-20**, asked which git commands should be reclaimed as guarded
+**2026-08-20**, asked which git commands should be reclaimed as guarded
 allows — the answer was none, and the reason resets the target:
 
 > Eventually the goal is that the agents will **never** be executing git

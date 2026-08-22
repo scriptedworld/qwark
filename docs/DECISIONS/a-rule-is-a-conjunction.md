@@ -6,11 +6,11 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**PREFERENCE, owner, 2026-08-19.** A rule is several clauses, *all* of which must
+**PREFERENCE, 2026-08-19.** A rule is several clauses, *all* of which must
 match. There is no disjunction inside one. Where alternatives are wanted, they
 are written as separate, nearly identical rules.
 
-The worked example, in the owner's words:
+The worked example, in the words used at the time:
 
     rm -r -f     forbidden, because of -f
     rm -r        no -f: ask, warning that it is recursive

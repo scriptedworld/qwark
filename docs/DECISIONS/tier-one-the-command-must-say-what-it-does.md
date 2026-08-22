@@ -7,7 +7,7 @@ concurrent sessions colliding.*
 
 
 The first rule bans **redirections, substitutions, pipes, and logical
-concatenation**. Two separate reasons, both the owner's, 2026-08-19:
+concatenation**. Two separate reasons, both the, 2026-08-19:
 
 - **Redirections buy nothing.** The tool call already returns stdout and stderr
   separately, so redirecting to capture output is redundant — the harness hands

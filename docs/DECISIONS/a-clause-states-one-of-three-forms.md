@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**PREFERENCE, owner, 2026-08-20.** A clause states what it tests for in one of
+**PREFERENCE, 2026-08-20.** A clause states what it tests for in one of
 three forms, and may say which reading of the word it tests.
 
     value   = "rm"          the whole word, exactly

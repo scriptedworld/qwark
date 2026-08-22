@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**Owner, 2026-08-20:** *"there are also still things that are going to need a
+**2026-08-20:** *"there are also still things that are going to need a
 way to deal with this leaking bucket for the ttl tracking."*
 
 There is a contradiction between the options above and a constraint already

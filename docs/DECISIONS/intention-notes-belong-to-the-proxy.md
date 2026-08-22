@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**Owner, 2026-08-20:** *"the point of the proxy is also to help include that
+**2026-08-20:** *"the point of the proxy is also to help include that
 we're asking each tool usage to include notes regarding the intention"* — and,
 asked whether to build an intention clause into the Bash gate: **"No, the intent
 is for the PROXY."**

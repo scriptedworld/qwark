@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**Owner, 2026-08-20.** The answer to an agent writing a `justfile` and then
+**2026-08-20.** The answer to an agent writing a `justfile` and then
 running `just` is not to make the file unwritable. It is that **the agent which
 can write those files is not the agent allowed to run them**:
 
@@ -73,7 +73,7 @@ it: two agents, neither breaking its own rules, and the effect composes into the
 attack the partition was meant to prevent. Separation of duties is only a
 control if something sits between the two.
 
-**Owner, 2026-08-20: that something is the task management process** — the same
+**2026-08-20: that something is the task management process** — the same
 process that produces the manifest of FR-9.7. It sees what the writer changed
 before any runner is dispatched against it. So the manifest and the partition
 are not alternatives; the manifest is what makes the partition mean something,

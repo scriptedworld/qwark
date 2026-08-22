@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**PREFERENCE, owner, 2026-08-20**, asked what a "library of useful mechanicals"
+**PREFERENCE, 2026-08-20**, asked what a "library of useful mechanicals"
 should be: a catalogue of the shapes, not a file of rules. What follows is that
 catalogue. Nothing here is a new mechanism — each is the existing schema used a
 particular way — and the point of naming them is that the next person writing a

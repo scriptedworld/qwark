@@ -45,7 +45,7 @@ inside the blast radius, which is the thing qwark is being built to refuse.
 
 ## Adopting the toolbox jigs
 
-**Owner, 2026-08-20:** the jigs and their supporting files belong to
+**2026-08-20:** the jigs and their supporting files belong to
 `../toolbox`; qwark and bolt should both be symlinks of them, and `link-jigs` is
 being built to do the symlinking. **`bolt` may still hold a copy from before
 that fixing started** — measured, it does.
@@ -75,7 +75,7 @@ Two things qwark must fix to adopt, both found by reading the toolbox files:
 2. **The `.gitignore` needs the linked set added.** Not `bin/` — that one is
    already right.
 
-   **Owner, 2026-08-20:** *the things linked from the other repo should be
+   **2026-08-20:** *the things linked from the other repo should be
    gitignored, as should any Go executable we generate — it's obviously
    regenerateable.* So `bin/` covering both `bin/qwark` and the two linked
    checker scripts is the intended state rather than a collision.
@@ -94,7 +94,7 @@ Two things qwark must fix to adopt, both found by reading the toolbox files:
    stays tracked** — the overlay is this project's own content, and is exactly
    the part a shared definition must not carry.
 
-   **Owner, 2026-08-20: the jig files also get baked into the anvil images**, so
+   **2026-08-20: the jig files also get baked into the anvil images**, so
    a project's overlay refers to them there when its own file builds on top of
    the anvil. That makes the symlinks the local-development route and the image
    the built one, with the same set reached either way — and it is why ignoring
@@ -128,13 +128,13 @@ enforced. Each was measured before and after.
 **git is classified across all 64 porcelain commands**, checked mechanically
 against `git --list-cmds` rather than by eye. Nine groups, each carrying its own
 reason; overlaps are intended and every reason is collected. Read-only is
-allowed per the owner's ruling, and that allowance is narrow because
+allowed per the ruling, and that allowance is narrow because
 `05-declarations.toml` omits the dangerous options, not because a rule names
 them.
 
 ## Next: per-agent command surfaces
 
-**Owner, 2026-08-20**, and this resets the target rather than extending it:
+**2026-08-20**, and this resets the target rather than extending it:
 
 > Eventually the goal is that the agents will **never** be executing git
 > commands, and instead have a very specific command surface they are allowed.
@@ -161,7 +161,7 @@ them.
 
 ### The engine carries the separation, and it is buildable now
 
-**Owner, 2026-08-20:** *"The point of the rules is using the engine to support
+**2026-08-20:** *"The point of the rules is using the engine to support
 that separation of duties."* The answer to an agent writing a `justfile` and
 then running `just` is not an unwritable file — it is that **the agent that can
 write those files is not the agent allowed to run them.**
@@ -202,7 +202,7 @@ documents the clause and the policy waits on the roles being named.
 
 ## Mode one runs: `qwark hook`
 
-**Owner, 2026-08-20:** *"Mode One is the most useful here & now because I don't
+**2026-08-20:** *"Mode One is the most useful here & now because I don't
 have the rest of the system built, so that development needs further quality
 controls."*
 
@@ -235,7 +235,7 @@ the one that turns this from a program into a control.
 indistinguishable — if writer and runner are both top-level launches, no clause
 tells them apart and the launcher must still differ. And a partition does not
 stop a chain: writer writes, runner runs, neither breaks its own rules.
-**Owner, 2026-08-20: the task management process is what sits between them** —
+**2026-08-20: the task management process is what sits between them** —
 the same process that produces the manifest of FR-9.7. So the manifest and the
 partition are not alternatives; the manifest is what makes the partition mean
 something.
@@ -253,7 +253,7 @@ Useful when working on it:
 
 ## The horizon: a proxy, and what survives it
 
-**Owner, 2026-08-20:** the next layer is an MCP server that becomes the proxy
+**2026-08-20:** the next layer is an MCP server that becomes the proxy
 for the tools and mechanicals to be allowed — *"then the situation gets much
 more simple … once we have the proxy, then we can have these kinds of rules for
 the various tools per agent type."*
@@ -299,7 +299,7 @@ Both found by running the rules rather than by reading them.
 
 ## Waiting on an answer
 
-1. **How tag state survives between calls.** Deferred by the owner on
+1. **How tag state survives between calls.** Deferred deliberately on
    2026-08-20 — the shape is settled and the foundation is in place, but there
    will be no store until there are concrete scenarios worth limiting this way.
    Nine requirements sit behind it (FR-4.7, 4.13, and section 8).
@@ -314,7 +314,7 @@ Both found by running the rules rather than by reading them.
    the subject is not. See **The leaking bucket has no honest home in mode one**.
 2. **The observability log**: where it lives, whether it rotates, and the list
    of environment variables whose values are withheld. Three requirements
-   (FR-4.8, 4.9, 4.9a). The withhold model is a denylist by the owner's choice,
+   (FR-4.8, 4.9, 4.9a). The withhold model is a denylist by a deliberate choice,
    with pattern matching added because naming secrets one at a time fails open.
 3. **Which commands write.** FR-9.6 says any path given to a writing command
    must stay in the blast radius, and nothing yet says which commands write.
@@ -322,7 +322,7 @@ Both found by running the rules rather than by reading them.
 4. **The manifest** (FR-9.7) — created by the task management process, read at
    runtime, saying which files may be read and which written.
 
-**Owner, 2026-08-20: 3 and 4 are the priority, and not for the reason they look
+**2026-08-20: 3 and 4 are the priority, and not for the reason they look
 like.** The end state is three layers — a sandbox, the blast radius, then the
 manifest. The sandbox absorbs four of the six path groups in `20-paths.toml`,
 because those files are simply not in it. **Two are inside the sandbox and no

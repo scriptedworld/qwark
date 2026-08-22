@@ -50,7 +50,7 @@
 # The worked example
 # ============================================================================
 #
-# Owner, 2026-08-19: "if a rule had just done a rebase, maybe we say for 6
+# 2026-08-19: "if a rule had just done a rebase, maybe we say for 6
 # commands, you aren't allowed to delete anything."
 #
 # The rebase is what makes this worth having. Immediately after one, the tree

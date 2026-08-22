@@ -104,7 +104,7 @@ members = [
 
 # The files that DEFINE what a task runner runs.
 #
-# Owner, 2026-08-20, and this is the sharpest statement of the threat in this
+# 2026-08-20, and this is the sharpest statement of the threat in this
 # project so far:
 #
 # > I worry about letting them run bolt ... running ANYTHING that isn't one of

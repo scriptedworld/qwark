@@ -13,7 +13,7 @@ here. *That cross-reference used to live in this repository's `CLAUDE.md`, which
 was deleted on 2026-08-21 because its rules duplicated the global ones; the
 reference was the only part of it that was qwark's own.*
 
-**Requirement, owner, 2026-08-19.** Writing code or files with a here-document
+**Requirement, 2026-08-19.** Writing code or files with a here-document
 is not allowed.
 
 Tier one's ban on redirections already subsumes this, but it earns its own rule

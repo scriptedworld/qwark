@@ -12,7 +12,7 @@ command that produced it; **CLAIM** asserted, inherited or inferred;
 
 ## What it is FOR
 
-**Owner, 2026-08-19:** *"remember this is ALL about controlling what an Agent
+**2026-08-19:** *"remember this is ALL about controlling what an Agent
 can run."*
 
 That sentence decides most of the design. qwark is a containment tool and its
@@ -30,7 +30,7 @@ they are the only settings that mean anything: **a gate that degrades to
 permissive whenever it is confused is a gate whose confusion is the way through
 it.**
 
-The owner's answer to the obvious worry — that declaring every command is a
+The answer to the obvious worry — that declaring every command is a
 large job — is that it is not. *"you don't use that many tools."* An agent's
 working set is small.
 
@@ -85,7 +85,7 @@ order and no ordering key exists.
 **Filed as `clank/inbox/toolbox/entrypoint-runs-after-coverage/`**, with the
 evidence and a repro.
 
-**Owner, 2026-08-21, ruling on it:** *"entrypoint should be part of the standard
+**2026-08-21, ruling on it:** *"entrypoint should be part of the standard
 for go projects … if it's my project, it will follow that pattern, and therefore
 need that test."* So it goes back into the shared jig, written generically —
 `go list ./cmd/...` returns one package in every Go project here and its basename

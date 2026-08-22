@@ -10,12 +10,12 @@ Two kinds:
 
 - **Ephemeral** — derived from this command's tree, live for one evaluation.
 - **Sticky** — written by a rule, persisted, and decaying over subsequent
-  commands. **Owner's example, 2026-08-19:** after a rebase, deletion is denied
+  commands. **Example, 2026-08-19:** after a rebase, deletion is denied
   for the next six commands.
 
 Sticky tags key on the `session_id` in the hook payload.
 
-**UNDECIDED, owner, 2026-08-19.** How the state survives between calls is open.
+**UNDECIDED, 2026-08-19.** How the state survives between calls is open.
 The shape under consideration is an ephemeral file appended to on each call,
 which each run then trims and rewrites, with locking so concurrent calls do not
 collide.
@@ -26,7 +26,7 @@ Two facts bear on the locking, neither of them settling it:
   one session, and separate Claude Code sessions running at once on this
   machine. Keying the file by `session_id` removes the second entirely, leaving
   only the first for a lock to cover.
-- A sideboard process holding the state — Redis was raised, with the owner's
+- A sideboard process holding the state — Redis was raised, with the
   own reservation that some would call it heavy — moves the problem out of the
   filesystem but adds a daemon that must be up. That interacts with the
   fail-closed rule above: if an unparseable rule file makes Bash unusable, then

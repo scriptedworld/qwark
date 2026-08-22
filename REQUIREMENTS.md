@@ -173,7 +173,7 @@ pattern**.
 
 ## 8. Tags — deferred to a later version
 
-**Owner, 2026-08-20: deferred.** The shape is settled and the foundation is in
+**2026-08-20: deferred.** The shape is settled and the foundation is in
 place — the evaluator emits tag changes and a clause can test a tag — but there
 is no store behind it and there will not be one until there are concrete
 scenarios worth limiting this way. Wanting a mechanism is not the same as
@@ -187,7 +187,7 @@ test, and not waiting on anybody.
 | ID | Requirement | |
 |---|---|---|
 | FR-8.1 | A rule whose action is `tag` decides nothing. It attaches a name to the evaluation, which later rules match against. This is what lets cheap structural rules annotate and expensive rules stay expressed over names. | [A] |
-| FR-8.2 | A tag is set with a TTL, measured in commands. **Owner's example: after a rebase, deletion is denied for the next six.** | [?] |
+| FR-8.2 | A tag is set with a TTL, measured in commands. **Example: after a rebase, deletion is denied for the next six.** | [?] |
 | FR-8.3 | A tag is a clause criterion for any other rule, on the same footing as a node, an option or a path. | [A] |
 | FR-8.4 | A denied command does not advance any TTL, so a countdown is not spent by commands that never ran. | [?] |
 | FR-8.5 | A tag is **set or unset by a rule, never toggled**. A rule states which it does, so a rule's effect never depends on what the tag already was. | [?] |
@@ -230,7 +230,7 @@ recalled and not inferred.
 | FR-10.4 | The reply names the event it answers. Claude Code validates a reply against the event it asked about, so answering a different one is not a partial answer but none. | [D] |
 | FR-10.5 | **qwark never returns `defer`.** The decision has four values, not three: alongside allow, deny and ask, `defer` means the hook declines to decide and the dispatcher continues past it. Deciding nothing is the one outcome this design exists to prevent. | [D] |
 | FR-10.6 | `agent_id` and `agent_type` are carried through, so a rule set may differ by which agent is asking. **This is what makes per-agent scoping implementable from the payload**, rather than through an environment variable the agent might itself reach. | [A/D] |
-| FR-10.6a | Those two fields are present only for a subagent, so a main-session call carries neither. **REVISED 2026-08-20, and the first reading was wrong.** It said the scoping "does not need solving inside qwark" because an external process chooses the rule files per agent. That holds only when every specialised agent is its own session: the registration is fixed for a session, so a subagent inherits its parent's command line and the partition collapses. The owner's judgement on the external route — *"actively managing symlinks or something else … some form of ENV VAR that will have to be actively managed … which feels rickety"* — also runs against FR-10.6, which chose the payload over an environment variable for a stated security reason. **The engine carries the scoping** (FR-7.12, FR-7.13); the launcher is what cannot be relied on. | [A] |
+| FR-10.6a | Those two fields are present only for a subagent, so a main-session call carries neither. **REVISED 2026-08-20, and the first reading was wrong.** It said the scoping "does not need solving inside qwark" because an external process chooses the rule files per agent. That holds only when every specialised agent is its own session: the registration is fixed for a session, so a subagent inherits its parent's command line and the partition collapses. The the judgement on the external route — *"actively managing symlinks or something else … some form of ENV VAR that will have to be actively managed … which feels rickety"* — also runs against FR-10.6, which chose the payload over an environment variable for a stated security reason. **The engine carries the scoping** (FR-7.12, FR-7.13); the launcher is what cannot be relied on. | [A] |
 | FR-10.7 | A hook may also return `updatedInput` and rewrite the tool call. qwark does not: rewriting the subject's command would make qwark the author of what runs, and a gate that edits what it judges can no longer be said to have judged it. | [D] |
 | FR-10.8 | **qwark runs in one goroutine.** `recover` catches a panic in the goroutine that deferred it and in no other, so the guarantee that every path ends in a decision or a refusal holds only while there is one. This is an architectural invariant, not a preference, and it is enforced by a test that walks the source for `go` statements rather than left to be remembered. | [D] |
 | FR-10.9 | The registration wraps qwark so that any death becomes exit 2. In-process recovery cannot catch a fatal runtime error, an out-of-memory kill or a signal, and every one of those otherwise exits non-zero-and-not-two, which lets the command run. Hook commands are executed through a shell, so `qwark … \|\| exit 2` closes it. | [D] |

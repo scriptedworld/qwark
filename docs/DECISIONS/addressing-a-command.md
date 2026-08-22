@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**PREFERENCE, owner, 2026-08-19.** A clause names the position it applies to.
+**PREFERENCE, 2026-08-19.** A clause names the position it applies to.
 Ordinal 0 is the command, arguments run from 1, and negative ordinals count from
 the end with -1 as the last word. An index may name several: a comma-separated
 list of ordinals and ranges.

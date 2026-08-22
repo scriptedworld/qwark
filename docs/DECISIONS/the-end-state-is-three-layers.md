@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**Owner, 2026-08-20**, in two statements that belong together:
+**2026-08-20**, in two statements that belong together:
 
 > When we have the tool chain in place, the agents will be in a sandbox, and
 > these files won't be in there, and with that the blast radius rules will

@@ -29,19 +29,19 @@ Closing this while remaining on zsh would mean banning globs outright, which is
 a large usability cost for one construct. Under bash the construct does not
 exist. **This is the reason that settles it**, rather than parser tidiness.
 
-**Owner, 2026-08-20:** *"zsh has a lot of features I'd rather not have to deal
+**2026-08-20:** *"zsh has a lot of features I'd rather not have to deal
 with."* Stated as a design property: a gate must model every construct its shell
 can execute, so the shell's feature count *is* the gate's attack surface. Bash
 is not safe, but it is smaller, and smaller is the only property that makes the
 modelling tractable.
 
-**Decision, owner, 2026-08-20: force the shell to bash**, rather than teach
+**Decision, 2026-08-20: force the shell to bash**, rather than teach
 qwark zsh. The reasons compound:
 
 - `LangBash` is mature; the package marks `LangZsh` experimental and incomplete.
 - It removes the silent-misreading class entirely rather than narrowing it.
 - **It subsumes the alias problem.** The 64 aliases and 24 functions come from
-  zsh configuration; a bash shell does not load them. The owner's alternative
+  zsh configuration; a bash shell does not load them. The alternative
   suggestion — start the process by unsetting all aliases — is the same idea
   applied downstream, and it is worth noting that the snapshot *already* opens
   with `unalias -a` and then deliberately restores all 64. Removing the source

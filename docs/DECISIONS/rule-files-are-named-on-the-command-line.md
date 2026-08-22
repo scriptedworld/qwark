@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**PREFERENCE, owner, 2026-08-19.** Rule files are given as arguments: a path
+**PREFERENCE, 2026-08-19.** Rule files are given as arguments: a path
 naming a directory contributes every rule file in it, a path naming a file
 contributes that one.
 

@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**PREFERENCE, owner, 2026-08-19.** Where several rules match one command, the
+**PREFERENCE, 2026-08-19.** Where several rules match one command, the
 verdict is the strictest of them: deny over ask over allow.
 
 The property this buys is worth naming. **No rule can be weakened by where it

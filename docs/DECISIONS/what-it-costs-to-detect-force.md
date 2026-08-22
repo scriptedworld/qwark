@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**Requirement, owner, 2026-08-19.** Block `--force` and `-f` — but only where
+**Requirement, 2026-08-19.** Block `--force` and `-f` — but only where
 `-f` means force. It means file to `tar`, so the meaning cannot come from the
 spelling. **The table of what each command's options mean, and which take a
 value, is declared in TOML beside the rules.**

@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**PREFERENCE, owner, 2026-08-19.** TOML, in multiple rule files that are
+**PREFERENCE, 2026-08-19.** TOML, in multiple rule files that are
 aggregated. `github.com/BurntSushi/toml` — already the house library
 (`dotfiles/go/internal/manifest` — that repository was named `linux.dotfiles`
 when this was written, and took over the `dotfiles` name on 2026-08-20), and its

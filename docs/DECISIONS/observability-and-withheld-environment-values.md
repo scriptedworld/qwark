@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**Requirement, owner, 2026-08-19.** Every command is logged with the relevant
+**Requirement, 2026-08-19.** Every command is logged with the relevant
 detail from its environment — cwd, environment variables, and what else bears
 on the decision.
 
@@ -28,7 +28,7 @@ grepped later, and may be read while diagnosing something unrelated. That is
 the failure `secret-scan` exists to catch, arriving through a door qwark would
 have opened itself.
 
-**Proposed, pending the owner's answer.** Record every variable *name*, so the
+**Proposed, pending the answer.** Record every variable *name*, so the
 shape of the environment is visible and a change in it is detectable. Record
 *values* only for names a rule file declares. Anything undeclared is recorded
 as present-but-withheld rather than omitted, so the log never silently implies

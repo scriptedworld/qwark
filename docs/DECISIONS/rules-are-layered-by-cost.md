@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**PREFERENCE, owner, 2026-08-19.** Four classes, cheapest first, so a decision
+**PREFERENCE, 2026-08-19.** Four classes, cheapest first, so a decision
 that can be reached cheaply is:
 
 1. **Node presence.** Certain nodes in the tree are an instant rule.

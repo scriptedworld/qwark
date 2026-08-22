@@ -137,7 +137,7 @@ members = ["test", "run", "generate", "tool"]
 # git, classified
 # ----------------------------------------------------------------------------
 #
-# Owner, 2026-08-20: **most git commands are NOT okay for the agent to
+# 2026-08-20: **most git commands are NOT okay for the agent to
 # execute**, and the shape is read-only allowed with the rest denied by class,
 # each class carrying its own reason.
 #
@@ -527,7 +527,7 @@ staged work nothing can complete."""
   index = "1"
   group = "git-writes-the-index"
 
-# The allowed half. Owner, 2026-08-20: read-only allowed, the rest denied by
+# The allowed half. 2026-08-20: read-only allowed, the rest denied by
 # class. This is the only allow rule in the shipped set, and it is deliberately
 # the narrowest thing that could be written.
 #

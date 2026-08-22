@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**Owner, 2026-08-19:** *"we don't expand anything, that's why we block those."*
+**2026-08-19:** *"we don't expand anything, that's why we block those."*
 
 A word's value is reported only where its own text fixes it. Anything containing
 a substitution is reported as undetermined, never guessed.

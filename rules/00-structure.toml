@@ -157,7 +157,7 @@ nothing here is ever expanded to find out."""
   nodes = ["CmdSubst", "ProcSubst", "ParamExp", "ArithmExp"]
 
 # A wildcard belongs in tier one for the same reason a substitution does, and
-# it was the one member of the class with no rule. Owner, 2026-08-20: deny, no
+# it was the one member of the class with no rule. 2026-08-20: deny, no
 # exception.
 #
 # WHY IT IS NOT MERELY UNTIDY. A rule about where a command reaches reads the

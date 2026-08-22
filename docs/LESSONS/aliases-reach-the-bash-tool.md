@@ -26,5 +26,5 @@ seven options qwark never sees would be added to every call. That is the
 `ss`→`rg` hazard already recorded in the standing rules, now load-bearing for a
 security control.
 
-**Decision, owner, 2026-08-19: using an alias is not allowed.**
+**Decision, 2026-08-19: using an alias is not allowed.**
 

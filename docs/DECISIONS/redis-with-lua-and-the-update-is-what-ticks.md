@@ -6,7 +6,7 @@ outgrew its file: one topic per file keeps diffs surgical and stops
 concurrent sessions colliding.*
 
 
-**Owner, 2026-08-20**, thinking it through in three steps:
+**2026-08-20**, thinking it through in three steps:
 
 > I'm considering redis … we can just use some embedded lua or such for
 > gathering the tags per session ID.
