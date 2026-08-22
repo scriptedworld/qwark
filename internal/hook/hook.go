@@ -76,7 +76,7 @@ type BashCall struct {
 
 	// Description is the caller's own account of what the command does.
 	//
-	// **Deliberately unconsulted.** Owner, 2026-08-20: asking each tool usage
+	// **Deliberately unconsulted.** 2026-08-20: asking each tool usage
 	// to state its intention is the proxy's job, not this gate's. It is read
 	// because reading the payload faithfully is the contract (FR-10.1), and it
 	// is not a rule input that somebody forgot to wire up.

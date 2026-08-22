@@ -145,7 +145,7 @@ func TestTheShippedRulesDenyWrappersByName(t *testing.T) {
 func TestTheShippedRulesDenyTaskRunnersByName(t *testing.T) {
 	t.Parallel()
 
-	// Owner, 2026-08-20: `I worry about letting them run bolt ... running
+	// 2026-08-20: `I worry about letting them run bolt ... running
 	// ANYTHING that isn't one of our standard jigs ... same with JUST or POE
 	// etc ... if they can write a new file, then they can then get the agent to
 	// approve anything.`
