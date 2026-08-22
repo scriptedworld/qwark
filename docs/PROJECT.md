@@ -83,8 +83,20 @@ adopter can put it back in place. bolt's FR-2.9 fixes execution to declaration
 order and no ordering key exists.
 
 **Filed as `clank/inbox/toolbox/entrypoint-runs-after-coverage/`**, with the
-evidence and a repro. Until it is resolved, the older invocation still passes and
-measures the pre-split checkers:
+evidence and a repro.
+
+**Owner, 2026-08-21, ruling on it:** *"entrypoint should be part of the standard
+for go projects … if it's my project, it will follow that pattern, and therefore
+need that test."* So it goes back into the shared jig, written generically —
+`go list ./cmd/...` returns one package in every Go project here and its basename
+is the binary name, VERIFIED 2026-08-21 for both qwark and bolt.
+
+**When that lands, delete the `entrypoint` task from `bolt.qwark.yaml`.** The
+overlay goes back to carrying nothing about it, and this repository's gate goes
+green without qwark changing anything else.
+
+Until then the older invocation still passes and measures the pre-split
+checkers:
 
     bolt -c ../bolt/bolt.go-std-quality.yaml -c bolt.qwark.yaml    # 12/12, older rules
 
