@@ -1,26 +1,12 @@
-# qwark — why it is built this way
+# qwark, why it is built this way
 
-**SPLIT 2026-08-21.** This was one 1151-line document. It is now one file per
-topic under `docs/`, because a growing list in a single file is a file that
-gets rewritten in the middle by two sessions at once, and eventually stops
-being read at all.
+The reasoning behind qwark, one topic per file under `docs/`. What qwark is and
+what it is for is in [`docs/PROJECT.md`](docs/PROJECT.md). `REQUIREMENTS.md`
+states what must be true, and stays a single file while the traceability checker
+takes a single path, for the reason under *The split is pending* in
+`docs/PROJECT.md`. Open questions are in `NEXT_STEPS.md`.
 
-Nothing was rewritten in the move: each file carries its section verbatim, with
-a line naming where it came from.
-
-- **What qwark is, and what it is for** moved to
-  [`docs/PROJECT.md`](docs/PROJECT.md).
-- **`REQUIREMENTS.md`** still states what must be true, and stays a single file
-  while the traceability checker takes a single path — see *The split is
-  pending* in `docs/PROJECT.md`.
-- **Open questions** moved to `NEXT_STEPS.md`.
-
-Marks follow the silo convention throughout: **FACT** measured, with the command
-that produced it; **CLAIM** asserted or inferred; **PREFERENCE** chosen on taste.
-
----
-
-## Decisions — `docs/DECISIONS/`
+## Decisions, `docs/DECISIONS/`
 
 The reasoning that would otherwise survive only in a commit message.
 
@@ -61,23 +47,23 @@ The reasoning that would otherwise survive only in a commit message.
 `configuration-is-toml-and-fails-closed` ·
 `observability-and-withheld-environment-values`
 
-## Lessons — `docs/LESSONS/`
+## Lessons, `docs/LESSONS/`
 
 What the shell turned out to do, each found the hard way.
 
-`zsh-executes-code-from-inside-a-glob` — the finding that settles the shell
-question, and the reason `no-glob` is in tier one ·
+`zsh-executes-code-from-inside-a-glob`, the finding that settles the shell
+question and the reason `no-glob` is in tier one ·
 `no-spelling-of-a-command-is-immune-to-shadowing` ·
 `aliases-reach-the-bash-tool` ·
 `the-shell-is-zsh-and-the-decision-is-to-change-it` ·
 `an-escape-defeats-a-path-rule`
 
-**Some of these are general and their general form lives in silo** —
+Some of these are general, and their general form lives in silo:
 `silo/docs/LESSONS/cli-aliases.md` carries what is true of any shell on this
-machine. What is here is what only qwark's work teaches: what it means for a
-gate that has to read the command the same way the shell will.
+machine. What is here is what only qwark's work teaches, which is what it means
+to be a gate that has to read a command the same way the shell will.
 
-## Patterns — `docs/PATTERNS/`
+## Patterns, `docs/PATTERNS/`
 
-`the-mechanicals-the-shapes-a-rule-can-be-written-in` — the five shapes a rule
-takes, with the worked example for each. Read it before writing a rule.
+`the-mechanicals-the-shapes-a-rule-can-be-written-in`, the five shapes a rule
+takes with the worked example for each. Read it before writing a rule.
