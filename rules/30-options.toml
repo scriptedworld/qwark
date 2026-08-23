@@ -124,6 +124,32 @@ reason = "`--no-preserve-root` exists only to permit destroying the root filesys
   option = "no-preserve-root"
 
 # ============================================================================
+# Skipping a hook
+# ============================================================================
+#
+# The same shape as force, and for the same reason: an option whose entire
+# purpose is to suppress the check that would otherwise have stopped the
+# command. `--force` says do it anyway; `--no-verify` says do not look.
+#
+# It is not command-scoped, because `commit` and `push` both take it and a rule
+# naming them would be wrong the moment a third one does.
+
+[[rule]]
+id     = "no-skipping-hooks"
+action = "deny"
+reason = """
+`--no-verify` skips the hooks, which are the checks that run without being
+asked for and are therefore the ones a mistake cannot route around. The
+attribution gate is the case that matters here: it fires on false positives by
+design, because a miss costs more than the friction, and the answer to a false
+positive is to rephrase the line rather than to turn the gate off.
+
+If a hook is wrong often enough to be worth skipping, fix the hook."""
+
+  [[rule.clause]]
+  option = "no-verify"
+
+# ============================================================================
 # Options that name a program to run
 # ============================================================================
 #
