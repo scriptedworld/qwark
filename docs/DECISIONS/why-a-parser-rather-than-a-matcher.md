@@ -1,8 +1,9 @@
 # Why a parser rather than a matcher
 
-The predecessor was `claude/hooks/archive-guard.sh` in `~/.projects/dotfiles`,
-at commit `0e6ea10`: a `grep -E` over the raw command string, since retired. Its
-own header records the failure that retired it:
+The predecessor was `claude/hooks/archive-guard.sh` in the dotfiles repository
+that has since been retired, now `~/.archive/dotfiles.archived` and sealed: a
+`grep -E` over the raw command string. Its own header records the failure that
+retired it:
 
 > `bin/repos status` in the dotfiles repo walked from a configured root,
 > reached the tree and enumerated it, and never contained the literal string —
