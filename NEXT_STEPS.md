@@ -124,7 +124,7 @@ Each was measured before and after.
 **git is classified across all 64 porcelain commands**, checked mechanically
 against `git --list-cmds` and not by eye. Nine groups, each carrying its own
 reason; overlaps are intended and every reason is collected. Read-only is allowed
-by Jeff's ruling, and that allowance is narrow because `05-declarations.toml`
+by my ruling, and that allowance is narrow because `05-declarations.toml`
 omits the dangerous options, not because a rule names them.
 
 ## Next: per-agent command surfaces

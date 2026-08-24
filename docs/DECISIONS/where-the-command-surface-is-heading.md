@@ -24,7 +24,7 @@ exist.
 
 **The duplication was the open question, and the proxy settles it.** An agent's
 prompt saying what it may run and a rule file deciding what it may run are two
-statements of one fact, and two statements of one fact drift. Jeff named both
+statements of one fact, and two statements of one fact drift. I named both
 directions first, generating the prompt from the rules or having the prompt
 reference them, and then resolved it a third way:
 

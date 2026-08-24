@@ -19,7 +19,7 @@ Several facts bear on the locking, none of them settling it:
   session, and separate Claude Code sessions running at once on this machine.
   Keying the file by `session_id` removes the second entirely, leaving only the
   first for a lock to cover.
-- A sideboard process holding the state, Redis being the one raised, with Jeff's
+- A sideboard process holding the state, Redis being the one raised, with my
   own reservation that some would call it heavy, moves the problem out of the
   filesystem but adds a daemon that must be up. That interacts with the
   fail-closed rule in **Configuration**: if an unparseable rule file makes Bash

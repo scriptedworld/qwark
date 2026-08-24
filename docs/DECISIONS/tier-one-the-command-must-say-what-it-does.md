@@ -1,7 +1,7 @@
 # Tier one: the command must say what it does
 
 The first rule bans redirections, substitutions, pipes, and logical
-concatenation. Two separate reasons, both Jeff's:
+concatenation. Two separate reasons, both mine:
 
 - **Redirections buy nothing.** The tool call already returns stdout and stderr
   separately, so redirecting to capture output is redundant: the harness hands it

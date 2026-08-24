@@ -66,7 +66,7 @@ that states its reason.
 The discriminator that is awkward to arrange in the plumbing is the natural one
 here, and it is the same clause either way.
 
-**A proxy per agent type is the stronger form**, raised by Jeff as an
+**A proxy per agent type is the stronger form**, raised as an
 alternative or an addition: *"if we encode a PROXY for each of the agent types …
 which would likewise limit everything"*. It is stronger for the reason enumeration beats
 denial: an unexposed tool cannot be called at all, while a rule refuses a call

@@ -1,6 +1,6 @@
 # qwark, Requirements
 
-Derived from Jeff's own statements, recorded in `DESIGN-NOTES.md` and the files it
+Derived from my own statements, recorded in `DESIGN-NOTES.md` and the files it
 indexes. qwark is a `PreToolUse` hook for Claude Code; the first mode gates the
 Bash tool.
 
@@ -13,7 +13,7 @@ a requirement says what must be true; a test says `COVERS:` and names the
 requirement it discharges. The `traceability` task enforces the second link
 mechanically; the first is enforced by review.
 
-**Status markers.** `[A]` traces to a statement of Jeff's. `[D]` is derived from
+**Status markers.** `[A]` traces to something I said. `[D]` is derived from
 one. `[A/D]` is both. `[?]` is an open question: stated so it is not lost, carrying
 no test yet, and reported by the gate as context instead of as a failure.
 
