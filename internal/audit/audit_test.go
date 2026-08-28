@@ -2,6 +2,7 @@ package audit_test
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -157,7 +158,7 @@ func TestOpeningALogAppendsRatherThanTruncating(t *testing.T) {
 		t.Fatalf("Close = %v", err)
 	}
 
-	content, err := os.ReadFile(path)
+	content, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
 		t.Fatalf("reading the log: %v", err)
 	}
@@ -183,6 +184,53 @@ func TestARecorderWithNowhereToWriteIsNotAnError(t *testing.T) {
 	}
 	if err := nowhere.Close(); err != nil {
 		t.Errorf("Close on a nil recorder = %v", err)
+	}
+}
+
+// errNoSpace stands in for a full disk. Static, so the assertion below compares
+// identity rather than message text.
+var errNoSpace = errors.New("no space left on device")
+
+// refusingWriter fails every write, standing in for a full disk.
+type refusingWriter struct{ err error }
+
+func (w refusingWriter) Write([]byte) (int, error) { return 0, w.err }
+
+// COVERS: FR-4.8 | negative
+func TestAFailedWriteIsReportedAndNamesTheLog(t *testing.T) {
+	t.Parallel()
+
+	// The caller decides what a failed write means, and it decides to carry on
+	// (FR-4.8). That choice is only available if Record says the write failed
+	// rather than swallowing it, so a full disk has to come back as an error
+	// even though nothing will refuse because of it.
+	//
+	// The path is in the message because the operator reading it needs to know
+	// which log stopped recording, and by then the process holding the answer
+	// has usually exited.
+	broken := audit.Writing(refusingWriter{err: errNoSpace})
+
+	err := broken.Record(audit.Entry{Command: "git status", Decision: "allow"})
+	if err == nil {
+		t.Fatal("Record = nil on a writer that refused: a log that reports " +
+			"success while writing nothing is worse than no log")
+	}
+	if !errors.Is(err, errNoSpace) {
+		t.Errorf("Record = %v, want the underlying cause wrapped and reachable", err)
+	}
+}
+
+// COVERS: FR-4.8 | edge
+func TestClosingAWriterThatIsNotAFileIsNotAnError(t *testing.T) {
+	t.Parallel()
+
+	// Writing() hands back a recorder over an arbitrary writer, which is what
+	// a test uses. Most are not Closers, and Close has to succeed at doing
+	// nothing rather than assert its way out.
+	var sink strings.Builder
+
+	if err := audit.Writing(&sink).Close(); err != nil {
+		t.Errorf("Close over a non-Closer = %v, want nil", err)
 	}
 }
 

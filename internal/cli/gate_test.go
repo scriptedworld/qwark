@@ -132,3 +132,87 @@ func TestTheHookWithNoRulesPathBlocks(t *testing.T) {
 		t.Errorf("stderr = %q, want it to say what was missing", errOut)
 	}
 }
+
+// COVERS: FR-4.8 | positive
+func TestTheHookWritesDownWhatItDecided(t *testing.T) {
+	// Not parallel: Setenv moves the log for the whole process.
+	state := t.TempDir()
+	t.Setenv("XDG_STATE_HOME", state)
+
+	// A rule set that permits nothing, so the decision under test is a denial
+	// and the entry has rules to name. An allow would record just as well and
+	// would not show that `rules` carries what fired.
+	out, errOut, status := invoke(t, payload(t, "rm x"), "hook", ruleFile(t, ""))
+
+	if status != 0 {
+		t.Fatalf("status = %d, want 0: the hook decided (stderr: %s)", status, errOut)
+	}
+	if decision, _ := decisionIn(t, out); decision != "deny" {
+		t.Fatalf("decision = %q, want deny", decision)
+	}
+
+	body, err := os.ReadFile(filepath.Clean(filepath.Join(state, "qwark", "decisions.jsonl")))
+	if err != nil {
+		t.Fatalf("reading the log the hook should have written: %v", err)
+	}
+
+	var entry struct {
+		Decision string   `json:"decision"`
+		Command  string   `json:"command"`
+		Tool     string   `json:"tool"`
+		RuleSet  string   `json:"rule_set"`
+		Rules    []string `json:"rules"`
+	}
+	line := strings.TrimSpace(string(body))
+	if err := json.Unmarshal([]byte(line), &entry); err != nil {
+		t.Fatalf("the log line is not valid JSON: %v\nline was: %q", err, line)
+	}
+
+	// Each field is asserted because each answers a different question of the
+	// record, and an entry missing one is a row that cannot be counted or
+	// compared against the same command under another policy.
+	if entry.Decision != "deny" {
+		t.Errorf("logged decision = %q, want deny", entry.Decision)
+	}
+	if entry.Command != "rm x" {
+		t.Errorf("logged command = %q, want the command judged", entry.Command)
+	}
+	if entry.Tool != "Bash" {
+		t.Errorf("logged tool = %q, want Bash", entry.Tool)
+	}
+	if entry.RuleSet == "" {
+		t.Error("the entry names no rule set, so it cannot be compared with " +
+			"the same command judged under a different one")
+	}
+	if len(entry.Rules) == 0 {
+		t.Error("the entry names no rule, so the denial cannot be attributed")
+	}
+}
+
+// COVERS: FR-4.8 | negative
+func TestAnUnwritableLogDoesNotStopTheGateDeciding(t *testing.T) {
+	// Not parallel: Setenv moves the log for the whole process.
+	//
+	// The permissive direction, and deliberate. Refusing when the log cannot be
+	// opened would make a full disk an estate-wide outage and turn the audit
+	// trail into the way to stop the machine. The verdict is not less correct
+	// for going unrecorded, so it is still made and still reported.
+	blocked := filepath.Join(t.TempDir(), "not-a-directory")
+	if err := os.WriteFile(blocked, []byte("x"), 0o600); err != nil {
+		t.Fatalf("preparing an unusable state directory: %v", err)
+	}
+	t.Setenv("XDG_STATE_HOME", blocked)
+
+	out, errOut, status := invoke(t, payload(t, "rm x"), "hook", ruleFile(t, ""))
+
+	if status != 0 {
+		t.Fatalf("status = %d, want 0: an unwritable log is not a broken gate", status)
+	}
+	if decision, _ := decisionIn(t, out); decision != "deny" {
+		t.Errorf("decision = %q, want deny: the verdict stands unrecorded", decision)
+	}
+	if !strings.Contains(errOut, "could not open its log") {
+		t.Errorf("stderr = %q, want it to say the record is missing: silently "+
+			"not recording is how a log comes to be trusted and empty", errOut)
+	}
+}

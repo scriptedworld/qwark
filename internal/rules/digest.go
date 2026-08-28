@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 // digestLength is how much of the hash is kept.
@@ -36,7 +37,12 @@ func digestOf(files []string) (string, error) {
 	sum := sha256.New()
 
 	for _, file := range files {
-		content, err := os.ReadFile(file)
+		// The names arrive from the rule loader, which built them by walking
+		// the directories the registration named, so none of them is the
+		// subject's to choose. Cleaned anyway: this hash is what says which
+		// rule set judged a command, and a digest over the wrong file is a
+		// record that reads as authoritative and is not.
+		content, err := os.ReadFile(filepath.Clean(file))
 		if err != nil {
 			return "", fmt.Errorf("%w: hashing %s: %w", ErrUnreadable, file, err)
 		}

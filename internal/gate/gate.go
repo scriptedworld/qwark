@@ -65,14 +65,14 @@ func Judged(set *rules.Set) Judge {
 			// The payload named Bash and did not carry a Bash call. Reading
 			// that as an empty command would judge something nobody sent.
 			return hook.DecisionDeny, fmt.Sprintf(
-				"qwark could not read the Bash call it was asked about:\n  %v", err),
+					"qwark could not read the Bash call it was asked about:\n  %v", err),
 				[]string{"(engine) unreadable payload"}
 		}
 
 		parsed, err := shell.Parse(call.Command)
 		if err != nil {
 			return hook.DecisionDeny, fmt.Sprintf(
-				"qwark could not parse this command, so it cannot judge it:\n  %v", err),
+					"qwark could not parse this command, so it cannot judge it:\n  %v", err),
 				[]string{"(engine) unparseable"}
 		}
 

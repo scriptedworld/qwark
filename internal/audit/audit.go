@@ -85,17 +85,32 @@ func DefaultPath() string {
 	return filepath.Join(os.Getenv("HOME"), ".local", "state", "qwark", "decisions.jsonl")
 }
 
+// The log is the record of what a gate decided, so it is readable by the user
+// qwark runs as and by nobody else. The directory is walked to reach the file
+// and holds nothing else, hence execute rather than read on the owner.
+const (
+	logDirMode  = 0o700
+	logFileMode = 0o600
+)
+
 // To opens a recorder writing to a file, creating the directory if needed.
 //
 // **It does not truncate.** The file is opened for append, so a restart adds to
 // the record rather than replacing it: a log with earlier entries missing reads
 // as a clean history, which is worse than no log.
 func To(path string) (*Recorder, error) {
-	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
+	// Cleaned before it is used rather than after it is opened. The path comes
+	// from a flag or from DefaultPath, so it is not the subject's to choose,
+	// but a traversal reaching this far would be opened for append with the
+	// record's own permissions, and the log is the one file whose contents are
+	// the evidence that anything was judged at all.
+	path = filepath.Clean(path)
+
+	if err := os.MkdirAll(filepath.Dir(path), logDirMode); err != nil {
 		return nil, fmt.Errorf("creating the log directory: %w", err)
 	}
 
-	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, logFileMode)
 	if err != nil {
 		return nil, fmt.Errorf("opening the log: %w", err)
 	}
@@ -136,7 +151,9 @@ func (r *Recorder) Close() error {
 		return nil
 	}
 	if closer, ok := r.out.(io.Closer); ok {
-		return closer.Close()
+		if err := closer.Close(); err != nil {
+			return fmt.Errorf("closing %s: %w", r.path, err)
+		}
 	}
 	return nil
 }
