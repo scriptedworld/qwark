@@ -21,16 +21,25 @@
 # The worked example
 # ============================================================================
 #
-# The three cases:
+# The ruling, revised 2026-08-28: bare `rm` is fine, and `rm -f`, `rm -r` and
+# `rm -rf` are not.
 #
-#     rm -r -f   forbidden, because of -f
-#     rm -r      no -f: ask, warning that it is recursive
-#     rm -f      no -r: forbidden
+#     rm x       permitted, by allow-removing-a-named-file in 10-commands.toml
+#     rm -f x    forbidden
+#     rm -r x    forbidden
+#     rm -rf x   forbidden, twice over
 #
-# Written as two rules rather than three, because the strictest action wins.
-# `rm -rf` matches BOTH rules below and the deny takes it, so the middle case
-# does not need to say "and no -f", and neither rule has to know the other
-# exists.
+# The original 2026-08-19 ruling had the middle case as `ask` and this file
+# taught the precedence argument with it: two rules rather than three, because
+# `rm -rf` matches both and the strictest action wins, so neither rule has to
+# know the other exists. That argument is still true and is still what the two
+# rules below demonstrate; it is simply no longer visible in their ACTIONS,
+# because both are now deny.
+#
+# The demonstration that survives is the composition rather than the escalation.
+# `rm -rf` is refused with BOTH reasons given, under FR-4.25, so its author is
+# told the force is a problem and the recursion is a problem, rather than being
+# sent round twice.
 
 [[rule]]
 id     = "rm-force"
@@ -49,9 +58,11 @@ it was there."""
 
 [[rule]]
 id     = "rm-recursive"
-action = "ask"
+action = "deny"
 reason = """
-This is recursive. Check the path is the one you mean before it is walked."""
+Recursive removal is not permitted. What it deletes is decided by what the tree
+holds when it runs rather than by anything this command names, which is the
+same property tier one refuses a glob for. Name the files."""
 
   [[rule.clause]]
   index = "0"
@@ -74,26 +85,36 @@ This is recursive. Check the path is the one you mean before it is walked."""
 # out of it. Written as a second rule that overrode the first, it would live in
 # another file, and knowing what a command does would mean reading every file
 # to find out which one won.
-
-[[rule]]
-id     = "commit-must-be-signed"
-action = "deny"
-reason = """
-`git commit` is refused unless it is signed. An unsigned commit cannot later be
-shown to have come from where it says it came from, and that is not something
-that can be added afterwards."""
-
-  [[rule.clause]]
-  index = "0"
-  value = "git"
-
-  [[rule.clause]]
-  index = "1"
-  value = "commit"
-
-  [[rule.clause]]
-  option = "gpg-sign"
-  absent = true
+#
+# The live example is now `no-git-staging` in 10-commands.toml, which refuses
+# `git add` unless `-N` is present.
+#
+# ############################################################################
+# `commit-must-be-signed` WAS HERE AND HAS BEEN REMOVED, 2026-08-28.
+#
+# It refused `git commit` unless `--gpg-sign` was given, and it was wrong in two
+# separate ways at once.
+#
+# It asserted a property nobody asked for. Nothing on this machine signs:
+# `commit.gpgsign` unset, `user.signingkey` unset, `gpg.format` unset, and
+# `git log --format=%G?` answers `N` on every commit. So the rule did not
+# protect a property this repository had; it forbade the only kind of commit
+# that could be made here. 905 commits in the corpus, all of them refused.
+# Settled 2026-08-24: signing is not a requirement, so the rule goes.
+#
+# And it was the worked example of the dishonest form of this shape. `--gpg-sign`
+# was never declared, so the inverted clause was satisfied by ABSENCE OF A
+# DECLARATION rather than by absence of the option, and the rule told somebody
+# who had signed that they must sign. The verdict failed safe and the message
+# did not.
+#
+# THE LESSON WORTH KEEPING: a "refused unless" rule is only honest when the
+# option it excepts is declared. Written up as shape 3 in
+# docs/PATTERNS/the-mechanicals-the-shapes-a-rule-can-be-written-in.md. Dropping
+# the rule rather than making it conditional on the repository's git config was
+# deliberate: that would leave a verdict depending on a setting the agent being
+# judged can change.
+# ############################################################################
 
 # ============================================================================
 # Force, generally

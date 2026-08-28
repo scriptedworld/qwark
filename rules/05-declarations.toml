@@ -117,3 +117,254 @@ operands = "text"
   long.grep      = { means = "grep",      takes_value = true, kind = "text" }
   long.pretty    = { means = "pretty",    takes_value = true, kind = "text" }
   long.format    = { means = "format",    takes_value = true, kind = "text" }
+
+  # The two the mandated commit workflow needs. Hard rules 2 and 3 require
+  # `git add -N <path>` for a new file and `git commit <path> -F <file>`, and
+  # both were refused as undeclared before these existed.
+  short.N   = { means = "intent-to-add" }
+  long.file = { means = "message-file", takes_value = true, kind = "path" }
+
+  # `-F` IS DECLARED AGAINST THIS FILE'S OWN RULE, and the reason is written
+  # here rather than left for somebody to discover.
+  #
+  # `git commit -F <file>` reads the message from a file. `git log -F` means
+  # --fixed-strings, and takes no value. So `-F` fails the "same meaning on
+  # every subcommand that can reach it" test that keeps `-w`, `-n` and `-s` out.
+  #
+  # It is declared anyway because hard rule 3 mandates exactly this spelling for
+  # every commit on this machine, and a gate that refuses the one commit form
+  # the instructions require is a gate that gets turned off.
+  #
+  # What the collision can actually do, which is why it is tolerable: on
+  # `git log` it would read the following word as `-F`'s value rather than as an
+  # operand. `git log` is allowed either way and writes nothing, so the misread
+  # changes which word a rule sees and cannot turn a denial into permission.
+  # The long form is declared beside it so `--file=` is available and unambiguous.
+  short.F = { means = "message-file", takes_value = true, kind = "path" }
+
+# ============================================================================
+# go
+# ============================================================================
+#
+# Operands are text: `./...` and `./cmd/qwark` are package patterns rather than
+# paths, and declaring them as paths would have every path rule read `./...` as
+# a filename.
+#
+# `test`, `run`, `generate` and `tool` compile and execute code from this tree
+# and stay denied by `no-go-execution` in 10-commands.toml. Declaring the word
+# does not reach them, because a deny outranks an allow.
+
+[command.go]
+operands = "text"
+
+  short.o = { means = "output", takes_value = true, kind = "path" }
+
+  long.mod = { means = "mod" }
+
+# ============================================================================
+# gofmt
+# ============================================================================
+
+[command.gofmt]
+operands = "path"
+
+  short.l = { means = "list" }
+  short.w = { means = "write" }
+
+# ============================================================================
+# rm
+# ============================================================================
+#
+# ONLY force and recursive are declared, and both are denied by rules in
+# 30-options.toml. Every other rm option is left undeclared, so `rm -i` and
+# `rm -v` are refused as unaccounted.
+#
+# That is stricter than it needs to be and it is the fail-closed direction: an
+# option nobody declared is an option qwark cannot account for, and this is the
+# command where not accounting for something is most expensive.
+#
+# Declaring them is what lets the rules MATCH them. FR-6.2 compares by declared
+# meaning, so one clause catches `-f`, `-rf`, `-fr`, `-r -f`, `--force`,
+# `--forc`, `--fo` and `--f` alike. A rule comparing text would see two of eight.
+
+[command.rm]
+operands = "path"
+
+  short.f = { means = "force" }
+  short.r = { means = "recursive" }
+  short.R = { means = "recursive" }
+
+  long.force     = { means = "force" }
+  long.recursive = { means = "recursive" }
+
+# ============================================================================
+# Ordinary file and directory work
+# ============================================================================
+
+[command.mkdir]
+operands = "path"
+
+  short.p = { means = "parents" }
+  long.parents = { means = "parents" }
+
+[command.cp]
+operands = "path"
+
+[command.mv]
+operands = "path"
+
+[command.readlink]
+operands = "path"
+
+  short.f = { means = "canonicalise" }
+  long.canonicalize = { means = "canonicalise" }
+
+# ============================================================================
+# qwark itself
+# ============================================================================
+#
+# So a rule can be tried from inside the tree the gate protects. An armed qwark
+# denied `qwark`, which made `qwark judge` unavailable exactly where it was
+# needed: measured 2026-08-28.
+#
+# Safe to declare because nothing qwark does writes or executes. Its whole
+# command line is internal/cli/cli.go, importing fmt, io, strings and the
+# parser, with no os/exec and no file writing. `judge` and `ast` take a command
+# as an argv element and only parse it.
+#
+# `hook` is deliberately NOT allowed in 10-commands.toml. It reads its subject
+# from stdin, so what it judges is not in the command text, and driving it needs
+# a pipe, which tier one refuses anyway.
+
+[command.qwark]
+operands = "text"
+
+  long.agent = { means = "agent", takes_value = true, kind = "text" }
+  long.debug = { means = "debug" }
+
+# ============================================================================
+# Reading the filesystem
+# ============================================================================
+#
+# ############################################################################
+# DECLARING THESE IS A DECISION AGAINST THE MEASUREMENT, taken deliberately.
+#
+# The corpus says these are 32,462 occurrences, 36.1% of everything Bash was
+# asked to do here, and that Grep, Read and Glob already do all of it with no
+# shell involved. Its recommendation was that the behaviour should stop rather
+# than be blessed.
+#
+# They are declared because a gate nobody can work behind gets switched off, and
+# because tier one still refuses the shapes that made them dangerous: no pipe,
+# no redirection, no substitution, no glob. `grep -rn x .` runs; `grep x *.md`
+# does not, and `grep x f | head` does not.
+#
+# Revisit when the proxy lands. That is the point at which the native tools
+# replace these rather than competing with them.
+# ############################################################################
+#
+# The obsolete numeric forms `head -20` and `tail -3` are NOT declared, so they
+# are refused as unaccounted and the way through is `head -n 20`. That is a
+# behaviour change and it fails closed, which is the right direction for a form
+# whose leading digit is an option only by convention.
+
+[command.ls]
+operands = "path"
+
+  short.l = { means = "long" }
+  short.a = { means = "all" }
+  short.h = { means = "human" }
+  short.d = { means = "directory" }
+  short.t = { means = "by-time" }
+  short.r = { means = "reverse" }
+  short.S = { means = "by-size" }
+  short.1 = { means = "one-per-line" }
+
+[command.cat]
+operands = "path"
+
+  short.n = { means = "number" }
+
+[command.head]
+operands = "path"
+
+  short.n = { means = "count", takes_value = true, kind = "text" }
+  long.lines = { means = "count", takes_value = true, kind = "text" }
+
+[command.tail]
+operands = "path"
+
+  short.n = { means = "count", takes_value = true, kind = "text" }
+  long.lines = { means = "count", takes_value = true, kind = "text" }
+
+[command.wc]
+operands = "path"
+
+  short.l = { means = "lines" }
+  short.w = { means = "words" }
+  short.c = { means = "bytes" }
+
+# `grep -O` is not declared. On `git grep` it launches a program, and keeping
+# one spelling refused everywhere is cheaper than reasoning about which grep is
+# in front of you.
+[command.grep]
+operands = "path"
+
+  short.r = { means = "recursive" }
+  short.R = { means = "recursive" }
+  short.n = { means = "line-number" }
+  short.i = { means = "ignore-case" }
+  short.c = { means = "count" }
+  short.l = { means = "files-with-matches" }
+  short.L = { means = "files-without-match" }
+  short.v = { means = "invert" }
+  short.E = { means = "extended-regexp" }
+  short.F = { means = "fixed-strings" }
+  short.w = { means = "word-regexp" }
+  short.h = { means = "no-filename" }
+  short.o = { means = "only-matching" }
+  short.q = { means = "quiet" }
+
+  short.A = { means = "after-context",  takes_value = true, kind = "text" }
+  short.B = { means = "before-context", takes_value = true, kind = "text" }
+  short.C = { means = "context",        takes_value = true, kind = "text" }
+  short.e = { means = "pattern",        takes_value = true, kind = "text" }
+
+  long.include = { means = "include", takes_value = true, kind = "text" }
+  long.exclude = { means = "exclude", takes_value = true, kind = "text" }
+  long.exclude-dir = { means = "exclude-dir", takes_value = true, kind = "text" }
+
+# `-exec`, `-execdir`, `-delete` and `-ok` are NOT declared, deliberately. The
+# first three run a program or remove files, and `no-option-supplied-program`
+# in 30-options.toml already denies anything meaning "execute". Leaving them
+# undeclared refuses them one level earlier, with a message about accounting
+# rather than about execution.
+[command.find]
+operands = "path"
+
+  short.L = { means = "follow-links" }
+
+  long.name     = { means = "name",     takes_value = true, kind = "text" }
+  long.iname    = { means = "name",     takes_value = true, kind = "text" }
+  long.path     = { means = "path-glob", takes_value = true, kind = "text" }
+  long.type     = { means = "type",     takes_value = true, kind = "text" }
+  long.maxdepth = { means = "maxdepth", takes_value = true, kind = "text" }
+  long.mindepth = { means = "mindepth", takes_value = true, kind = "text" }
+  long.not      = { means = "not" }
+
+[command.sort]
+operands = "path"
+
+  short.n = { means = "numeric" }
+  short.u = { means = "unique" }
+  short.r = { means = "reverse" }
+  short.V = { means = "version-sort" }
+  short.k = { means = "key",       takes_value = true, kind = "text" }
+  short.t = { means = "separator", takes_value = true, kind = "text" }
+
+[command.cut]
+operands = "path"
+
+  short.c = { means = "characters", takes_value = true, kind = "text" }
+  short.f = { means = "fields",     takes_value = true, kind = "text" }
+  short.d = { means = "delimiter",  takes_value = true, kind = "text" }

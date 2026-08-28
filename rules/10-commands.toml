@@ -170,9 +170,29 @@ members = ["test", "run", "generate", "tool"]
 # `checkout`, `switch` and `restore` are here for the smudge filter and the
 # post-checkout hook; `archive` for export-subst; `stash` because applying one
 # runs the same filters a checkout does.
+#
+# ############################################################################
+# `commit` WAS HERE AND HAS BEEN REMOVED, 2026-08-28.
+#
+# The rule read oddly against this machine and then read wrongly. `git commit`
+# runs the `commit-msg` hook, and on this machine that hook IS the attribution
+# guarantee: `~/.git-hooks/no-ai-attribution` is the thing hard rule 1 depends
+# on. So the rule refused `git commit` precisely BECAUSE it runs the check that
+# has to run.
+#
+# Measured 2026-08-28 against a live gate: `git commit <path> -F <msg>` was
+# refused by this rule, by `commit-must-be-signed`, and by `-F` being
+# undeclared, while hard rule 3 mandates exactly that command for every commit
+# here. 1,124 `git commit` invocations in the corpus. A gate that stops every
+# commit the instructions require is a gate that gets switched off.
+#
+# The general reason still stands for the other sixteen members: a hook is a
+# file the agent can write, and running one is running that file. `commit` is
+# the case where the hook running is the point.
+# ############################################################################
 [group.git-runs-hooks]
 members = [
-  "commit", "merge", "rebase", "am", "apply", "cherry-pick", "revert",
+  "merge", "rebase", "am", "apply", "cherry-pick", "revert",
   "push", "pull", "clone", "fetch", "checkout", "switch", "restore",
   "stash", "archive", "filter-branch",
 ]
@@ -490,13 +510,34 @@ permitted precisely so that it is there to read."""
   index = "2"
   group = "git-reflog-writes"
 
+# Narrowed 2026-08-28 rather than given an exception, because the guarantee it
+# protects is about CONTENT and `git add -N` carries none.
+#
+# The index is shared between concurrent sessions in one worktree, so one
+# session staging content and another committing puts the first one's work into
+# the second one's commit, invisibly.
+# docs/LESSONS/concurrent-sessions-share-one-index/.
+#
+# `git add -N` records that a path exists and stages no content, which is why
+# hard rule 2 requires it for every new file: `git commit <path>` fails with
+# `pathspec did not match` without it. Nothing another session could commit is
+# added by it.
+#
+# Written as an inverted clause rather than as a second allow rule so the way
+# out sits inside the denial that a refused agent reads. That shape is only
+# honest when the option it excepts is declared, which `-N` now is; the same
+# shape on `commit-must-be-signed` was dishonest for exactly that reason and
+# that rule has been removed.
+
 [[rule]]
 id     = "no-git-staging"
 action = "deny"
 reason = """
-This writes .git/index, which is what a later commit records. It is the first
-half of an operation whose second half is refused, so permitting it would leave
-staged work nothing can complete."""
+Staging content writes .git/index, which is what a later commit records, and
+the index is shared with every other session in this worktree: staging here
+puts your work into whatever they commit next. `git add -N <path>` is
+permitted, because it records that a path exists and stages no content, which
+is the form a new file needs before `git commit <path>` can name it."""
 
   [[rule.clause]]
   index = "0"
@@ -505,6 +546,10 @@ staged work nothing can complete."""
   [[rule.clause]]
   index = "1"
   group = "git-writes-the-index"
+
+  [[rule.clause]]
+  option = "intent-to-add"
+  absent = true
 
 # The allowed half: read-only allowed, the rest denied by class. This is the
 # only allow rule in the shipped set, and deliberately the narrowest thing that
@@ -588,3 +633,147 @@ arbitrary execution."""
   [[rule.clause]]
   index = "1"
   value = "config"
+
+# ============================================================================
+# What is allowed
+# ============================================================================
+#
+# ############################################################################
+# NOTHING RUNS ON A DECLARATION ALONE. Deny is the engine's default (FR-4.22),
+# so a command that is described and unobjected-to is still refused until an
+# allow rule names it. A rule set with no allow rules permits nothing, which is
+# a state this project reached on 2026-08-28 and spent a session inside.
+#
+# Every deny above outranks everything here (FR-4.14), so an allow can never
+# widen a refusal and a command appearing in both lists is denied.
+#
+# WHAT KEEPS THESE NARROW IS NOT THIS SECTION. It is tier one in
+# 00-structure.toml and the option tables in 05-declarations.toml. `grep x .`
+# is permitted; `grep x *.md` is a glob, `grep x f | head` is a pipe, and
+# `grep -O prog f` is an undeclared option. None of those is mentioned here.
+# ############################################################################
+
+# Reading the filesystem and reporting what is there. None writes.
+[group.reads-files]
+members = ["ls", "cat", "head", "tail", "wc", "grep", "find", "sort", "cut",
+           "readlink"]
+
+# Subcommands of `go` that inspect or produce a named artifact, as opposed to
+# compiling and running this tree's own code. The other four are denied by
+# `no-go-execution` above and are not repeated here.
+[group.go-inspects]
+members = ["build", "mod", "list", "vet", "version", "env"]
+
+# qwark's read-only subcommands. `hook` is deliberately absent: it takes its
+# subject on stdin, so what it judges is not in the command text, and driving it
+# by hand needs a pipe that tier one refuses anyway.
+[group.qwark-reads]
+members = ["ast", "facts", "rules", "judge", "help"]
+
+[[rule]]
+id     = "allow-reading-the-filesystem"
+action = "allow"
+reason = "Reading a named file or listing a named directory changes nothing."
+
+  [[rule.clause]]
+  index = "0"
+  group = "reads-files"
+
+[[rule]]
+id     = "allow-ordinary-file-work"
+action = "allow"
+reason = """
+Creating a directory, copying a file and moving one are the ordinary operations
+of working in a tree, and each names what it acts on."""
+
+  [[rule.clause]]
+  index = "0"
+  group = "makes-and-moves"
+
+[group.makes-and-moves]
+members = ["mkdir", "cp", "mv"]
+
+# `rm` is allowed as a word and refused in a shape, which is the mechanical this
+# rule set already uses for `git reflog`. Bare `rm <path>` names what it removes
+# and removes only that. `rm-force` and `rm-recursive` in 30-options.toml deny
+# the two options that stop it being true, and both outrank this.
+[[rule]]
+id     = "allow-removing-a-named-file"
+action = "allow"
+reason = """
+Removing a file the command names is permitted. Force and recursive are not:
+the first suppresses the report of what was missing, the second walks a tree
+whose contents the command never named."""
+
+  [[rule.clause]]
+  index = "0"
+  value = "rm"
+
+[[rule]]
+id     = "allow-building-go"
+action = "allow"
+reason = """
+`go build`, `go vet`, `go mod` and `go list` compile and inspect. They do not
+run this tree's code, which is what `go test`, `go run`, `go generate` and
+`go tool` do and why those stay refused."""
+
+  [[rule.clause]]
+  index = "0"
+  value = "go"
+
+  [[rule.clause]]
+  index = "1"
+  group = "go-inspects"
+
+[[rule]]
+id     = "allow-formatting-go"
+action = "allow"
+reason = "`gofmt` rewrites formatting and changes no behaviour."
+
+  [[rule.clause]]
+  index = "0"
+  value = "gofmt"
+
+# So a rule can be tried before it is the reason a command failed. An armed
+# qwark denied `qwark` on 2026-08-28, which made `qwark judge` unavailable in
+# exactly the tree that needed it.
+#
+# Safe because nothing qwark does writes or executes: its whole command line is
+# internal/cli/cli.go, importing fmt, io, strings and the parser, with no
+# os/exec and no file writing. `judge` and `ast` take a command as an argv
+# element and only parse it.
+[[rule]]
+id     = "allow-trying-a-rule"
+action = "allow"
+reason = """
+qwark parses and reports. What it is given is described, never executed, and
+nothing it is given is written."""
+
+  [[rule.clause]]
+  index = "0"
+  value = "qwark"
+
+  [[rule.clause]]
+  index = "1"
+  group = "qwark-reads"
+
+# The two halves of the commit workflow hard rules 2 and 3 mandate. `git add`
+# reaches this only with `-N`, because `no-git-staging` denies it otherwise and
+# a deny outranks an allow.
+[[rule]]
+id     = "allow-the-mandated-commit-workflow"
+action = "allow"
+reason = """
+Recording that a path exists, and committing the working-tree content of paths
+this command names. Both are required for every commit made on this machine."""
+
+  [[rule.clause]]
+  index = "0"
+  value = "git"
+
+  [[rule.clause]]
+  index = "1"
+  group = "git-commits"
+
+[group.git-commits]
+members = ["add", "stage", "commit"]
