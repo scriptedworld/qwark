@@ -119,7 +119,7 @@ func (f OptionError) Unwrap() error { return f.Err }
 // A Valued is something a command denotes, and where it was written.
 //
 // Both halves are needed and they are not the same word. In `tar -f archive.tar`
-// the path is `archive.tar` but the ordinal is 1, where `-f` was written --
+// the path is `archive.tar` but the ordinal is 1, where `-f` was written,
 // because that is what a message should point at. A caller given only ordinals
 // would read the word at 1, find `-f`, and compare *that* against the protected
 // paths, which is a rule that can never fire.
@@ -336,7 +336,7 @@ func (o *Options) takeValue(simple Simple, ordinal int, spelling string) (string
 
 // resolveLong finds the declared option a long form names.
 //
-// **FACT 2026-08-19:** GNU accepts any unambiguous abbreviation, so `rm --f`,
+// GNU accepts any unambiguous abbreviation, so `rm --f`,
 // `--fo` and `--forc` all force. Matching the text `--force` misses every one
 // of them, which is why this resolves rather than compares. An exact name wins
 // outright, as it does in getopt_long, so declaring both `--force` and

@@ -1,20 +1,17 @@
-# SUPPRESSIONS — qwark
+# SUPPRESSIONS, qwark
 
 Every inline suppression pragma in this project appears below, with the question
 that was asked and the answer that was given. A pragma that is not listed here is
-a defect: remove it or register it.
+a defect: remove it or register it. Nothing here silences a finding to make a gate
+pass.
 
-Nothing here silences a finding to make a gate pass. A pragma is written only
-after a human has been asked why it is needed and has answered, and the answer
-is recorded with it.
-
-**FACT 2026-08-19: no pragmas. The index below is empty.**
+**No pragmas. The index below is empty.**
 
 Verified by the `suppressions` task in the gate, which compares this register
-against the source on every run and fails in both directions — a pragma with no
-entry, an entry with no pragma, or a file whose count has changed. Checking it
-by hand is what let bolt's register drift while carrying a line saying it had
-been verified.
+against the source on every run and fails in both directions: a pragma with no
+entry, an entry with no pragma, or a file whose count has changed. Checking it by
+hand is what let bolt's register drift while carrying a line saying it had been
+verified.
 
 ---
 

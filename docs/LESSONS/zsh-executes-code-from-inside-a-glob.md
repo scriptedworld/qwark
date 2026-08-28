@@ -16,8 +16,7 @@ is a glob**, and tier one does not ban globs. Put through qwark as it stands:
 
 No substitution, no pipe, no redirection, no logical concatenation. **It passes
 every tier-one check**, and under zsh it runs `rm -rf /`. The parser reads it as a
-bash `ExtGlob`, a construct with no execution semantics whatsoever, which is the
-silent-misreading class in its worst form.
+bash `ExtGlob`, a construct with no execution semantics whatsoever.
 
 Closing this while staying on zsh would mean banning globs outright, a large
 usability cost for one construct. Under bash the construct does not exist. That,
@@ -25,10 +24,9 @@ rather than parser tidiness, is what settles it:
 
 *"zsh has a lot of features I'd rather not have to deal with."*
 
-Stated as a design property: a gate must model every construct its shell can
-execute, so the shell's feature count *is* the gate's attack surface. Bash is not
-safe, but it is smaller, and smaller is the only property that makes the modelling
-tractable.
+A gate must model every construct its shell can execute, so the shell's feature
+count *is* the gate's attack surface. Bash is not safe, only smaller, and smaller
+is what makes the modelling tractable.
 
 **The decision is to force the shell to bash**, and not to teach qwark zsh. The
 reasons compound:
@@ -52,8 +50,6 @@ immune to shadowing** stand unchanged. Claude Code would snapshot bash's
 environment instead of zsh's, which is only an improvement if that environment is
 bare, and that wants checking, not assuming.
 
-**Therefore qwark verifies rather than assumes.** The parser's variant is a
-precondition, and a precondition that is merely hoped for is a bug waiting for a
-new machine. qwark declares the shell it parses for and refuses to run when the
-environment says otherwise, on the same fail-closed reasoning as everything else
-here.
+**So qwark verifies rather than assumes.** It declares the shell it parses for and
+refuses to run when the environment says otherwise, on the same fail-closed
+reasoning as everything else here.

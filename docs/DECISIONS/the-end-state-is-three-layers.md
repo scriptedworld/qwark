@@ -20,8 +20,8 @@ So the destination is not a longer deny list. It is:
 That changes what the path groups in 20-paths.toml are FOR. **Four of the six sit
 outside a project-rooted sandbox and are absorbed by layer one**: qwark's own
 rules, Claude Code's configuration and snapshot, the shell startup files, and the
-PATH directories. Under a sandbox those rules guard against something that cannot
-happen, and they survive only as the un-sandboxed case and as defence in depth.
+PATH directories. Under a sandbox they guard against something that cannot happen,
+and survive only as the un-sandboxed case and as defence in depth.
 
 **Two of the six sit INSIDE it, and no sandbox removes them.**
 
@@ -33,12 +33,12 @@ These are in the project, which is the one place the agent is supposed to be abl
 to write. Layer two does not help either: the blast radius says a write must land
 inside the project, and every one of these already is.
 
-So the residue after the sandbox is exactly the worry that prompted this section.
-`just checks` and `bolt run` are fixed command lines whose meaning lives in a file
-the agent may legitimately write. **The layer that closes it is the manifest**,
-because the manifest is the only one of the three that discriminates between
-files inside the blast radius. Not "the project is writable" but "these files are
-writable, and a task definition is not one of them".
+So the residue after the sandbox is `just checks` and `bolt run`, fixed command
+lines whose meaning lives in a file the agent may legitimately write. **The layer
+that closes it is the manifest**, because the manifest is the only one of the
+three that discriminates between files inside the blast radius. Not "the project
+is writable" but "these files are writable, and a task definition is not one of
+them".
 
 That puts the priority somewhere other than where it looks. FR-9.6 and FR-9.7 are
 both `[?]` and unbuilt, and between them they are the whole of layer three.
@@ -46,8 +46,7 @@ Meanwhile the executors are all denied today, so the exposure is not live. It
 becomes live the moment one of them is permitted, and permitting one is what
 everybody will want as soon as the agent needs to run the gate.
 
-What no layer reaches, stated so it is not rediscovered: a coding agent that can
-write a test file and run the test runner has arbitrary execution. The manifest
-would have to say `*_test.go` is writable, because writing tests is the job. That
-is irreducible, and it is why `go test` sits in the executor group instead of
-being quietly allowed.
+What no layer reaches: a coding agent that can write a test file and run the test
+runner has arbitrary execution. The manifest would have to say `*_test.go` is
+writable, because writing tests is the job. That is irreducible, and it is why
+`go test` sits in the executor group instead of being quietly allowed.

@@ -3,9 +3,8 @@
 *"there are also still things that are going to need a way to deal with this
 leaking bucket for the ttl tracking."*
 
-There is a contradiction between the options in **Tags have lifetimes** and a
-constraint already stated in `40-state.toml`, and naming it now beats discovering
-it later:
+The options in **Tags have lifetimes** contradict a constraint already stated in
+`40-state.toml`:
 
 > Tag state must not be writable by the user qwark runs as. A countdown the
 > subject can reset is not a constraint on the subject.
@@ -32,9 +31,8 @@ coming:
   fail-closed a daemon outage becomes a Bash outage.
 - **The proxy is that process.** Once tool calls go through a long-lived server
   the agent reaches only by typed call and never through the filesystem, the
-  natural place for the count is inside it. The daemon objection loses most of its
-  force at that point, because the daemon is already there and Bash is already
-  narrowed to whatever the proxy does not cover.
+  natural place for the count is inside it, and the daemon objection loses most of
+  its force: the daemon is already there.
 
 Two properties the count must keep wherever it lands, both already decided and
 easy to lose in a reimplementation: a denied command advances nothing (FR-4.24,

@@ -35,7 +35,7 @@ func TestQwarkRunsInOneGoroutine(t *testing.T) {
 func TestQwarkNeverExecutesAnything(t *testing.T) {
 	t.Parallel()
 
-	// qwark reads rule files, shell snapshots and `.git/HEAD` -- all of them
+	// qwark reads rule files, shell snapshots and `.git/HEAD`: all of them
 	// files its own subject can write. Running any of them would be running the
 	// subject's code inside the judge, which is the mistake this project keeps
 	// finding in other places: sourcing the snapshot to ask what an alias is,
@@ -44,8 +44,8 @@ func TestQwarkNeverExecutesAnything(t *testing.T) {
 	//
 	// The ban is on the CALLS that spawn a process rather than on whole
 	// packages. An earlier version banned `syscall` outright, which was too
-	// blunt in both directions: it forbade asking who owns a file -- something
-	// qwark must do to check its own rule files are not writable -- while a
+	// blunt in both directions: it forbade asking who owns a file, something
+	// qwark must do to check its own rule files are not writable, while a
 	// package ban says nothing about `os.StartProcess`, which is in a package
 	// nothing could ban.
 	root := filepath.Join("..", "..")

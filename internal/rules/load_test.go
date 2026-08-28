@@ -141,7 +141,7 @@ func TestARuleThatCannotBeTrustedIsRefused(t *testing.T) {
 	t.Parallel()
 
 	// Each of these would otherwise produce a rule that never applies, which
-	// reads exactly like a rule that is working -- the most dangerous way for
+	// reads exactly like a rule that is working: the most dangerous way for
 	// a gate to be broken. They are refused at load rather than at the command
 	// they silently fail to catch.
 	cases := []struct {

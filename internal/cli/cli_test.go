@@ -302,7 +302,7 @@ func TestJudgeCanBeToldWhichAgentIsAsking(t *testing.T) {
 	// The flag is taken from the front only. Everything after the rules path
 	// may be the command being judged, and a gate that ate an argument out of
 	// the middle of a command would be judging something other than what was
-	// typed -- so this also proves the split still works around it.
+	// typed, so this also proves the split still works around it.
 	out, errOut, status := invoke(t, "",
 		"judge", "--agent=gate-runner", "../../rules", "--", "git", "status")
 

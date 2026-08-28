@@ -12,18 +12,16 @@
 FR-4.9a. The proxy is a separate component that qwark interacts with, and not a
 further thing qwark becomes.
 
-Hold that distinction, because a gate and an audit are opposite in almost every
-respect that matters:
+A gate and an audit are opposite in almost every respect that matters:
 
     a gate     synchronous, per call, must decide, FAILS CLOSED
     an audit   after the fact, across calls, must not lose a record,
                and blocking nothing is the point
 
-**Their failure modes point in opposite directions.** A gate that breaks must
-refuse, which is why exit 2 exists and why every path here ends in a decision. An
-audit that breaks must not refuse, because an audit that can stop work will be
-turned off. What it must not do is silently lose records, since a log with gaps
-reads as a clean history.
+A gate that breaks must refuse, which is why exit 2 exists and why every path here
+ends in a decision. An audit that breaks must not refuse, because an audit that
+can stop work will be turned off. What it must not do is silently lose records,
+since a log with gaps reads as a clean history.
 
 An audit also sees what no gate can: a pattern across calls that no single call
 would trip. That is the argument tags were built on, arriving from the other end,
@@ -36,53 +34,40 @@ effects does not say what was meant.
 
 ---
 
-Back to the proxy itself, which is a layer and not a mode. The engine does not
-care what it is judging. A rule is clauses that must all hold; whether a clause
-selects a word of a command line or a field of a tool call is an adapter question
-and not a design one.
+The proxy is a layer and not a mode. The engine does not care what it is judging.
+A rule is clauses that must all hold; whether a clause selects a word of a command
+line or a field of a tool call is an adapter question and not a design one.
 
-**It turns denying into enumerating, and that is the whole gain.** qwark denies by
-default across the infinite space of things somebody might type. A proxy exposes a
-finite set of operations, so what exists is what was written down. Every hard
-problem in mode one is a consequence of the space being infinite and the text
-being ambiguous: quoting, escapes, aliases, shell functions, `PATH`, wrappers,
-interpreters, globs, substitutions. **A typed call cannot hide its own effect the
-way a command line can**, which is what the whole of tier one exists to force.
+**It turns denying into enumerating.** qwark denies by default across the infinite
+space of things somebody might type. A proxy exposes a finite set of operations,
+so what exists is what was written down. Every hard problem in mode one follows
+from that space being infinite and the text ambiguous: quoting, escapes, aliases,
+shell functions, `PATH`, wrappers, interpreters, globs, substitutions. **A typed
+call cannot hide its own effect the way a command line can.**
 
 The mechanicals mostly become API design. "Allowed as a word, refused in a shape"
 stops being a rule and becomes a parameter that is not offered: a `reflog`
-operation with no `expire`. "Refused unless" becomes a required argument. That is
-a better place for the constraint, because an operation that cannot be named
-cannot be attempted, and a refusal never has to be understood.
+operation with no `expire`. "Refused unless" becomes a required argument. An
+operation that cannot be named cannot be attempted, and a refusal never has to be
+understood.
 
-What carries over is the whole of the engine: rules as conjunctions with no
-disjunction inside one, the strictest action winning so order never matters, deny
-as the engine's default and not a rule's, a declaration granting understanding and
-not permission, groups so a class is a list instead of twenty rules, and a refusal
-that states its reason.
+The whole of the engine carries over, none of it being about shells. **That is
+what makes FR-7.12 and FR-7.13 foundational rather than interim**: "these kinds of
+rules for the various tools per agent type" *is* the agent clause.
 
-**This is what makes FR-7.12 and FR-7.13 foundational rather than interim.**
-"These kinds of rules for the various tools per agent type" *is* the agent clause.
-The discriminator that is awkward to arrange in the plumbing is the natural one
-here, and it is the same clause either way.
-
-**A proxy per agent type is the stronger form**, raised as an
-alternative or an addition: *"if we encode a PROXY for each of the agent types …
-which would likewise limit everything"*. It is stronger for the reason enumeration beats
-denial: an unexposed tool cannot be called at all, while a rule refuses a call
-that was already formed.
+**A proxy per agent type is the stronger form**, raised as an alternative or an
+addition: *"if we encode a PROXY for each of the agent types … which would
+likewise limit everything"*. An unexposed tool cannot be called at all, while a
+rule refuses a call that was already formed.
 
 Its cost is the question already open under **where this is heading**. N proxies
-are N surfaces to keep in step with each other and with the agent prompts, which
-is the duplication problem in another dress. One proxy with agent-scoped rules
-keeps the policy in one readable file; a proxy per agent type puts it in the
-wiring. That holds unless the surfaces are generated from a single source, and
-the rule files are the obvious candidate: this is the branch named in *"those
-end up referencing these rule files"*.
-
-That also says what the agent clause is for once proxies exist: a check on the
-wiring rather than the wiring itself, and the policy for whatever Bash surface
-remains.
+are N surfaces to keep in step with each other and with the agent prompts. One
+proxy with agent-scoped rules keeps the policy in one readable file; a proxy per
+agent type puts it in the wiring, unless the surfaces are generated from a single
+source, and the rule files are the obvious candidate: this is the branch named in
+*"those end up referencing these rule files"*. The agent clause then becomes a
+check on the wiring rather than the wiring itself, plus the policy for whatever
+Bash surface remains.
 
 **What the proxy does not dissolve** is the residue everything else left. If the
 proxy exposes an operation that runs `just checks`, the `justfile` still decides

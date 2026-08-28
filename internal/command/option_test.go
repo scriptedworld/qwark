@@ -268,7 +268,7 @@ func TestOnlyDeclaredPathsAreReportedAsPaths(t *testing.T) {
 
 	// The VALUES are what a rule about where a command reaches must test. In
 	// `tar -f archive.tar` the path is `archive.tar` while the ordinal is 1,
-	// where `-f` was written -- so a caller given only ordinals would test
+	// where `-f` was written, so a caller given only ordinals would test
 	// `-f` against the protected paths and never fire.
 	cases := []struct {
 		name string

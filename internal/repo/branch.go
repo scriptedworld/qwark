@@ -3,7 +3,7 @@
 //
 // # Why this reads files instead of running git
 //
-// **FACT 2026-08-20, demonstrated.** An alias written into a repository's own
+// **Demonstrated.** An alias written into a repository's own
 // `.git/config` executes on a plain git invocation:
 //
 //	[alias]
@@ -15,7 +15,7 @@
 // `core.pager`, `core.fsmonitor` and the hooks path do the same thing by other
 // routes. That file is writable by the agent with no shell involved, so asking
 // git a question from inside the gate would run the subject's code in the
-// judge's process -- the same mistake as sourcing the shell snapshot, reached
+// judge's process: the same mistake as sourcing the shell snapshot, reached
 // from a different direction.
 //
 // Reading `.git/HEAD` answers the question and executes nothing.

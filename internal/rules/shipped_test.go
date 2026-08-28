@@ -14,11 +14,11 @@ import (
 func TestTheRegistrationRefusesWhenQwarkDies(t *testing.T) {
 	t.Parallel()
 
-	// The `|| exit 2` is not belt and braces. **FACT 2026-08-20: exit 0 with no
-	// JSON is no decision and the command proceeds, and any non-zero exit other
-	// than 2 is a non_blocking_error and the command also proceeds.** Only exit
+	// The `|| exit 2` is not belt and braces. **Exit 0 with no JSON is no
+	// decision and the command proceeds, and any non-zero exit other than 2
+	// is a non_blocking_error and the command also proceeds.** Only exit
 	// 2 blocks. A registration without the guard therefore lets the command
-	// through whenever qwark segfaults, is killed, or exits 1 -- and the shipped
+	// through whenever qwark segfaults, is killed, or exits 1, and the shipped
 	// fragment is where somebody copies that from.
 	body, err := os.ReadFile(filepath.Join("..", "..", "install", "settings-fragment.json"))
 	if err != nil {
@@ -118,7 +118,7 @@ func TestTheShippedRulesDenyWrappersByName(t *testing.T) {
 	// Wrappers are refused by an explicit rule rather than by being undeclared,
 	// so that the refusal states why, records that they were considered rather
 	// than forgotten, and survives someone later declaring one for a harmless
-	// flag. An absence provides none of the three -- and an absence is also
+	// flag. An absence provides none of the three, and an absence is also
 	// what this test would be checking if it merely asserted they do not run.
 	set, err := rules.Load([]string{filepath.Join("..", "..", "rules")})
 	if err != nil {
@@ -150,9 +150,9 @@ func TestTheShippedRulesDenyTaskRunnersByName(t *testing.T) {
 	// etc ... if they can write a new file, then they can then get the agent to
 	// approve anything.`
 	//
-	// FACT 2026-08-20, measured: `just checks` was refused by `no-executors`,
-	// which names the threat. `bolt run` was refused by "(engine) deny by
-	// default", which names nothing -- and bolt is this project's own gate.
+	// Measured: `just checks` was refused by `no-executors`, which names the
+	// threat. `bolt run` was refused by "(engine) deny by default", which
+	// names nothing, and bolt is this project's own gate.
 	//
 	// The list is not what makes this safe: deny-by-default already refuses an
 	// unnamed command. What the list buys is a refusal that explains itself, so
@@ -228,8 +228,8 @@ func shippedVerdict(t *testing.T, src string) (rules.Outcome, []string) {
 func TestTheShippedRulesForbidTierOneAsOneProperty(t *testing.T) {
 	t.Parallel()
 
-	// The four are one property -- that a command's effect is fixed by its own
-	// text -- and the shipped rules must actually say so, not merely be
+	// The four are one property: that a command's effect is fixed by its own
+	// text, and the shipped rules must actually say so, not merely be
 	// described as saying so.
 	//
 	// A pipe and a logical concatenation are refused before the rules run,
@@ -248,7 +248,7 @@ func TestTheShippedRulesForbidTierOneAsOneProperty(t *testing.T) {
 		{name: "logical", src: `cat a && cat b`, mention: "One command at a time"},
 		// A glob is the fifth member of the property and was the one with no
 		// rule. What `*` matches is decided by the directory at the moment it
-		// runs, and it hands a path rule a word that denotes no path -- so the
+		// runs, and it hands a path rule a word that denotes no path, so the
 		// protected-path rules are silent on `rm *` entirely.
 		{name: "glob", src: `cat *`, mention: "wildcard is not permitted"},
 	}
@@ -285,7 +285,7 @@ func TestTheShippedRulesRefuseAHeredocWriteInItsOwnRight(t *testing.T) {
 	// The here-document ban is subsumed by the redirection ban, and is stated
 	// separately because its reason is separate: such content was never a diff
 	// and leaves nothing to review. That separateness is only real if the
-	// separate reason actually reaches the reader -- otherwise it is a comment
+	// separate reason actually reaches the reader, otherwise it is a comment
 	// in a file rather than something the gate says.
 	outcome, fired := shippedVerdict(t, "cat > f.go <<EOF\npackage main\nEOF")
 

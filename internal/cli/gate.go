@@ -41,7 +41,7 @@ func runHook(paths []string, stdin io.Reader, stdout, stderr io.Writer) int {
 //
 // **Both questions are asked and both answers are reported.** A rule set can be
 // rewritable and unparseable at once, and saying only the first sends its
-// reader back for the second -- the same reason a refusal lists every rule that
+// reader back for the second: the same reason a refusal lists every rule that
 // objected rather than the first.
 //
 // Ownership comes first in the message because it is the graver finding: a
@@ -91,7 +91,7 @@ func joinReasons(refusals []string) string {
 // to soften. qwark's whole premise is an agent constrained by rules it did not
 // write; an agent that can edit them is constrained by nothing, and it needs no
 // shell to do it. So a writable rule set is not a degraded gate to be run with
-// a warning -- it is the absence of one, and it has to say so by refusing.
+// a warning: it is the absence of one, and it has to say so by refusing.
 //
 // The fix is deployment rather than configuration, which is why the message
 // says where to put the rules rather than what to change in them.
@@ -99,8 +99,8 @@ func untrusted(err error) string {
 	return fmt.Sprintf(
 		"qwark's rule set can be rewritten by the user qwark runs as, so it is "+
 			"not a constraint on anything:\n  %v\n"+
-			"Move the rules somewhere this user cannot write -- a root-owned "+
-			"directory such as /etc/qwark/rules -- and name that path in the "+
+			"Move the rules somewhere this user cannot write, a root-owned "+
+			"directory such as /etc/qwark/rules, and name that path in the "+
 			"hook registration.", err)
 }
 
@@ -110,7 +110,7 @@ func untrusted(err error) string {
 // success while guarding nothing, so the answer is a refusal rather than a
 // shrug. The cost is that a typo denies every command until it is fixed, which
 // is why the message carries the parser's position and names a way out that
-// does not itself need Bash -- editing the rule file with the Edit tool.
+// does not itself need Bash: editing the rule file with the Edit tool.
 func unloadable(err error) string {
 	return fmt.Sprintf(
 		"qwark's rule set will not load, so nothing is permitted:\n  %v\n"+

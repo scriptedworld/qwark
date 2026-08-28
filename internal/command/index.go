@@ -16,7 +16,7 @@ var (
 	ErrOrdinal    = errors.New("ordinal is not a whole number")
 	ErrRange      = errors.New("range wants exactly two endpoints")
 
-	// ErrUnbounded refuses `..`, which names every argument -- and so does
+	// ErrUnbounded refuses `..`, which names every argument, and so does
 	// omitting the index entirely. Two spellings of one meaning is a thing to
 	// remove, not to support: whichever a reader has not seen before costs
 	// them a trip to the documentation to learn it meant the other.
@@ -35,11 +35,11 @@ const rangeSeparator = ".."
 // regardless of how many there are.
 //
 // One end of a range may be left off: `1..` runs to the last word and `..3`
-// runs from the first argument. Leaving off both is a configuration error --
+// runs from the first argument. Leaving off both is a configuration error:
 // `..` names every argument, and so does stating no index at all.
 //
 // **An open end never reaches the command.** An omitted start is 1, because
-// arguments do not start at 0 -- the command does. Ordinal 0 is reachable only
+// arguments do not start at 0: the command does. Ordinal 0 is reachable only
 // by naming it. A test written without an index asks about what the command was
 // given, and matching the command's own name too would make `value = "rm"` true
 // of `echo rm`.
@@ -127,7 +127,7 @@ func parseTerm(field string) (term, error) {
 // the things it was given.
 //
 // An omitted end is -1, the last word, whatever the count. Omitting both is
-// refused -- see ErrUnbounded.
+// refused: see ErrUnbounded.
 const (
 	firstOrdinal = 1
 	lastOrdinal  = -1

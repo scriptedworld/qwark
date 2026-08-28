@@ -1,10 +1,10 @@
-# qwark — protected paths. DRAFT 2026-08-20, not yet loaded by anything.
+# qwark, protected paths.
 #
 # These are class-three rules: they ask where a command reaches, not what it is
 # called. That needs two things the earlier files do not:
 #
-#   kind = "path"     select every word the DECLARATION says denotes a path --
-#                     `rm`'s operands, `tar -f`'s value -- and not the message
+#   kind = "path"     select every word the DECLARATION says denotes a path,
+#                     `rm`'s operands and `tar -f`'s value, and not the message
 #                     in `git commit -m "…"`. Which words are paths is declared
 #                     per command, never guessed.
 #
@@ -18,35 +18,32 @@
 # Both are PROPOSED and need your ruling.
 #
 # ---------------------------------------------------------------------------
-# THE LIMIT OF THIS FILE, stated because a control whose limits are unwritten
-# gets trusted past them:
+# THE LIMIT OF THIS FILE:
 #
 # qwark gates Bash. **The Write and Edit tools reach every path below without
-# passing through it.** Each of these therefore needs its other half -- a
-# `permissions.deny` entry in settings.json -- and settings.json must itself be
-# unwritable. The predecessor of this project ended on exactly this finding
-# from the other direction.
+# passing through it.** Each of these therefore needs its other half, a
+# `permissions.deny` entry in settings.json, and settings.json must itself be
+# unwritable.
 #
 # These rules also read the INTERPRETED value, which is the default and is
-# load-bearing here: FACT 2026-08-20, `rm /home/ancient/.cl\aude/x` reaches
-# .claude, and a rule reading what was written sees `.cl\aude` and misses.
+# load-bearing here: `rm /home/ancient/.cl\aude/x` reaches .claude, and a rule
+# reading what was written sees `.cl\aude` and misses.
 # ---------------------------------------------------------------------------
 #
 # ###########################################################################
 # WRITE THESE PATHS IN RESOLVED FORM. This is the footgun.
 #
 # A command's path is resolved through its symbolic links before it is matched,
-# so a group member written as the LINK matches nothing at all -- silently,
+# so a group member written as the LINK matches nothing at all, silently,
 # which is the worst way for a deny rule to fail.
 #
-# FACT 2026-08-20, measured on this machine:
+# Measured on this machine:
 #
 #   ~/.claude/settings.json -> /home/ancient/.projects/dotfiles/claude/settings.json
 #
 # So `partial = "/.claude/settings.json"` never fires: by the time the rule
 # sees it, the path is the dotfiles one. Written in resolved form the rule
-# catches BOTH spellings, because both resolve to the same file -- which is the
-# whole reason resolution is worth doing.
+# catches BOTH spellings, because both resolve to the same file.
 #
 # The members below are still written in link form and are therefore WRONG for
 # any of them that is a symlink on the machine they run on. They need checking
@@ -68,11 +65,11 @@ members = [
 
 # Claude Code's own configuration and runtime state.
 #
-# The shell snapshot earns its place: FACT 2026-08-20, it replays 64 aliases
-# and 24 functions into every Bash call, and it is writable by the agent's own
-# user. A function defined there shadows any command of the same name -- and a
-# backslash does not suppress a function, nor does an absolute path, since both
-# shells accept a function named `/usr/bin/ls`.
+# The shell snapshot earns its place: it replays 64 aliases and 24 functions
+# into every Bash call, and it is writable by the agent's own user. A function
+# defined there shadows any command of the same name, and neither a backslash
+# nor an absolute path escapes one, since both shells accept a function named
+# `/usr/bin/ls`.
 [group.claude-control]
 match = "partial"
 members = [
@@ -104,8 +101,7 @@ members = [
 
 # The files that DEFINE what a task runner runs.
 #
-# 2026-08-20, and this is the sharpest statement of the threat in this
-# project so far:
+# The sharpest statement of the threat in this project:
 #
 # > I worry about letting them run bolt ... running ANYTHING that isn't one of
 # > our standard jigs ... same with JUST or POE etc ... **if they can write a
@@ -113,20 +109,19 @@ members = [
 #
 # The point is not that `just` is dangerous. It is that `just checks` is a
 # fixed, familiar, obviously-safe-looking command line whose meaning lives in a
-# file in the working tree -- so permitting the command permits whatever the
-# file says tomorrow. The command line a gate reads is not where the behaviour
-# is.
+# file in the working tree, so permitting the command permits whatever the file
+# says tomorrow.
 #
 # **This group is half a control, and the smaller half.** Bash can barely reach
 # these files anyway: writing one needs a redirection, an interpreter or an
 # editor, and tier one refuses all three. What actually reaches them is Write
 # and Edit, which never pass through qwark. So this group is here for
 # completeness and for the `permissions.deny` list it should be kept in step
-# with -- see install/settings-fragment.json.
+# with, in install/settings-fragment.json.
 #
-# Written as basenames with a leading slash, because a relative path is
-# resolved against the directory the command runs in (FR-9.3) before it is
-# compared -- so `justfile` is `<cwd>/justfile` by the time a rule sees it.
+# Written as basenames with a leading slash, because a relative path is resolved
+# against the directory the command runs in (FR-9.3) before it is compared, so
+# `justfile` is `<cwd>/justfile` by the time a rule sees it.
 [group.task-definition]
 match = "partial"
 members = [
@@ -144,8 +139,8 @@ members = [
 ]
 
 # Anything here is a candidate for every unqualified command name.
-# FACT 2026-08-20, demonstrated: with a directory prepended to PATH, a script
-# named `rm` in it ran instead of the real one.
+# Demonstrated: with a directory prepended to PATH, a script named `rm` in it
+# ran instead of the real one.
 [group.executable-path]
 match = "partial"
 members = [
@@ -191,7 +186,7 @@ action = "deny"
 reason = """
 This reaches a shell startup file. What is defined there becomes an alias or a
 function in every later shell, and a function shadows any command of the same
-name -- which neither a backslash nor an absolute path escapes."""
+name, which neither a backslash nor an absolute path escapes."""
 
   [[rule.clause]]
   kind  = "path"
@@ -214,7 +209,7 @@ action = "deny"
 reason = """
 This reaches the file that decides what a task runner runs. `just checks` is a
 fixed command line whose meaning lives in the working tree, so whoever writes
-that file chooses what the command does -- and the command line a gate reads
+that file chooses what the command does, and the command line a gate reads
 says nothing about it."""
 
   [[rule.clause]]

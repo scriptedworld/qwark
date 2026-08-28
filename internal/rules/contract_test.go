@@ -40,7 +40,7 @@ func TestEveryClauseMustHoldForARuleToApply(t *testing.T) {
 	t.Parallel()
 
 	// There is no disjunction inside a rule. A rule whose first clause matches
-	// and whose second does not must not apply -- otherwise "all clauses" would
+	// and whose second does not must not apply, otherwise "all clauses" would
 	// quietly mean "any clause", and every conjunctive rule in the drafts would
 	// be broader than it reads.
 	twoClauses := `

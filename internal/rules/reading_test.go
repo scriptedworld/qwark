@@ -88,7 +88,7 @@ func TestAClauseOnTheValueSeesThroughAnEscapedPath(t *testing.T) {
 		t.Errorf("the value reading %q escaped a rule about .claude", value)
 	}
 
-	// Read as written, it does not match -- which is exactly why the value is
+	// Read as written, it does not match, which is exactly why the value is
 	// the default and the text has to be asked for.
 	text, _ := rules.ReadingWritten.Of(word)
 	if guard.Matches(text) {

@@ -1,11 +1,11 @@
-# bolt.qwark.yaml — qwark's overlay on the standard Go quality definition.
+# bolt.qwark.yaml, qwark's overlay on the standard Go quality definition.
 #
 # Run as:
 #
 #     bolt -c .../bolt.go-std-quality.yaml -c bolt.qwark.yaml
 #
 # Later files win and tasks merge by id field by field, so everything not named
-# here is inherited. Only what is genuinely specific to qwark appears below —
+# here is inherited. Only what is genuinely specific to qwark appears below:
 # an overlay that restated the definition would be a second copy of it, free to
 # drift from the first.
 

@@ -16,5 +16,4 @@ Those four are one property rather than four separate bans: the command's effect
 is determined by its own text. Every tier above depends on it. Deciding which
 paths a command reaches is unsound the moment a `$(…)` can produce a path at
 runtime, which is precisely how `bin/repos status` got past the predecessor. Tier
-one does more than list dangers; it is what makes tiers two and three decidable,
-and that is why it comes first.
+one is what makes tiers two and three decidable, and that is why it comes first.

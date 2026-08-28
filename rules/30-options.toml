@@ -1,14 +1,14 @@
-# qwark — denials by option. DRAFT 2026-08-20, not yet loaded by anything.
+# qwark, denials by option.
 #
 # These rules depend on the DECLARATION table, which is what says that `-f`
 # means force to `rm` and file to `tar`. Without a declaration for a command,
-# no clause here can fire -- and that is not a gap, because an undeclared
-# command is denied outright.
+# no clause here can fire, and that is not a gap, because an undeclared command
+# is denied outright.
 #
 #   option = "force"   an option whose DECLARED MEANING is force was given,
 #                      however it was spelled
 #
-# FACT 2026-08-20, why this matches meaning rather than text: `rm -f`, `rm -rf`,
+# Why this matches meaning rather than text: `rm -f`, `rm -rf`,
 # `rm -fr`, `rm -r -f`, `rm --force`, `rm --forc`, `rm --fo` and `rm --f` all
 # force. GNU accepts any unambiguous abbreviation, and short options bundle, so
 # a clause comparing an argument against `-f` or `--force` sees it in two of
@@ -21,16 +21,16 @@
 # The worked example
 # ============================================================================
 #
-# Your three cases, 2026-08-19:
+# The three cases:
 #
 #     rm -r -f   forbidden, because of -f
 #     rm -r      no -f: ask, warning that it is recursive
 #     rm -f      no -r: forbidden
 #
 # Written as two rules rather than three, because the strictest action wins.
-# `rm -rf` matches BOTH rules below and the deny takes it -- so the middle case
+# `rm -rf` matches BOTH rules below and the deny takes it, so the middle case
 # does not need to say "and no -f", and neither rule has to know the other
-# exists. That is what the precedence decision bought.
+# exists.
 
 [[rule]]
 id     = "rm-force"
@@ -69,11 +69,11 @@ This is recursive. Check the path is the one you mean before it is walked."""
 #
 #   absent = true    the clause holds when what it names is NOT there
 #
-# This is where the cost of "the strictest action wins" is paid, and it is a
-# cost worth paying: the exception sits inside the rule it modifies, so anyone
-# reading the denial sees the way out of it. Written as a second rule that
-# overrode the first, the exception would live in another file, and knowing
-# what a command does would mean reading every file to find out which one won.
+# This is where the cost of "the strictest action wins" is paid: the exception
+# sits inside the rule it modifies, so anyone reading the denial sees the way
+# out of it. Written as a second rule that overrode the first, it would live in
+# another file, and knowing what a command does would mean reading every file
+# to find out which one won.
 
 [[rule]]
 id     = "commit-must-be-signed"

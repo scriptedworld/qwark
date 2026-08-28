@@ -29,8 +29,8 @@ type Word struct {
 	// Determined reports whether Value is fixed by the text alone. A word
 	// containing any substitution is not determined, and Value is empty.
 	//
-	// This says nothing about globbing: `*.go` is determined -- its text is
-	// fixed -- yet the shell will replace it with a list of filenames. That is
+	// This says nothing about globbing: `*.go` is determined (its text is
+	// fixed) yet the shell will replace it with a list of filenames. That is
 	// a separate property, reported as a fact by the shell package.
 	Determined bool
 
@@ -52,7 +52,7 @@ type Simple struct {
 }
 
 // Name returns the command name, or an empty string when the command word is
-// not determined by its text -- `$cmd arg`, where nothing here can say what
+// not determined by its text: `$cmd arg`, where nothing here can say what
 // will run.
 func (s Simple) Name() string {
 	if len(s.Words) == 0 || !s.Words[0].Determined {
@@ -119,7 +119,7 @@ func simpleOf(parsed *shell.Parsed, call *syntax.CallExpr) Simple {
 // it.
 //
 // This is deliberately hand-written rather than delegating to expand.Literal.
-// **FACT 2026-08-19, measured:** that function resolves `$HOME` to the empty
+// Measured: that function resolves `$HOME` to the empty
 // string and returns no error, so a caller cannot tell a fixed word from one it
 // silently guessed at. It refuses command substitution properly, but the silent
 // case is the dangerous one: deciding about `rm -rf /x` when the shell will act
@@ -173,8 +173,8 @@ const quotedEscapes = "$`\"\\\n"
 // unescape resolves the backslash escapes of an unquoted word, and reports
 // whether there were any.
 //
-// The parser keeps escapes in a literal's value -- **FACT 2026-08-19: `a\ b`
-// arrives as `a\ b` while bash passes `a b`** -- so a gate comparing that value
+// The parser keeps escapes in a literal's value: **`a\ b` arrives as `a\ b`
+// while bash passes `a b`**, so a gate comparing that value
 // against a path is comparing a string the shell will never produce. Written as
 // `rm /home/ancient/.cl\aude/x`, the shell reaches `.claude` and an unresolved
 // comparison does not.
@@ -204,8 +204,8 @@ func unescape(raw string) (string, bool) {
 
 // unescapeQuoted resolves the escapes a double-quoted run permits.
 //
-// **FACT 2026-08-19, from bash:** `"a\$b"` yields `a$b` but `"a\qb"` yields
-// `a\qb` -- the backslash survives before anything not in quotedEscapes. The
+// **From bash:** `"a\$b"` yields `a$b` but `"a\qb"` yields
+// `a\qb`: the backslash survives before anything not in quotedEscapes. The
 // unquoted rule is not the quoted rule, and applying it here would drop
 // backslashes the shell keeps.
 func unescapeQuoted(raw string) string {

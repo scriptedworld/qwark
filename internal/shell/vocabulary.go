@@ -20,7 +20,7 @@ import (
 func (f *Facts) HasNode(name string) (string, bool) { return lookup(f.nodes, name) }
 
 // HasOp reports whether this operator appears anywhere in the command, and the
-// source it appeared in. The spelling is the operator as written -- `|`, `&&`,
+// source it appeared in. The spelling is the operator as written: `|`, `&&`,
 // `>>`, `<<-`.
 func (f *Facts) HasOp(op string) (string, bool) { return lookup(f.ops, op) }
 
@@ -34,9 +34,9 @@ func lookup(from map[string]string, key string) (string, bool) {
 
 // The statement flags, named for the fields they come from.
 //
-// **FACT 2026-08-20: under bash only two of these are reachable.** `Coprocess`
+// **Under bash only two of these are reachable.** `Coprocess`
 // is mksh's `|&` and `Disown` is zsh's `&|` and `&!`, and the bash parser
-// rejects both -- a rejected command being a denied one. They are here so that
+// rejects both: a rejected command being a denied one. They are here so that
 // the vocabulary does not have to grow if the variant ever changes, which is
 // the failure the node types actually suffered.
 const (

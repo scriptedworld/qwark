@@ -20,7 +20,7 @@ type Fact string
 // Their shared purpose is narrow and worth stating: each one is a way for a
 // command's effect to stop being determined by its own text. A command carrying
 // none of them does exactly what it appears to do, which is the precondition
-// every later tier depends on -- reasoning about which paths a command reaches
+// every later tier depends on: reasoning about which paths a command reaches
 // is unsound the moment a substitution can produce a path at runtime.
 const (
 	FactRedirect         Fact = "redirect"
@@ -181,8 +181,8 @@ func (p *Parsed) recordNode(f *Facts, node syntax.Node) {
 // recordCommandForm covers the statements that are not a plain invocation.
 //
 // A rule addresses a command by naming the word at ordinal zero or by naming a
-// fact. None of these has a usable word at ordinal zero -- `time rm x` puts
-// `rm` there, `((x=1))` and `let x=1` put nothing there -- so without a fact
+// fact. None of these has a usable word at ordinal zero: `time rm x` puts
+// `rm` there, `((x=1))` and `let x=1` put nothing there, so without a fact
 // apiece they would be reachable by no rule at all.
 func (p *Parsed) recordCommandForm(f *Facts, node syntax.Node) {
 	switch n := node.(type) {
@@ -193,7 +193,7 @@ func (p *Parsed) recordCommandForm(f *Facts, node syntax.Node) {
 	case *syntax.DeclClause:
 		// export, declare, readonly, local, typeset. Written as a keyword
 		// rather than a call, so `export` is never a command word and a rule
-		// naming it would never fire -- while `export PATH=…` decides which
+		// naming it would never fire, while `export PATH=…` decides which
 		// binary every later command resolves to.
 		f.record(p, n, FactDeclaration)
 	case *syntax.ArithmCmd:
@@ -243,7 +243,7 @@ func (p *Parsed) recordBinary(f *Facts, node *syntax.BinaryCmd) {
 }
 
 // recordExpansion covers every way a word becomes something other than what it
-// says -- the four substitutions and wildcard expansion.
+// says: the four substitutions and wildcard expansion.
 func (p *Parsed) recordExpansion(f *Facts, node syntax.Node) bool {
 	switch n := node.(type) {
 	case *syntax.CmdSubst:
@@ -284,7 +284,7 @@ func (p *Parsed) recordDeclaration(f *Facts, node syntax.Node) bool {
 
 // recordGlob reports a wildcard only where the shell would expand one. The check
 // runs over a Word's own literal parts rather than over every Lit in the tree,
-// because the `*` in `grep "*"` or `grep '*'` is an argument and not a glob --
+// because the `*` in `grep "*"` or `grep '*'` is an argument and not a glob:
 // the quoting that makes the difference is a property of the Lit's parent.
 func (p *Parsed) recordGlob(f *Facts, word *syntax.Word) {
 	for _, part := range word.Parts {

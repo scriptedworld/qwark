@@ -237,13 +237,12 @@ func TestQwarkNeverAnswersDefer(t *testing.T) {
 func TestAMainSessionCallCarriesNoAgentAndIsStillRead(t *testing.T) {
 	t.Parallel()
 
-	// **FACT 2026-08-20: agent_id and agent_type appear only for a subagent.**
-	// A main-session call carries neither, so anything requiring them would
-	// work for subagents and quietly not for the session they run inside --
-	// the worst shape of gap, because the tested path is the rarer one.
+	// **agent_id and agent_type appear only for a subagent.** A main-session
+	// call carries neither, so anything requiring them would work for
+	// subagents and quietly not for the session they run inside.
 	//
 	// REVISED 2026-08-20: this used to add that qwark need not care, because
-	// which rule files apply is chosen outside. That was wrong -- the
+	// which rule files apply is chosen outside. That was wrong: the
 	// registration is fixed for a session, so a subagent inherits its parent's
 	// command line and a per-agent partition chosen by the launcher collapses.
 	//

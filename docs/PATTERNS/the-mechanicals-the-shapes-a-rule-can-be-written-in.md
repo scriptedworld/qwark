@@ -1,14 +1,11 @@
 # The mechanicals, the shapes a rule can be written in
 
 Asked what a "library of useful mechanicals" should be, the answer was a catalogue
-of shapes and not a file of rules. This is that catalogue. None of it is new
-mechanism; every shape is the existing schema pointed a particular way. Naming
-them is what lets the next person writing a rule pick up a shape that already
-works, instead of inventing a fifth one.
+of shapes and not a file of rules. None of it is new mechanism; every shape is the
+existing schema pointed a particular way.
 
-**Every shape below is a conjunction of clauses.** A rule is nothing else, so that
-is not one of the choices on offer. What varies between the shapes is which
-selectors the clauses use, and where they point.
+**Every shape below is a conjunction of clauses.** What varies is which selectors
+the clauses use, and where they point.
 
 ### 1. Refused by class
 

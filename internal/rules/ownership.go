@@ -35,8 +35,8 @@ const (
 // # The directory matters as much as the files
 //
 // A writable directory permits unlink-and-replace, which defeats an unwritable
-// file completely — the old file is removed and a new one put in its place,
-// and every permission on the original is irrelevant. Both are checked.
+// file completely: the old file is removed and a new one put in its place, and
+// every permission on the original is irrelevant. Both are checked.
 //
 // # What this is not
 //

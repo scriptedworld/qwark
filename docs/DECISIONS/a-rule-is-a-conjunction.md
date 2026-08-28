@@ -11,6 +11,6 @@ The worked example:
 
 That is disjunctive normal form, chosen for the reason the archive-guard regex
 was kept blunt: **a rule you can check by reading it alone beats a compact one
-you cannot.** The cost is duplication between sibling rules, and that cost is
-visible. The alternative costs a reader holding a boolean expression in their
-head to know what a rule does, and that cost is not.
+you cannot.** The cost is duplication between sibling rules, which is visible.
+The alternative costs a reader holding a boolean expression in their head, which
+is not.

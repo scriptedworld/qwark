@@ -15,7 +15,7 @@ import (
 )
 
 // Usage is the help text, and the only description of the command line.
-const Usage = `qwark — a parsing gate for Claude Code's Bash tool
+const Usage = `qwark, a parsing gate for Claude Code's Bash tool
 
 usage:
   qwark ast [--debug] [command]   outline the syntax tree of a command
@@ -23,7 +23,7 @@ usage:
   qwark rules PATH...             load rule files and report what they hold
   qwark judge [--agent=T] RULES COMMAND...
                                   judge a command against a rule set, as the
-                                  agent type T -- default none, the main session
+                                  agent type T; default none is the main session
   qwark hook RULES...             run as the PreToolUse hook: read one call
                                   from stdin, judge it, answer on stdout
   qwark help                      this text
@@ -195,7 +195,7 @@ const agentFlag = "--agent="
 // running the command.
 //
 // **The default is the empty agent, and that is the main session rather than a
-// missing value** -- a main-session call carries no agent type, so `judge` with
+// missing value**: a main-session call carries no agent type, so `judge` with
 // no option already exercises the caller every session has. There is no
 // spelling here for "any agent", deliberately: a rule set is judged as somebody,
 // because at runtime it always is.

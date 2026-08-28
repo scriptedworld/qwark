@@ -12,13 +12,13 @@ draft had only exact-and-pattern, with "contains" written `.*\.claude.*`. That
 works, and it hides the breadth of the rule inside a regex the reader has to
 parse. A form named `partial` announces itself in the key.
 
-It also settles an argument the two-form design could not. `pattern` is anchored
-to the whole value, because otherwise every pattern is quietly a partial and the
-broad reading becomes the one obtained by accident. That is the predecessor's
-mistake exactly: `archive-guard.sh` matched the substring `.archive`, blocked
-`web.archive.org`, and cost a legitimate research route. Nothing here prevents an
-author choosing that breadth, since `partial = ".archive"` does the same thing.
-What changed is that choosing it is a visible act instead of a default.
+`pattern` is anchored to the whole value, because otherwise every pattern is
+quietly a partial and the broad reading becomes the one obtained by accident.
+That is the predecessor's mistake exactly: `archive-guard.sh` matched the
+substring `.archive`, blocked `web.archive.org`, and cost a legitimate research
+route. Nothing here prevents an author choosing that breadth, since
+`partial = ".archive"` does the same thing; choosing it is now a visible act
+instead of a default.
 
 Exactly one form per clause. Stating none is an error and not a clause matching
 everything; stating several is an error and not a precedence order nobody would
@@ -39,7 +39,6 @@ A word with no interpreted value is not matched. Nothing is expanded, so `$HOME`
 has none; a clause reading it finds nothing to test rather than testing the empty
 string, which `partial` and `.*` would both match.
 
-Go's regexp is RE2: no backtracking, linear in the input. A rule file cannot
-carry a pattern that a crafted command makes pathological. For a program that
-runs before every shell command that buys more than backreferences do, and no
-clause about a command word needs those.
+Go's regexp is RE2: no backtracking, linear in the input, so a rule file cannot
+carry a pattern that a crafted command makes pathological. No clause about a
+command word needs backreferences.

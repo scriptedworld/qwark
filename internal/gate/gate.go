@@ -8,9 +8,8 @@
 //
 // **Whether the rule set may be trusted is deliberately not decided here.**
 // That is a question about the filesystem qwark was deployed onto rather than
-// about the call in front of it, and it is settled before a Decider is built —
-// see the `hook` subcommand. Keeping it out means this package is exercised the
-// way it runs, with a rule set already established as trustworthy.
+// about the call in front of it, and it is settled before a Decider is built;
+// see the `hook` subcommand.
 package gate
 
 import (
@@ -123,7 +122,7 @@ func oneLine(reason string) string {
 // It refuses rather than waving the call through, on the same reasoning as any
 // command form qwark does not model: finding no command to check is not the
 // same as finding nothing to check. A matcher wide enough to send Write and
-// Edit here will therefore block loudly, which is the failure worth having --
+// Edit here will therefore block loudly, which is the failure worth having:
 // the alternative is a gate that silently judges nothing while looking
 // installed.
 func wrongTool(name string) string {

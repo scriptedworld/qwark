@@ -4,9 +4,7 @@
 usage to include notes regarding the intention"*. Asked whether to build an
 intention clause into the Bash gate: **"No, the intent is for the PROXY."**
 
-So this is a scope boundary and not a feature waiting to be written. It is
-recorded here for when the proxy is built, and because two things about it are
-easy to get wrong.
+A scope boundary, recorded here for when the proxy is built.
 
 **An intention is the one input the subject authors freely.** Everything mode one
 reads is fixed by the shell grammar, assigned by the dispatcher (`agent_type`), or
@@ -26,13 +24,12 @@ justification. The value is in comparing the stated intention against what the
 call actually did. The mismatch is the signal, and the note on its own is not
 evidence of anything.
 
-What it buys is worth the care. FR-4.8's log stops being a list of what happened
-and becomes checkable; both sides of every decision get recorded, since qwark's
-refusals already state a reason and this makes the request state one too; and the
-task management process gets the material it needs to sit between the writer and
-the runner.
+What it buys: FR-4.8's log stops being a list of what happened and becomes
+checkable; both sides of every decision get recorded, since qwark's refusals
+already state a reason and this makes the request state one too; and the task
+management process gets the material it needs to sit between the writer and the
+runner.
 
-Mode one is not the place for it, and not because it could not be. Claude Code's
-Bash tool input carries a `description` field, and `hook.BashCall` already parses
-it. It is deliberately unconsulted, kept because reading the payload faithfully is
-FR-10.1, and not left there as an oversight.
+Mode one could do it and does not. Claude Code's Bash tool input carries a
+`description` field, and `hook.BashCall` already parses it. It is deliberately
+unconsulted, kept because reading the payload faithfully is FR-10.1.

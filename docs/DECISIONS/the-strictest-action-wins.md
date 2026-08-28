@@ -10,7 +10,7 @@ never has to know what came before it. Under first-match-wins, every rule's
 meaning depends on all the rules above it, which is the property DNF was chosen
 to avoid, reappearing at the level of the file.
 
-The cost is real and should be stated: a narrow exception cannot override a broad
-deny. An exception has to be written into the deny rule as a clause that excludes
-it. That is more to type, and it keeps the exception where a reader of that rule
-will see it rather than in another file that quietly outranks it.
+The cost: a narrow exception cannot override a broad deny. It has to be written
+into the deny rule as a clause that excludes it. That is more to type, and it
+keeps the exception where a reader of that rule will see it rather than in
+another file that quietly outranks it.

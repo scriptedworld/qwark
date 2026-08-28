@@ -47,7 +47,7 @@ type Outcome struct {
 // being able to judge anything at all.
 const (
 	reasonNotOneCommand = "One command at a time. This call holds more than one, " +
-		"however they were joined -- by a sequence, a pipe, a logical " +
+		"however they were joined: by a sequence, a pipe, a logical " +
 		"concatenation, or a substitution carrying a command of its own."
 	reasonUndeclared = "This command has no declaration, so qwark cannot account " +
 		"for what its options mean or which of its words are paths. Nothing runs " +
@@ -76,8 +76,8 @@ const (
 // allow rule matched. A rule set containing no allow rules therefore permits
 // nothing, which is the correct reading of an empty policy.
 //
-// A deny settles the verdict -- nothing stricter exists, so no later rule can
-// change it -- but evaluation continues so the refusal can list everything that
+// A deny settles the verdict, nothing stricter exists, so no later rule can
+// change it, but evaluation continues so the refusal can list everything that
 // was wrong rather than sending its reader round three times.
 //
 // **A denied command has no effect of any kind**, so tag changes are returned
@@ -91,7 +91,7 @@ func (s *Set) Evaluate(parsed *shell.Parsed, ctx Context) Outcome {
 	}
 	simple := simples[0]
 
-	// A command with no declaration is refused -- but the rules are consulted
+	// A command with no declaration is refused, but the rules are consulted
 	// first, because many of them can answer without one. A clause naming node
 	// types, operators, flags or a fact needs no table, and letting the
 	// declaration check short-circuit them means the refusal says only "this
@@ -213,8 +213,8 @@ func settle(out Outcome) Outcome {
 // answer is.
 //
 // It exists as a seam. Evaluating cheap structural clauses before expensive
-// ones -- a node lookup before a path resolution before a call into stored
-// state -- is a later version's optimisation, and leaving somewhere to put it
+// ones (a node lookup before a path resolution before a call into stored
+// state) is a later version's optimisation, and leaving somewhere to put it
 // costs one function now against restructuring the evaluator later.
 func order(rules []Rule) []Rule { return rules }
 

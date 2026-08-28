@@ -1,5 +1,5 @@
 // Package reach answers whether a path a command names falls inside the
-// directory the agent was started in -- its blast radius.
+// directory the agent was started in: its blast radius.
 //
 // The eventual rule this serves is that any path given to a command that writes
 // must be inside that radius. A useful consequence follows for free: anything
@@ -85,13 +85,13 @@ func within(root, path string) bool {
 // whatever does not exist yet.
 //
 // **Anything that is a symlink is resolved to its full path**, wherever a path
-// is compared -- containment, the permitted shells, the protected paths. Two
+// is compared: containment, the permitted shells, the protected paths. Two
 // spellings of one file must reach one answer, or a rule about a file is a rule
 // about one way of writing its name.
 //
 // The reattaching is the point. A rule about writing is asked about files that
 // have not been created, so the leaf usually does not exist and cannot be
-// resolved -- but its parent directory can, and a link is far more likely to be
+// resolved, but its parent directory can, and a link is far more likely to be
 // a directory in the middle of the path than the file at the end of it. A purely
 // lexical check would call `<radius>/link/x` contained while the shell wrote
 // through `link` to somewhere else entirely.

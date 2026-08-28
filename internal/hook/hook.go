@@ -3,9 +3,8 @@
 //
 // # Where this shape comes from
 //
-// **FACT 2026-08-20, read out of the installed binary** rather than recalled or
-// inferred — Claude Code 2.1.233, a single-file executable with its JavaScript
-// bundled in. The request is assembled there as:
+// **Read out of the installed binary**, Claude Code 2.1.233, a single-file
+// executable with its JavaScript bundled in. The request is assembled there as:
 //
 //	{ session_id, transcript_path, cwd, prompt_id, permission_mode,
 //	  agent_id, agent_type, effort,
@@ -15,14 +14,14 @@
 // `hookEventName`, `permissionDecision`, `permissionDecisionReason`,
 // `updatedInput` and `additionalContext`.
 //
-// Two of those were not what this project had assumed, and both matter:
+// Two of those matter:
 //
 //   - **`agent_id` and `agent_type` are present.** Per-agent rule sets are
 //     therefore implementable from the payload, rather than needing the mode to
 //     be smuggled in through an environment variable the agent might reach.
 //   - **`permissionDecision` has four values, not three.** Alongside allow, deny
 //     and ask there is `defer`, which the dispatcher treats as "this hook
-//     declines to decide" and continues past. It is the *no opinion* verdict —
+//     declines to decide" and continues past. It is the *no opinion* verdict,
 //     precisely the one qwark never returns.
 package hook
 
@@ -40,7 +39,7 @@ var ErrNotJSON = errors.New("the tool call could not be read")
 
 // EventPreToolUse names the event this package speaks for. Claude Code
 // validates a reply against the event it asked about, so answering a different
-// one is not a partial answer but no answer at all.
+// one is no answer at all.
 const EventPreToolUse = "PreToolUse"
 
 // ToolBash names the tool qwark's first mode gates.
@@ -82,8 +81,8 @@ type BashCall struct {
 	// is not a rule input that somebody forgot to wire up.
 	//
 	// It could not be one safely without care. This is the only field here the
-	// subject authors freely -- the command text is fixed by the shell grammar,
-	// `agent_type` is assigned by the dispatcher -- so a rule permitting on the
+	// subject authors freely: the command text is fixed by the shell grammar,
+	// `agent_type` is assigned by the dispatcher, so a rule permitting on the
 	// strength of it would be defeated by writing the expected words.
 	Description string `json:"description"`
 	Timeout     int    `json:"timeout"`

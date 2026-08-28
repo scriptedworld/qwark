@@ -1,4 +1,4 @@
-# qwark — tags and their lifetimes. DRAFT 2026-08-20, not yet loaded by anything.
+# qwark, tags and their lifetimes.
 #
 # A rule whose action is `tag` decides nothing. It attaches a name to the
 # evaluation, with a TTL measured in commands, and that name becomes a clause
@@ -36,12 +36,12 @@
 #     tag would be indistinguishable from a command permanently changing
 #     policy, which is not a thing a command should be able to do.
 #
-# THE SECURITY CONSTRAINT, which is not negotiable and not yet built
+# THE SECURITY CONSTRAINT, not yet built
 #
 #   Tag state must not be writable by the user qwark runs as. A countdown the
 #   subject can reset is not a constraint on the subject. This is the rule-file
 #   requirement one level down, and it is reachable by the Write tool with no
-#   shell involved -- so it needs a `permissions.deny` entry as well as
+#   shell involved, so it needs a `permissions.deny` entry as well as
 #   ownership. How the state is stored at all is still open: an appended file
 #   each run trims under a lock, or a sideboard process. See DESIGN-NOTES.
 # ---------------------------------------------------------------------------
@@ -50,8 +50,8 @@
 # The worked example
 # ============================================================================
 #
-# 2026-08-19: "if a rule had just done a rebase, maybe we say for 6
-# commands, you aren't allowed to delete anything."
+# "if a rule had just done a rebase, maybe we say for 6 commands, you aren't
+# allowed to delete anything."
 #
 # The rebase is what makes this worth having. Immediately after one, the tree
 # and the reflog disagree with what anybody remembers, so a deletion taken on a

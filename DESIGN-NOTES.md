@@ -60,8 +60,8 @@ question and the reason `no-glob` is in tier one ·
 
 Some of these are general, and their general form lives in silo:
 `silo/docs/LESSONS/cli-aliases.md` carries what is true of any shell on this
-machine. What is here is what only qwark's work teaches, which is what it means
-to be a gate that has to read a command the same way the shell will.
+machine. What is here is what only a gate learns, having to read a command the
+same way the shell will.
 
 ## Patterns, `docs/PATTERNS/`
 

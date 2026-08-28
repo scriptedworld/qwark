@@ -8,32 +8,24 @@ shell would, judges it against declared rules, and answers with a decision.
 
 *"remember this is ALL about controlling what an Agent can run."*
 
-Most of the design follows from that sentence. qwark is a containment tool and its
-subject is an agent: not a careful colleague who occasionally mistypes, but a
-process that may be careless, may be wrong about what a command does, and in the
-limit may be working against the person who ran it.
+qwark is a containment tool and its subject is an agent: a process that may be
+careless, may be wrong about what a command does, and in the limit may be working
+against the person who ran it.
 
 **So when qwark cannot account for something, it refuses.** Unparseable command:
 denied. Unparseable rule file: no Bash at all. Undeclared command: denied.
 Undeclared option: denied. A word whose value is not fixed by its text: refused,
-never guessed at.
+never guessed at. **A gate that degrades to permissive whenever it is confused is
+a gate whose confusion is the way through it.**
 
-Read as ergonomics, each of those looks needlessly harsh. Read as containment they
-are the only settings that mean anything: **a gate that degrades to permissive
-whenever it is confused is a gate whose confusion is the way through it.**
-
-The obvious worry is that declaring every command is a large job. It is not:
-*"you don't use that many tools."* The working set of an agent is small.
+Declaring every command is a smaller job than it looks: *"you don't use that many
+tools."*
 
 ### Where it sits against its siblings
 
-`silo/docs/GLOSSARY.md` is the canonical statement of how the toolchain fits
-together; read it there and not here. In one line each: **bolt** runs the
-jigs, **toolbox** holds them, **anvil** is what you run them on, and **qwark**
-gates what an agent may type at a shell.
-
-**qwark is not part of that chain.** It is a consumer of it like any other
-project, and it gates the agent doing the work rather than the work itself.
+`silo/docs/GLOSSARY.md` is the canonical statement of how bolt, toolbox and anvil
+fit together. **qwark is not part of that chain.** It is a consumer of it like any
+other project, and it gates the agent doing the work rather than the work itself.
 
 ## Layout
 
@@ -66,22 +58,20 @@ reports `below_minimum: 1` because `entrypoint` now runs *after* it:
     linked jigs   … 09_tests  10_coverage  11_vuln  12_entrypoint
     bolt's old    … 09_tests  10_entrypoint  11_coverage  12_vuln
 
-`entrypoint` is what appends `cmd/qwark/main.go`'s profile to `coverage.out`,
-which only helps if it runs first. The shared jig removed `entrypoint` correctly,
-since it names a project's own main package, and an overlay's tasks are appended
-last, so no adopter can put it back in place. bolt's FR-2.9 pins execution to
-declaration order, and there is no ordering key to override that with.
+`entrypoint` appends `cmd/qwark/main.go`'s profile to `coverage.out`, which only
+helps if it runs first. The shared jig removed it correctly, since it names a
+project's own main package, and an overlay's tasks are appended last, so no
+adopter can put it back in place. bolt's FR-2.9 pins execution to declaration
+order, and there is no ordering key to override that with.
 
 **Filed as `clank/inbox/toolbox/entrypoint-runs-after-coverage/`**, with the
 evidence and a repro. The ruling on it: *"entrypoint should be part of the
 standard for go projects … if it's my project, it will follow that pattern, and
 therefore need that test."* So it goes back into the shared jig, written
 generically: `go list ./cmd/...` returns one package in every Go project here and
-its basename is the binary name, verified for both qwark and bolt.
+its basename is the binary name.
 
-**When that lands, delete the `entrypoint` task from `bolt.qwark.yaml`.** The
-overlay then carries nothing about it again, and this repository's gate goes green
-with nothing else in qwark changing.
+**When that lands, delete the `entrypoint` task from `bolt.qwark.yaml`.**
 
 Until then the older invocation still passes, and measures the pre-split checkers:
 
@@ -118,8 +108,7 @@ splitting a gated file into a directory turns a passing task into a crashing one
 layout already.
 
 `docs/MOCKS/` is absent because nothing is mocked, and `SUPPRESSIONS` carries no
-pragmas: `grep -rn 'nolint\|#nosec' --include='*.go' .` returns nothing. Those are
-claimed states, not gaps.
+pragmas: `grep -rn 'nolint\|#nosec' --include='*.go' .` returns nothing.
 
 ## The chain, and how it is enforced
 
@@ -133,12 +122,12 @@ above it:
 
 Kinds: `positive`, `negative`, `edge`, `property`, `regression`. The
 `traceability` task fails a test that cites nothing, and one that cites a
-requirement `REQUIREMENTS.md` never defined. **Adding a test means adding its
-`COVERS:` line; renaming a requirement means fixing every test that cites it.**
+requirement `REQUIREMENTS.md` never defined, so renaming a requirement means
+fixing every test that cites it.
 
-A requirement marked `[?]` is an open question and carries no test. The newer checker
-in toolbox holds *settled* requirements to a test and exempts `[?]`; qwark passes
-it at **108 of 108**, with 19 open and exempt.
+A requirement marked `[?]` is an open question and carries no test. The newer
+checker in toolbox holds *settled* requirements to a test and exempts `[?]`;
+qwark passes it at **108 of 108**, with 19 open and exempt.
 
 ## Conventions particular to this repository
 

@@ -3,12 +3,10 @@
 The tool is named Bash and runs **zsh 5.9**. `$0` is `/bin/zsh`, `BASH_VERSION`
 is unset, `ZSH_VERSION` is 5.9, and Claude Code names its snapshots
 `snapshot-zsh-*.sh`. qwark parsed with `LangBash` for a while on the strength of
-the tool's name, which is the kind of inference this project exists to stop
-somebody making.
+the tool's name.
 
-**The mismatch is silent, and that is what makes it serious.** Put ten zsh
-constructs through the bash parser and it rejects two. Of the eight it accepts,
-four mean something else in zsh:
+**The mismatch is silent.** Put ten zsh constructs through the bash parser and it
+rejects two. Of the eight it accepts, four mean something else in zsh:
 
     **/*.go        two globs in bash; recursive descent in zsh
     *(.)           an extglob group in bash; "regular files only" in zsh

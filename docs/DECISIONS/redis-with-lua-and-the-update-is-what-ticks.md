@@ -16,9 +16,7 @@ Thought through in three steps:
 Tags have lifetimes.** A Lua script runs to completion inside Redis with nothing
 interleaved, so reading the tags, applying the changes and decrementing every TTL
 is one indivisible step. That removes the lock, the append-versus-compaction
-split, and the worry about paying the expensive price on the common path. None of
-those problems exist once the state transition is a single script instead of a
-read-modify-write against a file.
+split, and the worry about paying the expensive price on the common path.
 
 **The update ticking, rather than the read, is the load-bearing choice.** It
 makes FR-4.24 true by construction: a denied command issues no update, so it
@@ -39,8 +37,7 @@ with the gate.
 **The read-evaluate-update gap is not atomic, even though each step is.** Claude
 Code can issue Bash calls in parallel, so a second call may read state taken
 before the first call's update landed, and be judged without a tag that had just
-been set. This is the unsafe direction, unlike a lost tick, and it is worth
-saying plainly instead of being reassured by the word atomic. Closing it means
+been set. This is the unsafe direction, unlike a lost tick. Closing it means
 either serialising a session's calls, or optimistic concurrency: the read returns
 a version, the update script refuses if the version moved, and qwark
 re-evaluates.

@@ -17,5 +17,5 @@ The directory matters as much as the files. A writable directory permits
 unlink-and-replace, which defeats an unwritable file completely. Both are checked.
 
 qwark verifies this at load and refuses to run otherwise, so the property holds
-itself up instead of being a convention somebody has to remember after a restore,
-a fresh clone, or a `chmod -R` that meant well.
+itself up instead of being a convention somebody has to remember after a fresh
+clone or a `chmod -R` that meant well.

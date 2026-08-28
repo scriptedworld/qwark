@@ -17,13 +17,10 @@ Count the requirements independently with
 `grep -oE 'FR-[0-9]+\.[0-9]+[a-z]?' REQUIREMENTS.md | sort -u | wc -l`. bolt's
 traceability task reports the same number from its own reading.
 
-**There is no `justfile` here, and there should not be one.** One arrived in
-`c812a9e`, the scaffold commit, and `CLAUDE.md` then recorded `just checks` as
-"the gate" as though that had been decided. Every recipe was either a one-line
-wrapper around the command above or a copy of a task bolt already defines, and its
-`tests` recipe was **byte-for-byte** bolt's `tests` command, which is the second
-copy free to drift that the no-vendoring rule exists to forbid. It also made
-qwark's own repository carry an executor and an agent-writable task definition
+**There is no `justfile` here, and there should not be one.** Every recipe one
+would carry is either a wrapper around the command above or a copy of a task bolt
+already defines, which is the second copy free to drift that the no-vendoring
+rule forbids. It also puts an executor and an agent-writable task definition
 inside the blast radius, which is the thing qwark is being built to refuse.
 
 - `internal/shell`: parse as Bash, gather every fact in one walk, and record the
@@ -45,10 +42,7 @@ inside the blast radius, which is the thing qwark is being built to refuse.
 
 The jigs and their supporting files belong to `../toolbox`; qwark and bolt should
 both be symlinks of them, and `link-jigs` is being built to do the symlinking.
-**bolt may still hold a copy from before that fixing started**, and measured, it
-does.
-
-Measured rather than inherited:
+bolt still holds a copy from before that fixing started.
 
 - **The definition has been split in toolbox, and bolt's copy predates the
   split.** `bolt.common-quality.yaml` carries `traceability`, `suppressions` and
@@ -57,13 +51,10 @@ Measured rather than inherited:
   single file still has all twelve in one, `entrypoint` included.
 - **qwark passes the newer, stricter traceability today**, run directly against
   it: `108 of 108` requirements held to coverage are covered, and the 19 with no
-  test are all `[?]`, open and exempt. **This is why bolt was not failing on
-  uncovered requirements: it is running the older checker**, which reported them
-  as context instead of holding settled ones to a test.
+  test are all `[?]`, open and exempt. bolt was not failing on uncovered
+  requirements because it runs the older checker, which reported them as context.
 
-Adopting turned up two things, both found by reading the toolbox files. The
-first is still open; the second is settled and is recorded here for the
-reasoning, which the next adopter will want.
+Adopting turned up two things. The first is still open:
 
 1. **`entrypoint` must be defined in full, not overridden.** It is *deliberately*
    absent from the shared jig, since *"a shared definition carries the rule and
@@ -72,60 +63,27 @@ reasoning, which the next adopter will want.
    only `command` and says the rest is inherited; under the toolbox jig there is
    nothing to inherit, so it needs `description`, `tags`, `requires`, `timeout`
    and the declared `output` as well.
-2. **The `.gitignore` needed the linked set, and now carries it.** Not `bin/`,
-   which was already right.
-
-   *the things linked from the other repo should be gitignored, as should any Go
-   executable we generate — it's obviously regenerateable.* So `bin/` covering
-   both `bin/qwark` and the two linked checker scripts is the intended state and
-   not a collision.
-
-   A tracked symlink would store its target path as content, which encodes where
-   `../toolbox` sits, and committing the jig at all is vendoring, which the
-   no-vendoring rule already forbids. Adoption is a step run per clone, like
-   fetching modules, and a missing link makes bolt fail loudly on a path that is
-   not there, which is the safe direction.
-
-   `.gitignore` now carries the whole set: `bolt.common-quality.yaml`,
-   `bolt.go-std-quality.yaml`, `bolt.secrets.yaml`, `adapters/` and `config/`,
-   alongside `bin/`, `coverage.out` and `.bolt*/`. **`bolt.qwark.yaml` stays
+2. **The `.gitignore` carries the linked set**: `bin/`, covering both
+   `bin/qwark` and the two linked checker scripts, alongside
+   `bolt.common-quality.yaml`, `bolt.go-std-quality.yaml`, `bolt.secrets.yaml`,
+   `adapters/`, `config/`, `coverage.out` and `.bolt*/`. **`bolt.qwark.yaml` stays
    tracked**, because the overlay is this project's own content and is exactly the
    part a shared definition must not carry.
 
-   The jig files also get baked into the anvil images, so a project's overlay
-   refers to them there when its own file builds on top of the anvil. That makes
-   the symlinks the local-development route and the image the built one, with the
-   same set reached either way, and it is why ignoring them is right rather than
-   merely tolerable: in the image they come from the layer beneath, so a copy
-   committed here would be a third statement of the same thing.
+   A tracked symlink stores its target path as content, which encodes where
+   `../toolbox` sits, and committing the jig at all is vendoring. Adoption is a
+   step run per clone, like fetching modules, and a missing link makes bolt fail
+   loudly on a path that is not there. The jig files are also baked into the anvil
+   images, so there they arrive from the layer beneath and a copy committed here
+   would be a third statement of the same thing.
 
-   Reading `anvil/README.md` and `silo/docs/GLOSSARY.md` instead of inferring: bolt
-   runs the checks, toolbox holds the jigs, anvil is what you run them on, and
-   none of the three depends on the other two in a circle. **An image installs
-   exactly the `requires:` of its matching jig**, since *"the image manifest is
-   the jig, not a second list"*, which is the no-second-copy rule again, one layer
-   down.
-
-## Done 2026-08-20: the stated denials, and git classified
-
-Three things the project had already said it never wanted, which no rule enforced.
-Each was measured before and after.
-
-- **Globs.** `fact = "glob"` was computed by the engine and consumed by no rule,
-  so `rm *`, `rm ?.txt` and `rm *(e:'rm -rf /':)` were all allowed. Now `no-glob`
-  sits in tier one, where the property it defends is stated. The ruling was deny,
-  with no exception.
-- **Undeclared options.** FR-6.7 held in `internal/command` and did not reach the
-  verdict, so `rm -Z x` was allowed. `internal/rules/evaluate.go` now consults
-  `Options.Faults` and reports every one of them, not only the first.
-- **`git config`.** Refused only by deny-by-default, saying nothing, while
-  `git -c` was denied by name. The persistent spelling was the unguarded one.
+## git, classified
 
 **git is classified across all 64 porcelain commands**, checked mechanically
-against `git --list-cmds` and not by eye. Nine groups, each carrying its own
-reason; overlaps are intended and every reason is collected. Read-only is allowed
-by my ruling, and that allowance is narrow because `05-declarations.toml`
-omits the dangerous options, not because a rule names them.
+against `git --list-cmds`. Nine groups, each carrying its own reason; overlaps are
+intended and every reason is collected. Read-only is allowed by my ruling, and
+that allowance is narrow because `05-declarations.toml` omits the dangerous
+options, not because a rule names them.
 
 ## Next: per-agent command surfaces
 
@@ -144,14 +102,12 @@ This resets the target instead of extending it:
   parent's command line**, and a partition chosen by the launcher collapses.
   FR-10.6a is revised; see below.
 - **The read-only git allowance is a waypoint.** It stands because it was ruled
-  on, and the direction above says the eventual answer is narrower. It is the
-  first thing to remove once the specific surfaces exist.
+  on, and it is the first thing to remove once the specific surfaces exist.
 - **The duplication is settled.** The proxies hold the details of what they
   expose, so the exposed surface is both the statement of what an agent may do and
-  the thing that enforces it: one artifact, with nothing to keep in step. How much
-  it settles depends on how narrow the tools are, since a surface says *which
-  operations* and not *with what values*, so whatever argument-level constraint
-  remains is what rules are still for.
+  the thing that enforces it: one artifact, with nothing to keep in step. A
+  surface says *which operations* and not *with what values*, so whatever
+  argument-level constraint remains is what rules are still for.
 
 ### The engine carries the separation, and it is buildable now
 
@@ -164,8 +120,8 @@ Doing it in the plumbing was ruled out. The base session has no `agent_type`, so
 launcher-side partition means *"actively managing symlinks or something else …
 some form of ENV VAR that will have to be actively managed … which feels
 rickety"*. FR-10.6 had already chosen the payload over an environment variable,
-for the reason that **the subject can reach an environment variable and cannot set
-its own `agent_type`.**
+because the subject can reach an environment variable and cannot set its own
+`agent_type`.
 
 Two requirements state the shape, and both now carry tests:
 
@@ -187,8 +143,7 @@ Try it:
 It composed instead of adding a mechanism. An `agent` clause is a clause, rules
 stay conjunctions, strictest still wins, and a role cannot grant itself anything
 because deny outranks allow. An agent allowance also reaches only the command its
-rule names, so the clause narrows a rule instead of attaching a permission to a
-role.
+rule names.
 
 **Still to do.** `rules/` carries no agent-scoped rule, because which agent types
 exist is not qwark's to invent. The vocabulary in `00-structure.toml` documents
@@ -199,8 +154,6 @@ the clause, and the policy waits on the roles being named.
 *"Mode One is the most useful here & now because I don't have the rest of the
 system built, so that development needs further quality controls."*
 
-`internal/hook.Run` had been written and tested with nothing calling it, which
-made every other subcommand a way of asking qwark questions rather than a gate.
 `qwark hook RULES...` reads one call from stdin, judges it, and answers on stdout:
 the subcommand `install/settings-fragment.json` has been naming all along.
 
@@ -210,26 +163,25 @@ the subcommand `install/settings-fragment.json` has been naming all along.
 The payload's `agent_type` reaches `rules.Context`, so the agent clause is fed and
 not merely expressible.
 
-Every path was exercised. A decision exits 0 with the verdict in the JSON; a
-truncated payload exits 2; **so does invoking it with no rules path**, which reads
-oddly for a usage error and is the only correct answer, since every other non-zero
-status is a `non_blocking_error` that lets the command run. A rule set that will
-not load denies with the file named and points at the Edit tool, because the way
-out must not need the thing just taken away. A tool qwark does not model is
-refused rather than waved through, so a matcher wide enough to send Write here
-blocks loudly instead of judging nothing while looking installed.
+A decision exits 0 with the verdict in the JSON; a truncated payload exits 2;
+**so does invoking it with no rules path**, which reads oddly for a usage error
+and is the only correct answer, since every other non-zero status is a
+`non_blocking_error` that lets the command run. A rule set that will not load
+denies with the file named and points at the Edit tool, because the way out must
+not need the thing just taken away. A tool qwark does not model is refused rather
+than waved through, so a matcher wide enough to send Write here blocks loudly
+instead of judging nothing while looking installed.
 
 **Not yet installed.** `qwark` is not on `PATH` as a gate and `settings.json`
-carries no hook entry, so nothing is gated yet. That is the next step, and it is
-the one that turns this from a program into a control.
+carries no hook entry, so nothing is gated yet.
 
 **Two limits to know before relying on it.** Two *main sessions* are
 indistinguishable: if writer and runner are both top-level launches, no clause
 tells them apart and the launcher must still differ. And a partition does not stop
 a chain, since writer writes, runner runs, and neither breaks its own rules. The
 task management process is what sits between them, the same process that produces
-the manifest of FR-9.7. So the manifest and the partition are not alternatives;
-the manifest is what makes the partition mean something.
+the manifest of FR-9.7, so the manifest is what makes the partition mean
+something.
 
 Useful when working on it:
 
@@ -269,8 +221,6 @@ is the second and not a replacement. It matters for what to invest in now:
 
 ## Two contradictions inside the rule set
 
-Both found by running the rules, not by reading them.
-
 1. **`commit-must-be-signed` fires on a signed commit.** `--gpg-sign` is not
    declared, so the `absent = true` clause holds and the rule tells somebody who
    signed that they must sign. The verdict fails safe; the message does not. **A
@@ -291,10 +241,10 @@ Both found by running the rules, not by reading them.
 
 ## Waiting on an answer
 
-1. **How tag state survives between calls.** Deferred deliberately: the shape is
-   settled and the foundation is in place, but there will be no store until there
-   are concrete scenarios worth limiting this way. Nine requirements sit behind it
-   (FR-4.7, 4.13, and section 8).
+1. **How tag state survives between calls.** The shape is settled and the
+   foundation is in place, but there will be no store until there are concrete
+   scenarios worth limiting this way. Nine requirements sit behind it (FR-4.7,
+   4.13, and section 8).
 
    **The blocker is not the shape, it is the writer.** `40-state.toml` requires
    that tag state not be writable by the user qwark runs as, and qwark runs as the
@@ -315,13 +265,12 @@ Both found by running the rules, not by reading them.
 4. **The manifest** (FR-9.7), created by the task management process, read at
    runtime, saying which files may be read and which written.
 
-**3 and 4 are the priority, and not for the reason they look like.** The end state
-is three layers: a sandbox, the blast radius, then the manifest. The sandbox
-absorbs four of the six path groups in `20-paths.toml`, because those files are
-simply not in it. **Two are inside the sandbox and no sandbox removes them**:
-`repository-hooks` and `task-definition`. The blast radius does not help there
-either, since a `justfile` is already inside the project, which is the one place
-the agent must be able to write.
+**3 and 4 are the priority.** The end state is three layers: a sandbox, the blast
+radius, then the manifest. The sandbox absorbs four of the six path groups in
+`20-paths.toml`, because those files are simply not in it. **Two are inside the
+sandbox and no sandbox removes them**: `repository-hooks` and `task-definition`.
+The blast radius does not help there either, since a `justfile` is already inside
+the project, which is the one place the agent must be able to write.
 
 So the manifest is the only layer of the three that discriminates between files
 inside the blast radius, and it is therefore the layer that answers "if they can
@@ -353,11 +302,7 @@ layers**.
   happens before the verdict is known. The seam is `order` in the evaluator, today
   the identity.
 
-## The open questions DESIGN-NOTES used to carry
-
-Three of the four had been settled without the list being updated, which is the
-argument for keeping open questions in one place instead of at the end of a design
-record.
+## Open questions that used to sit in DESIGN-NOTES
 
 | Question | State |
 |---|---|

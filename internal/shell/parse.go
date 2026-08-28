@@ -28,7 +28,7 @@ type ParseError struct {
 	Line uint
 	Col  uint
 	// Incomplete is true when the command is well-formed so far but ends
-	// mid-construct -- an unclosed quote, a dangling `|`, a `for` with no
+	// mid-construct: an unclosed quote, a dangling `|`, a `for` with no
 	// `done`. Claude Code hands us whole commands, so this indicates
 	// truncation rather than a syntax mistake.
 	Incomplete bool
@@ -43,8 +43,8 @@ func (e *ParseError) Unwrap() error { return e.Err }
 // Parse reads one command string as Bash.
 //
 // **The shell has to be established, not inferred from the tool's name.**
-// FACT 2026-08-20: Claude Code's Bash tool runs zsh 5.9 on the machine this was
-// written on -- `$0` is `/bin/zsh` and `BASH_VERSION` is unset -- and the
+// Claude Code's Bash tool runs zsh 5.9 on the machine this was written on,
+// where `$0` is `/bin/zsh` and `BASH_VERSION` is unset, and the
 // decision recorded in DESIGN-NOTES is to force that shell to bash rather than
 // to teach qwark zsh.
 //
@@ -72,8 +72,8 @@ func Parse(src string) (*Parsed, error) {
 }
 
 // Text returns the exact source text of a node, sliced from the original
-// command by the node's own byte offsets. This is the source as written --
-// quoting, spacing and all -- not a re-print of the tree.
+// command by the node's own byte offsets. This is the source as written:
+// quoting, spacing and all, not a re-print of the tree.
 func (p *Parsed) Text(node syntax.Node) string {
 	start, end := node.Pos().Offset(), node.End().Offset()
 	if start > end || end > uint(len(p.Src)) {

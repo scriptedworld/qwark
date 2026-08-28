@@ -10,7 +10,7 @@ import (
 	"github.com/scriptedworld/qwark/internal/rules"
 )
 
-// permitted is the declaration these tests verify against. FACT 2026-08-20:
+// permitted is the declaration these tests verify against.
 // /bin is a symlink to usr/bin on the machine this was written for, so these
 // are two spellings of one root-owned binary rather than two binaries.
 func permitted() rules.ShellPolicy {
@@ -36,8 +36,8 @@ func TestAPermittedShellIsAccepted(t *testing.T) {
 func TestAnotherShellIsRefused(t *testing.T) {
 	t.Parallel()
 
-	// zsh is the case this was written for: FACT 2026-08-20, the tool named
-	// Bash was running zsh 5.9 on the machine where qwark was written.
+	// zsh is the case this was written for: the tool named Bash was running
+	// zsh 5.9 on the machine where qwark was written.
 	for _, reported := range []string{"/bin/zsh", "/bin/dash", "/bin/sh", "/usr/bin/fish"} {
 		t.Run(reported, func(t *testing.T) {
 			t.Parallel()
@@ -81,7 +81,7 @@ func TestSomethingMerelyNamedBashIsRefused(t *testing.T) {
 func TestTwoSpellingsOfOneShellReachOneAnswer(t *testing.T) {
 	t.Parallel()
 
-	// FACT 2026-08-20: /bin is a symlink to usr/bin on this machine, so the
+	// /bin is a symlink to usr/bin on this machine, so the
 	// two permitted paths are one file. A rule about a shell must not be a
 	// rule about one way of writing its name.
 	dir := t.TempDir()

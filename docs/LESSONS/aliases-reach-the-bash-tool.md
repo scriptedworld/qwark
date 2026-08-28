@@ -1,6 +1,6 @@
 # The containment surface, and where it ends
 
-Findings from an adversarial pass, each of them measured.
+Findings from an adversarial pass.
 
 ### Aliases reach the Bash tool, and they are not allowed
 

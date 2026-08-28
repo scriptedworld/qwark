@@ -19,7 +19,7 @@ import (
 //
 // The cost is that a typo denies every command until it is fixed, which is why
 // each of these carries the file and, where the format allows it, the line. The
-// way out must also not require a shell -- editing the file with the file tools
+// way out must also not require a shell: editing the file with the file tools
 // does not.
 var (
 	ErrNoRuleFiles   = errors.New("no rule files given")

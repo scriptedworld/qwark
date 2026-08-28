@@ -67,13 +67,13 @@ func TestARewritableRuleSetPermitsNothing(t *testing.T) {
 	t.Parallel()
 
 	// The refusal that matters most, and the one that was easiest not to
-	// notice: CheckOwnership was written, tested and exported -- and called by
+	// notice: CheckOwnership was written, tested and exported, and called by
 	// nothing, so the gate would happily load rules the subject can edit.
 	//
 	// An agent constrained by rules it can rewrite is constrained by nothing,
 	// and it needs no shell to rewrite them: Write and Edit reach those files
 	// without passing through this gate at all. So a writable rule set is not a
-	// degraded gate to run with a warning -- it is the absence of one.
+	// degraded gate to run with a warning: it is the absence of one.
 	//
 	// This is also why the repository's own `rules/` cannot be the installed
 	// path. A draft is writable by whoever is drafting it.
@@ -107,11 +107,11 @@ func TestABrokenRuleSetPermitsNothingAndSaysWhere(t *testing.T) {
 
 	// A gate that becomes permissive when its own configuration is broken
 	// reports success while guarding nothing. The cost is that a typo denies
-	// every command until it is fixed -- so the refusal has to name where, and
+	// every command until it is fixed, so the refusal has to name where, and
 	// the way out must not itself need Bash.
 	//
 	// Both faults are reported. This rule set is unparseable AND rewritable,
-	// and saying only the graver one sends its reader back for the other --
+	// and saying only the graver one sends its reader back for the other:
 	// the same reason a refusal lists every rule that objected rather than the
 	// first one.
 	broken := ruleFile(t, "[[rule]]\nid = \"unclosed\n")
@@ -130,7 +130,7 @@ func TestABrokenRuleSetPermitsNothingAndSaysWhere(t *testing.T) {
 		t.Errorf("reason = %q, want it to name the file", reason)
 	}
 	if !strings.Contains(reason, "Edit tool") {
-		t.Errorf("reason = %q, want a way out that does not need Bash -- which "+
+		t.Errorf("reason = %q, want a way out that does not need Bash, which "+
 			"is the one thing this refusal has taken away", reason)
 	}
 	if !strings.Contains(reason, "rewritten by the user") {
@@ -143,7 +143,7 @@ func TestABrokenRuleSetPermitsNothingAndSaysWhere(t *testing.T) {
 func TestTheHookExitsTwoWhenItCannotDecide(t *testing.T) {
 	t.Parallel()
 
-	// **FACT 2026-08-20: exit 2 is the only status that blocks.** Exit 0 with
+	// **Exit 2 is the only status that blocks.** Exit 0 with
 	// no JSON is no decision and the call proceeds; every other non-zero status
 	// is a non_blocking_error and the call also proceeds. So a truncated
 	// payload has to exit 2, or a broken connection becomes an approval.

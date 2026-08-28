@@ -26,7 +26,7 @@ var (
 //
 // It is a declaration rather than a rule because it does not depend on the
 // command. Written as a clause it would be evaluated once per command to
-// produce the same answer, and -- the reason that actually matters -- a rule
+// produce the same answer, and (the reason that actually matters) a rule
 // file that simply omitted it would disable the check silently. Omission is the
 // failure this whole design keeps closing, so absence is a refusal here too.
 //
@@ -34,11 +34,11 @@ var (
 //
 // Entries are absolute paths and are compared exactly. Comparing basenames
 // would be friendlier to a machine that installs the shell somewhere unusual,
-// and it would accept **any file named bash anywhere** -- including one written
+// and it would accept **any file named bash anywhere**, including one written
 // into a directory the agent can reach. For a gate whose subject can create
 // files, "it is called bash" is not a property worth checking.
 //
-// **FACT 2026-08-20, on the machine this was written for:** `/bin` is a symlink
+// **On the machine this was written for:** `/bin` is a symlink
 // to `usr/bin`, so `/bin/bash` and `/usr/bin/bash` are the same file, both
 // resolving to `/usr/bin/bash` and both root-owned with mode 755. Listing both
 // is therefore belt and braces: either spelling resolves to the same binary.
@@ -51,9 +51,9 @@ type ShellPolicy struct {
 // # Why this exists
 //
 // qwark's parser is fixed to one shell's grammar, and reading a command in the
-// wrong grammar does not fail loudly. **FACT 2026-08-20: of ten zsh constructs
-// put through the bash parser, only two were rejected while four parsed cleanly
-// and meant something else** -- `**/`, `*(.)`, `$foo[2]`, and the `noglob`
+// wrong grammar does not fail loudly. **Of ten zsh constructs put through the
+// bash parser, only two were rejected while four parsed cleanly and meant
+// something else**: `**/`, `*(.)`, `$foo[2]`, and the `noglob`
 // precommand modifier. Worse, `rm *(e:'rm -rf /':)` carries no substitution,
 // pipe, redirection or logical concatenation, so it satisfies every tier-one
 // rule, and zsh executes the quoted code as a glob qualifier.
@@ -65,7 +65,7 @@ type ShellPolicy struct {
 //
 // **This is a consistency check on the best available signal, not proof.**
 // qwark runs as a child process of the tool that will spawn the shell, so it
-// cannot observe that shell directly -- `type` answers only from inside it, and
+// cannot observe that shell directly: `type` answers only from inside it, and
 // a child sees the un-aliased view. The signal is what the environment reports,
 // and it is trustworthy only to the extent that the environment is: whatever
 // names it must be unwritable, exactly as the rule files must be.
@@ -91,7 +91,7 @@ func (p ShellPolicy) Verify(reported string) error {
 	}
 
 	// Both sides are resolved through their symbolic links before comparing.
-	// **FACT 2026-08-20: `/bin` is a symlink to `usr/bin` here**, so `/bin/bash`
+	// **`/bin` is a symlink to `usr/bin` here**, so `/bin/bash`
 	// and `/usr/bin/bash` are one file under two names, and comparing the names
 	// would make a rule about a shell a rule about one way of spelling it.
 	//

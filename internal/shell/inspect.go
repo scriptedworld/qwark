@@ -14,7 +14,7 @@ import (
 //
 // This exists to be read by a person authoring a rule. A rule names node types,
 // so the vocabulary a rule may use has to be visible before the rule is
-// written -- guessing at it is how the string-matching guard this replaces got
+// written: guessing at it is how the string-matching guard this replaces got
 // its blind spot.
 func (p *Parsed) Inspect(w io.Writer) error {
 	depth := 0
@@ -55,7 +55,7 @@ func (p *Parsed) writeNode(w io.Writer, node syntax.Node, depth int) error {
 	return nil
 }
 
-// typeName is the node's Go type without the package qualifier -- CallExpr,
+// typeName is the node's Go type without the package qualifier: CallExpr,
 // BinaryCmd, Redirect. These names are the rule vocabulary, so they are printed
 // exactly as a rule file will have to spell them.
 func typeName(node syntax.Node) string {
@@ -146,7 +146,7 @@ func flags(stmt *syntax.Stmt) string {
 //
 // It returns the text and nothing else. An earlier version returned it already
 // decorated for the outline, and that decoration then travelled into every
-// message quoting what set a rule off -- "caused by: │ $HOME". Presentation
+// message quoting what set a rule off: "caused by: │ $HOME". Presentation
 // belongs where something is presented.
 func oneLine(src string) string {
 	const maximum = 64

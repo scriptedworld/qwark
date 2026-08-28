@@ -125,7 +125,7 @@ func TestAnAgentAllowanceReachesOnlyTheCommandItsRuleNames(t *testing.T) {
 
 	// The agent clause narrows a rule; it is not a role saying "and this agent
 	// may do things". `runner-may-read` names git as well as the agent, and all
-	// clauses must hold -- so the runner's allowance stops at git and does not
+	// clauses must hold, so the runner's allowance stops at git and does not
 	// become a general permission attached to the role.
 	//
 	// This is the direction worth testing, because getting it wrong turns a
@@ -143,14 +143,14 @@ func TestAnAgentAllowanceReachesOnlyTheCommandItsRuleNames(t *testing.T) {
 func TestTheMainSessionIsNamedByHavingNoAgentType(t *testing.T) {
 	t.Parallel()
 
-	// **FACT 2026-08-20: agent_id and agent_type appear only for a subagent**,
-	// so a main-session call carries neither. That is what makes absence
+	// **agent_id and agent_type appear only for a subagent**, so a
+	// main-session call carries neither. That is what makes absence
 	// dependable rather than a gap: the main session is the one caller reliably
 	// without an agent type, so `agent = ""` names it exactly and one rule set
 	// covers every caller.
 	//
 	// Without this the main session would be the one role no clause could
-	// address, and a launcher would have to vary what it passes -- which is the
+	// address, and a launcher would have to vary what it passes, which is the
 	// symlink and environment-variable management this exists to avoid.
 	files := ruleSet(duties)
 
@@ -174,7 +174,7 @@ func TestTheMainSessionClauseIsToldFromNoClauseAtAll(t *testing.T) {
 	// The distinction the pointer exists for. A rule that states no agent
 	// applies to every caller; a rule stating `agent = ""` applies to the main
 	// session only. Written as a plain string those two would be one, and the
-	// second would silently become the first -- turning a rule meant for one
+	// second would silently become the first, turning a rule meant for one
 	// role into a rule for all of them, in an allow rule, which is the
 	// direction that hands out permission nobody granted.
 	const anyCaller = `
@@ -257,7 +257,7 @@ func TestTheStrictestRuleWins(t *testing.T) {
 	t.Parallel()
 
 	// Both rules match every one of these. Whichever was read first, the
-	// verdict is the stricter -- which is what makes rule order irrelevant.
+	// verdict is the stricter, which is what makes rule order irrelevant.
 	both := `
 [[rule]]
 id = "allow-rm"
@@ -540,8 +540,8 @@ func TestAnUndeclaredCommandStillGetsItsStructuralReasons(t *testing.T) {
 
 	// The declaration check used to run first and return, so a refusal said
 	// only "this is undescribed" about a command that had also redirected.
-	// Most rules need no declaration to answer -- a clause naming node types,
-	// operators, flags or a fact needs no table at all -- and silently not
+	// Most rules need no declaration to answer: a clause naming node types,
+	// operators, flags or a fact needs no table at all, and silently not
 	// asking them made the refusal name one problem out of two.
 	//
 	// The verdict was never wrong. What was wrong was what the reader was told.

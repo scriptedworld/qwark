@@ -58,7 +58,7 @@ func TestPartialIsTheBroadFormAndSaysSo(t *testing.T) {
 	t.Parallel()
 
 	// The predecessor blocked web.archive.org by matching the substring
-	// `.archive`. Partial still does exactly that -- nothing here prevents it.
+	// `.archive`. Partial still does exactly that, nothing here prevents it.
 	// What changed is that the author had to name the form, so a reader of the
 	// rule can see the breadth rather than deducing it from a regex.
 	match, err := rules.Partial(".archive")
@@ -240,8 +240,8 @@ func TestAMatchQuotesItselfAsWritten(t *testing.T) {
 func TestAMatchThatWasNeverStatedTestsNothing(t *testing.T) {
 	t.Parallel()
 
-	// A zero Match can only arise by bypassing Build. It must fail closed --
-	// matching nothing -- rather than matching everything.
+	// A zero Match can only arise by bypassing Build. It must fail closed:
+	// matching nothing, rather than matching everything.
 	var unstated rules.Match
 
 	for _, value := range []string{"", "rm", "anything at all"} {

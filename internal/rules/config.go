@@ -4,8 +4,8 @@ import "github.com/scriptedworld/qwark/internal/command"
 
 // A File is one rule file as written. It is the TOML shape and nothing more:
 // what a file may say, not what any of it means. Meaning is established when
-// files are aggregated, because several of the checks worth making -- that a
-// definition is not redefined elsewhere, that a group a clause names exists --
+// files are aggregated, because several of the checks worth making (that a
+// definition is not redefined elsewhere, that a group a clause names exists)
 // cannot be made by looking at one file.
 type File struct {
 	// Shell is the set of shells this rule set permits. It is a declaration
@@ -17,7 +17,7 @@ type File struct {
 
 	// Command declares what options a command has and what its words denote.
 	// A command with no declaration is denied, so this is where eligibility
-	// comes from -- and eligibility is not permission: an explicit deny rule
+	// comes from, and eligibility is not permission: an explicit deny rule
 	// outranks any declaration.
 	Command map[string]command.Declaration `toml:"command"`
 
@@ -31,7 +31,7 @@ type File struct {
 // set holds: command names are compared whole, and protected paths are
 // prefixes. A group of paths compared for equality would match
 // `/home/x/.claude` and miss `/home/x/.claude/settings.json`, which is every
-// case that matters -- and it would do so silently.
+// case that matters, and it would do so silently.
 type Group struct {
 	Match   Form     `toml:"match"`
 	Members []string `toml:"members"`
@@ -59,8 +59,8 @@ type Rule struct {
 // An Action is what a rule does when all of its clauses hold.
 type Action string
 
-// The actions. When several rules apply, the strictest wins -- deny over ask
-// over allow -- so rule order never changes a verdict and no file can weaken
+// The actions. When several rules apply, the strictest wins: deny over ask
+// over allow, so rule order never changes a verdict and no file can weaken
 // another by being read later.
 //
 // There is deliberately no overridable deny. The two tiers of refusal are
@@ -124,7 +124,7 @@ func (a Action) known() bool {
 // hold for the rule to apply.
 //
 // A clause names at most one selector and at most one test. The selectors that
-// need no test -- nodes, flags, ops, fact, tag -- are satisfied by presence.
+// need no test (nodes, flags, ops, fact, tag) are satisfied by presence.
 type Clause struct {
 	// Selectors over the tree. These name the parser's own vocabulary rather
 	// than a summary of it, which is what keeps them from falling behind: a
@@ -153,7 +153,7 @@ type Clause struct {
 	Tag string `toml:"tag"`
 
 	// Agent names which agent the request came from, so one rule set can carry
-	// a different policy per role -- the agent that may write a task definition
+	// a different policy per role: the agent that may write a task definition
 	// is not the agent that may run it.
 	//
 	// The value is the `agent_type` from the payload. It is deliberately not an
@@ -162,7 +162,7 @@ type Clause struct {
 	//
 	// **`agent = ""` names the main session**, which is why this is a pointer.
 	// A main-session call reliably carries no agent type, so absence is not a
-	// gap but the one identity that is always available -- and telling
+	// gap but the one identity that is always available, and telling
 	// "not stated" from "stated as empty" is the whole difference between a
 	// clause that ignores the agent and a clause that requires there to be
 	// none.
@@ -183,7 +183,7 @@ type Clause struct {
 
 	// Absent inverts the clause: it holds when what it names is NOT there.
 	//
-	// This is how a conditional refusal is written -- "git commit is forbidden
+	// This is how a conditional refusal is written: "git commit is forbidden
 	// unless it is signed" is one deny rule with a clause saying the signing
 	// option is absent. The exception therefore lives inside the rule it
 	// modifies, where a reader of that rule sees it, rather than in a second
@@ -196,7 +196,7 @@ type Clause struct {
 	// out of one definition rather than being a second rule to remember.
 	//
 	// Inversion is satisfied by absence, including absence that qwark caused
-	// by not understanding something -- so in a deny rule it fails safe, and
+	// by not understanding something, so in a deny rule it fails safe, and
 	// in an allow rule it is worth reading twice.
 	Absent bool `toml:"absent"`
 }

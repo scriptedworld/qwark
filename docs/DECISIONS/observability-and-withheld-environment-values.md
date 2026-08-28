@@ -18,8 +18,7 @@ Claude Code spawns the hook as a subprocess, so the hook inherits its whole
 environment, which on this machine routinely includes API tokens. Recording
 `os.Environ()` verbatim writes those to a file that persists, is grepped later,
 and may be read while diagnosing something unrelated. That is the failure
-`secret-scan` exists to catch, arriving through a door qwark would have opened
-itself.
+`secret-scan` exists to catch.
 
 **Proposed, and waiting on an answer.** Record every variable *name*, so the
 shape of the environment is visible and a change in it is detectable. Record

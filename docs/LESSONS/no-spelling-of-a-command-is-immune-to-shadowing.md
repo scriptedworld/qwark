@@ -2,7 +2,7 @@
 
 The alias ban has an obvious mechanism: the escape already in the standing rules,
 where `\ls` runs the binary. That is why a word records whether it was escaped. It
-is not sufficient, and the measurements say why.
+is not sufficient.
 
 A backslash suppresses *alias* expansion only. Against a shell function it does
 nothing:

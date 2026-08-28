@@ -1,7 +1,6 @@
 # What qwark does not cover
 
-Stated as a boundary, in the manner of the predecessor's own header, because a
-control whose limits are not written down gets trusted past them.
+A control whose limits are not written down gets trusted past them.
 
 **Other tools reach the filesystem without passing through qwark.** qwark gates
 Bash. `Write` and `Edit` do not go through it, and they can reach the shell

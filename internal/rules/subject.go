@@ -46,7 +46,7 @@ func (sub *subject) satisfies(rule Rule) (string, bool) {
 //
 // An inverted clause holds when what it names is not there. Where a selector
 // covers several positions a plain clause holds if SOME satisfy it, so an
-// inverted one holds when NONE do -- one definition rather than two rules to
+// inverted one holds when NONE do: one definition rather than two rules to
 // remember.
 func (sub *subject) holds(clause Clause) (bool, string) {
 	matched, text := sub.evaluate(clause)
@@ -129,7 +129,7 @@ func (sub *subject) factHolds(name string) (bool, string) {
 }
 
 // optionHolds tests the options the command was given, by their DECLARED
-// meaning rather than their spelling -- so `-f`, `-rf`, `--force` and `--f` all
+// meaning rather than their spelling, so `-f`, `-rf`, `--force` and `--f` all
 // satisfy a clause about forcing, and `tar -f` does not.
 func (sub *subject) optionHolds(clause Clause) (bool, string) {
 	for _, given := range sub.options.Given {

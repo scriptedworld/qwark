@@ -13,7 +13,7 @@ Sticky tags key on the `session_id` in the hook payload.
 consideration is an ephemeral file appended to on each call, which each run then
 trims and rewrites, with locking so concurrent calls do not collide.
 
-Several facts bear on the locking, none of them settling it:
+Four things bear on the locking, none of them settling it:
 
 - Contention has two sources: several Bash calls running in parallel inside one
   session, and separate Claude Code sessions running at once on this machine.
@@ -25,9 +25,8 @@ Several facts bear on the locking, none of them settling it:
   fail-closed rule in **Configuration**: if an unparseable rule file makes Bash
   unusable, then by the same reasoning an unreachable state store does too, and a
   daemon outage becomes a Bash outage. A file has fewer ways to be absent.
-- Weigh this before adding any store at all. If every command is already logged,
-  "was there a rebase in the last six commands" is a question the log answers.
-  That is not an argument against a store, but a store has to earn its place
+- If every command is already logged, "was there a rebase in the last six
+  commands" is a question the log answers, so a store has to earn its place
   against a tail read of a file that exists anyway.
 - Append and compaction are not one problem. Appends are frequent, small and
   independent; the trim-and-rewrite is rare and needs every other writer held

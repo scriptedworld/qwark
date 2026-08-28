@@ -13,7 +13,7 @@ import (
 //
 // A clause that selects nothing would match nothing, so a rule carrying one
 // never applies. That reads exactly like a rule that is working, which is the
-// most dangerous way for a gate to be broken -- so it is refused at load rather
+// most dangerous way for a gate to be broken, so it is refused at load rather
 // than tolerated at evaluation.
 func (s *Set) validate() error {
 	seen := make(map[string]bool, len(s.Rules))
@@ -102,7 +102,7 @@ func (s *Set) validateClause(id string, position int, clause Clause) error {
 //
 // This is what keeps naming the parser's own vocabulary safe. A clause naming a
 // node type that does not exist would otherwise match nothing for ever, which
-// reads exactly like a rule that is working -- and if the library ever renames
+// reads exactly like a rule that is working, and if the library ever renames
 // one, this fails loudly at load rather than quietly at every command.
 func (s *Set) validateVocabulary(id string, position int, clause Clause) error {
 	for _, name := range clause.Nodes {
