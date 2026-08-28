@@ -69,10 +69,11 @@ so the vocabulary has to be visible before a rule is written.
 *Derives from:* **The decision model**; **Rules are layered by cost**;
 **The strictest action wins**; **Tags have lifetimes**; **Configuration**.
 
-Twenty-eight of this section's thirty-five requirements are built and tested.
+Twenty-five of this section's thirty-two requirements are built and tested.
 Seven are open: rules in cost order (FR-4.2), tag lifetime and its countdown
 (FR-4.7, FR-4.13), the three logging rules (FR-4.8, FR-4.9, FR-4.9a), and shell
-name resolution (FR-4.18).
+name resolution (FR-4.18). Three more were retired on 2026-08-28 and are
+recorded at the end of this file.
 
 | ID | Requirement | |
 |---|---|---|
@@ -86,6 +87,7 @@ name resolution (FR-4.18).
 | FR-4.8 | Every command is logged, along with whatever detail of its environment bore on the decision. | [?] |
 | FR-4.9 | Environment variable values are logged except where a rule file says not to. The declaration says what is **withheld**, not what is permitted, and a withheld variable is recorded as present-but-withheld and not omitted, so the log never implies a variable was absent. | [?] |
 | FR-4.9a | A value is also withheld when its **name matches a declared secret-shaped pattern**: token, secret, key, password, credential and the like. Naming variables one at a time fails open, because a credential added tomorrow is logged until somebody remembers it exists. Matching by shape catches the ones nobody thought of, which is the only kind that gets written to a durable file by accident. | [?] |
+| FR-4.9b | **Every log entry carries the identity of the rule set it was judged against**, as one digest over the set as loaded rather than a list per file. A decision is only comparable to another decision made under the same rules, the way a measurement is only comparable within a tool version, so an entry that cannot say which policy produced it cannot be read alongside one from any other day. One digest rather than per-file, because the verdict is made against all of the files together and a per-file list lengthens every entry without answering the question anybody asks of it. | [?] |
 | FR-4.10 | Writing code or a file through a here-document is refused. It is stated separately from the redirection ban because its reason is separate: such content was never a diff and leaves nothing to review. | [A] |
 | FR-4.11 | A rule is a set of clauses, and it applies only when all of them match. There is no disjunction inside a rule: alternatives go in separate rules, so each can be checked by reading it alone. | [A] |
 | FR-4.12 | A command that will not parse is denied, and the reason returned is the parser's own message. | [A] |
@@ -94,11 +96,8 @@ name resolution (FR-4.18).
 | FR-4.13b | A declaration grants eligibility; it does not grant permission. An explicit deny rule outranks any declaration, so a file that declares a command still cannot run it past a deny rule in another file. This is what makes FR-4.13a safe, and it is why wrappers are denied explicitly instead of being left undeclared. | [D] |
 | FR-4.14 | Where several rules match one command, the strictest action wins: deny over ask over allow. Rule order therefore never changes a verdict, and no rule is weakened by where it sits or which file it arrived in. | [A] |
 | FR-4.15 | Rule files are named on the command line. A path naming a directory contributes every rule file in it; a path naming a file contributes that one. The policy in force is therefore readable at the point qwark is invoked. | [A] |
-| FR-4.16 | A command qwark holds no declaration for is refused. Nothing runs until it has been described. | [A] |
+| FR-4.16 | A command qwark holds no declaration for is refused. Nothing runs until it has been described. **Suspended for the observation phase, 2026-08-28, and not retired.** A declaration exists so that option clauses (FR-6.1) and path clauses (FR-6.10) can be written, and the observation set carries neither, so the check is a prerequisite of rules that are not loaded. It returns with the first rule that judges a command by identity rather than by shape. | [A] |
 | FR-4.16a | **The rules are consulted before the declaration is checked**, because most of them can answer without one: a clause naming node types, operators, flags or a fact needs no table. A declaration check that short-circuits them makes a refusal say only "this is undescribed" about a command that also redirected and wrote through a here-document. | [D] |
-| FR-4.17 | Rule files must not be writable by the user qwark runs as, and neither may the directory holding them. qwark refuses to run otherwise. A writable directory permits unlink-and-replace, which is the same defeat as a writable file. | [A] |
-| FR-4.17a | A refusal names the path and the route by which it is writable (world-writable, owner-writable, or through a group this user is in), because "a rule file is writable" without saying which bit is a message that cannot be acted on. | [D] |
-| FR-4.17b | Running as root is reported, not passed over. No arrangement of permission bits makes a file unwritable by root, so "not writable by this user" is not a property root can have, and a check that quietly succeeded there would be worse than none. | [D] |
 | FR-4.18 | Using a name the shell may resolve to something other than the intended program is refused. **A backslash suppresses alias expansion but not a shell function, and both zsh and bash accept a function named `/usr/bin/ls` which shadows the binary.** This requirement is therefore defence in depth and not a guarantee: it defeats alias expansion and PATH substitution, and it does not defeat a poisoned function table. | [?] |
 | FR-4.19 | qwark executes no file it reads, the shell snapshot included, even where the snapshot is what would say how a name resolves. Sourcing an agent-writable file inside the gate would run the subject's code in the judge's process. | [D] |
 | FR-4.20 | A command form qwark does not model is denied, on the reasoning that covers one it cannot parse. An unrecognised construct still executes something. | [D] |
@@ -235,3 +234,23 @@ recalled and not inferred.
 | FR-10.8 | **qwark runs in one goroutine.** `recover` catches a panic in the goroutine that deferred it and in no other, so the guarantee that every path ends in a decision or a refusal holds only while there is one. A test walks the source for `go` statements and enforces it. | [D] |
 | FR-10.9 | The registration wraps qwark so that any death becomes exit 2. In-process recovery cannot catch a fatal runtime error, an out-of-memory kill or a signal, and every one of those otherwise exits non-zero-and-not-two, which lets the command run. Hook commands are executed through a shell, so `qwark … \|\| exit 2` closes it. | [D] |
 | FR-10.10 | **The registration carries the deny list qwark cannot enforce itself.** qwark gates Bash, and the Write and Edit tools reach the rule files, the shell snapshot, `.git/hooks`, `settings.json` and a task definition without passing through it, so every path a rule protects needs a `permissions.deny` twin in the same registration, or the rule is enforced against a shell and against nothing else. **A task definition is on that list for a reason of its own: `just checks` is a fixed, familiar command line whose meaning lives in a file in the working tree, so permitting the command permits whatever that file says next.** | [A/D] |
+
+## Retired
+
+A retired requirement keeps its ID forever. Nothing else is ever given one of
+these, because reuse silently rewrites what every existing reference meant and
+nothing about the new row would look wrong.
+
+| ID | Retired | What it required | Why it went, and what covers it now |
+|---|---|---|---|
+| FR-4.17 | 2026-08-28 | Rule files must not be writable by the user qwark runs as, and neither may the directory holding them. qwark refuses to run otherwise. | It blocks iterating on the rules. Enforcing it means the live set is root-owned, so every change to a rule needs a root command, and the gate cannot be developed by the session it gates. What covers the threat now is `silo/CLAUDE.md` hard rule 4a, which forbids an agent editing these rules at all without a person in the conversation, together with the live set remaining a separate deliberate copy rather than the source tree, and the `permissions.deny` twin in the hook registration that keeps the Write and Edit tools off both the live rules and the registration itself. **Return condition:** a deployment where qwark runs as a user other than the one being gated, at which point ownership becomes enforceable without costing the ability to change a rule. |
+| FR-4.17a | 2026-08-28 | A refusal names the path and the route by which it is writable. | Retired with FR-4.17. It describes the message of a check that no longer runs. |
+| FR-4.17b | 2026-08-28 | Running as root is reported, not passed over. | Retired with FR-4.17. It describes a branch of a check that no longer runs. Its reasoning is worth keeping if FR-4.17 ever returns: no arrangement of permission bits makes a file unwritable by root, so "not writable by this user" is not a property root can have. |
+
+**What went with them.** `internal/rules/ownership.go` entire, the
+`rules.CheckOwnership` call in `internal/cli/gate.go`, the `untrusted` refusal
+beside it, and all six tests in `internal/rules/ownership_test.go`.
+
+**This is a withdrawal and not an open question.** Marking these `[?]` would
+have been using the open-question marker to silence a check, which `CLAUDE.md`
+forbids. They are not unanswered; they are answered, and the answer is no.

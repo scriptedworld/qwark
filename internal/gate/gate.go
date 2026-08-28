@@ -7,9 +7,12 @@
 // would make the thing that decides a detail of how qwark was invoked.
 //
 // **Whether the rule set may be trusted is deliberately not decided here.**
-// That is a question about the filesystem qwark was deployed onto rather than
-// about the call in front of it, and it is settled before a Decider is built;
-// see the `hook` subcommand.
+// That is a question about the deployment rather than about the call in front
+// of it. Until 2026-08-28 it was answered by a permission check run before a
+// Decider was built; it is now answered outside qwark entirely, by the rule
+// that an agent does not edit these files without a person and by the
+// `permissions.deny` twin in the hook registration. FR-4.17, retired, records
+// what would bring the check back.
 package gate
 
 import (

@@ -49,9 +49,11 @@ func decisionIn(t *testing.T, out string) (string, string) {
 // ruleFile writes a rule file into a directory this user can write, which is
 // every directory a test can make.
 //
-// That is exactly the condition the hook refuses, so these tests are about the
-// refusals. What the gate does once it believes its rule set is
-// `internal/gate`'s to prove, and it is a separate package for that reason.
+// Until 2026-08-28 that was the one condition the hook refused outright, and
+// these tests existed to prove it. FR-4.17 is retired, so a writable rule set
+// now loads like any other and what remains here is the loading half. What the
+// gate does once it has a rule set is `internal/gate`'s to prove, and it is a
+// separate package for that reason.
 func ruleFile(t *testing.T, body string) string {
 	t.Helper()
 
@@ -60,45 +62,6 @@ func ruleFile(t *testing.T, body string) string {
 		t.Fatalf("writing the rule file: %v", err)
 	}
 	return dir
-}
-
-// COVERS: FR-4.17 | negative
-func TestARewritableRuleSetPermitsNothing(t *testing.T) {
-	t.Parallel()
-
-	// The refusal that matters most, and the one that was easiest not to
-	// notice: CheckOwnership was written, tested and exported, and called by
-	// nothing, so the gate would happily load rules the subject can edit.
-	//
-	// An agent constrained by rules it can rewrite is constrained by nothing,
-	// and it needs no shell to rewrite them: Write and Edit reach those files
-	// without passing through this gate at all. So a writable rule set is not a
-	// degraded gate to run with a warning: it is the absence of one.
-	//
-	// This is also why the repository's own `rules/` cannot be the installed
-	// path. A draft is writable by whoever is drafting it.
-	writable := ruleFile(t, "[[rule]]\nid = \"x\"\naction = \"deny\"\n"+
-		"reason = \"y\"\n  [[rule.clause]]\n  index = \"0\"\n  value = \"z\"\n")
-
-	out, _, status := invoke(t, payload(t, "git status"), "hook", writable)
-
-	if status != statusOK {
-		t.Fatalf("status = %d, want a decision rather than a dead process", status)
-	}
-
-	decision, reason := decisionIn(t, out)
-	if decision != "deny" {
-		t.Errorf("decision = %q, want deny for a rule set this user can rewrite",
-			decision)
-	}
-	if !strings.Contains(reason, "rewritten by the user qwark runs as") {
-		t.Errorf("reason = %q, want it to say the rule set is not a constraint",
-			reason)
-	}
-	if !strings.Contains(reason, "root-owned") {
-		t.Errorf("reason = %q, want it to say where the rules should live: the "+
-			"fix is deployment, not configuration", reason)
-	}
 }
 
 // COVERS: FR-4.5, FR-4.6 | negative
@@ -110,10 +73,9 @@ func TestABrokenRuleSetPermitsNothingAndSaysWhere(t *testing.T) {
 	// every command until it is fixed, so the refusal has to name where, and
 	// the way out must not itself need Bash.
 	//
-	// Both faults are reported. This rule set is unparseable AND rewritable,
-	// and saying only the graver one sends its reader back for the other:
-	// the same reason a refusal lists every rule that objected rather than the
-	// first one.
+	// This once asserted that BOTH faults were reported, the rule set being
+	// unparseable and rewritable at once. FR-4.17 is retired, so loading is the
+	// only fault preflight can now find and there is no second one to list.
 	broken := ruleFile(t, "[[rule]]\nid = \"unclosed\n")
 
 	out, _, status := invoke(t, payload(t, "git status"), "hook", broken)
@@ -132,10 +94,6 @@ func TestABrokenRuleSetPermitsNothingAndSaysWhere(t *testing.T) {
 	if !strings.Contains(reason, "Edit tool") {
 		t.Errorf("reason = %q, want a way out that does not need Bash, which "+
 			"is the one thing this refusal has taken away", reason)
-	}
-	if !strings.Contains(reason, "rewritten by the user") {
-		t.Errorf("reason = %q, want both faults reported, not only the graver one",
-			reason)
 	}
 }
 

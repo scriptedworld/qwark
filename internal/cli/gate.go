@@ -39,20 +39,20 @@ func runHook(paths []string, stdin io.Reader, stdout, stderr io.Writer) int {
 // preflight settles whether this rule set can be believed, before any command
 // is judged against it.
 //
-// **Both questions are asked and both answers are reported.** A rule set can be
-// rewritable and unparseable at once, and saying only the first sends its
-// reader back for the second: the same reason a refusal lists every rule that
-// objected rather than the first.
+// It reports a list rather than one error because a refusal names everything
+// wrong at once, on the same reasoning that has a verdict list every rule that
+// objected rather than the first. Only loading can fail today.
 //
-// Ownership comes first in the message because it is the graver finding: a
-// parse error means the policy is broken, and a writable rule set means there
-// is no policy, only a file that happened to say something this time.
+// **Whether the running user could rewrite the rule set is deliberately not
+// asked.** It was, until 2026-08-28, and the check cost more than it bought:
+// enforcing it means a root-owned live set, so every change to a rule needs a
+// root command and the gate cannot be developed by the session it gates. What
+// holds the property now sits outside qwark, in the rule that an agent does not
+// edit these files without a person, and in the `permissions.deny` twin that
+// keeps the Write and Edit tools off them. See FR-4.17, retired, in
+// REQUIREMENTS.md, which records the condition for bringing it back.
 func preflight(paths []string) (*rules.Set, []string) {
 	var refusals []string
-
-	if err := rules.CheckOwnership(paths); err != nil {
-		refusals = append(refusals, untrusted(err))
-	}
 
 	set, err := rules.Load(paths)
 	if err != nil {
@@ -83,25 +83,6 @@ func joinReasons(refusals []string) string {
 		joined += refusal
 	}
 	return joined
-}
-
-// untrusted is the reason a rewritable rule set gives for permitting nothing.
-//
-// This is the refusal that matters most, and the one it would be most tempting
-// to soften. qwark's whole premise is an agent constrained by rules it did not
-// write; an agent that can edit them is constrained by nothing, and it needs no
-// shell to do it. So a writable rule set is not a degraded gate to be run with
-// a warning: it is the absence of one, and it has to say so by refusing.
-//
-// The fix is deployment rather than configuration, which is why the message
-// says where to put the rules rather than what to change in them.
-func untrusted(err error) string {
-	return fmt.Sprintf(
-		"qwark's rule set can be rewritten by the user qwark runs as, so it is "+
-			"not a constraint on anything:\n  %v\n"+
-			"Move the rules somewhere this user cannot write, a root-owned "+
-			"directory such as /etc/qwark/rules, and name that path in the "+
-			"hook registration.", err)
 }
 
 // unloadable is the reason a broken rule set gives for permitting nothing.
