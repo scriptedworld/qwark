@@ -95,6 +95,10 @@
       "Edit(//etc/qwark/**)",
       "Write(//var/lib/qwark/**)",
       "Edit(//var/lib/qwark/**)",
+      "Write(~/.config/qwark/**)",
+      "Edit(~/.config/qwark/**)",
+      "Write(~/.local/state/qwark/**)",
+      "Edit(~/.local/state/qwark/**)",
 
       "Write(~/.claude/settings.json)",
       "Edit(~/.claude/settings.json)",

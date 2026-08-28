@@ -7,7 +7,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/scriptedworld/qwark/internal/audit"
 	"github.com/scriptedworld/qwark/internal/rules"
+	"github.com/scriptedworld/qwark/internal/shell"
 )
 
 // COVERS: FR-10.9 | property
@@ -179,6 +181,99 @@ func TestTheShippedRulesDenyTaskRunnersByName(t *testing.T) {
 		t.Error("no deny rule names the executor group, so a task runner is " +
 			"refused only by being undeclared")
 	}
+}
+
+// COVERS: FR-10.11 | regression
+func TestTheGuardCoversThePathsQwarkActuallyUses(t *testing.T) {
+	t.Parallel()
+
+	// The group named /etc/qwark/ and /var/lib/qwark/ long after the install
+	// target moved to ~/.config/qwark/rules and the log to ~/.local/state.
+	// Measured 2026-08-28: `cp` over the live 00-structure.toml and `rm` of
+	// decisions.jsonl were both ALLOW, while `ls /etc/qwark/rules` was refused.
+	// The guard was working perfectly against an address its subject had left.
+	//
+	// So this asserts the SUBJECT is covered, not that the rule is present.
+	// A test naming the rule would have passed throughout, which is how the
+	// defect survived a rule set that is otherwise heavily tested.
+	set, err := rules.Load([]string{filepath.Join("..", "..", "rules")})
+	if err != nil {
+		t.Fatalf("the repository's rule files do not load: %v", err)
+	}
+
+	if _, declared := set.Groups["qwark-control"]; !declared {
+		t.Fatal("no group names qwark's own control surfaces")
+	}
+
+	// Judged as commands rather than by matching the group's members here.
+	// Partial matching compares fragments and the members carry trailing
+	// slashes, so a helper written in this file is a second implementation of
+	// the evaluator, free to be wrong in exactly the way it is being asked to
+	// detect. The first draft of this test was, and passed the live paths as
+	// bare directories that no member matched.
+	//
+	// Derived rather than written twice: moving the log moves the assertion.
+	logPath := audit.DefaultPath()
+	rulePath := filepath.Join(home(t), ".config", "qwark", "rules", "00-structure.toml")
+
+	surfaces := map[string]string{
+		"overwriting the live rule set": "cp /tmp/evil.toml " + rulePath,
+		"deleting the decision log":     "rm " + logPath,
+	}
+
+	for name, command := range surfaces {
+		parsed, err := shell.Parse(command)
+		if err != nil {
+			t.Fatalf("parsing %q: %v", command, err)
+		}
+		if !set.Evaluate(parsed, rules.Context{}).Denied() {
+			t.Errorf("%s is permitted: %q. The subject may overwrite the rules "+
+				"that gate it or delete the record of what it was refused.",
+				name, command)
+		}
+	}
+}
+
+// COVERS: FR-10.11 | regression
+func TestTheDenyTwinCoversThePathsQwarkActuallyUses(t *testing.T) {
+	t.Parallel()
+
+	// The other half of one control, and it drifted the same way for the same
+	// reason: the twin named //etc/qwark/** and //var/lib/qwark/** while the
+	// live set sat in ~/.config. A path held by the rule group and absent from
+	// the twin is protected against a shell and against nothing else, since
+	// Write and Edit never reach qwark at all.
+	body, err := os.ReadFile(filepath.Join("..", "..", "install", "settings-fragment.json"))
+	if err != nil {
+		t.Fatalf("reading the shipped registration: %v", err)
+	}
+
+	var fragment struct {
+		Permissions struct {
+			Deny []string `json:"deny"`
+		} `json:"permissions"`
+	}
+	if err := json.Unmarshal(body, &fragment); err != nil {
+		t.Fatalf("the shipped registration is not valid JSON: %v", err)
+	}
+
+	joined := strings.Join(fragment.Permissions.Deny, "\n")
+	for _, want := range []string{"~/.config/qwark/", "~/.local/state/qwark/"} {
+		if !strings.Contains(joined, want) {
+			t.Errorf("permissions.deny names no entry under %q, so Write and "+
+				"Edit reach it whatever rules/20-paths.toml says", want)
+		}
+	}
+}
+
+// home is the directory the install path and the log path are both relative to.
+func home(t *testing.T) string {
+	t.Helper()
+	dir, err := os.UserHomeDir()
+	if err != nil {
+		t.Skipf("no home directory to resolve the live paths against: %v", err)
+	}
+	return dir
 }
 
 func contains(members []string, want string) bool {

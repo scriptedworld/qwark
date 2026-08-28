@@ -56,11 +56,23 @@
 
 # qwark's own control surfaces. An agent that can edit these is not constrained
 # by them.
+#
+# The list is the paths qwark reads or writes at runtime, and it is derived from
+# those rather than from where the rules were once installed. That distinction
+# is the whole of the defect this group carried: it named `/etc/qwark/` while
+# the install target moved to `~/.config/qwark/rules`, so the guard went on
+# refusing an `ls` of an abandoned directory while `cp` over the live rule set
+# and `rm` of the decision log were both permitted.
+#
+# The two system paths stay. Neither holds anything today, and keeping them
+# costs nothing and covers a reinstall to either.
 [group.qwark-control]
 match = "partial"
 members = [
   "/etc/qwark/",
   "/var/lib/qwark/",
+  "/.config/qwark/",
+  "/.local/state/qwark/",
 ]
 
 # Claude Code's own configuration and runtime state.
