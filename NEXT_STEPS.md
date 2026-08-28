@@ -248,6 +248,21 @@ is the second and not a replacement. It matters for what to invest in now:
    written up as shape 3 in
    `docs/PATTERNS/the-mechanicals-the-shapes-a-rule-can-be-written-in.md`. Moot
    while `git commit` is denied by class, and live the moment it is not.
+
+   Every option-naming rule was checked against the declarations for the same
+   failure. `no-skipping-hooks` had it and is fixed: `--no-verify` is declared,
+   so the rule fires with its own reason instead of the accounting default
+   saying only that a word was unaccounted for. Both spellings deny, so the
+   verdict did not move.
+
+   Four remain and each is deliberate or moot rather than drift.
+   `no-option-supplied-program` names `execute`, and `find -exec` is left
+   undeclared on purpose with that tradeoff written into the declarations file.
+   `ask-before-hard-reset` and `ask-before-pruning` sit behind class denials of
+   `git reset` and `git remote`. `no-preserve-root` names an option nothing
+   declares, and the accounting default refuses `rm --no-preserve-root` without
+   ever reaching the reason, which is the same defect as this one and worth the
+   same one-line fix. `40-state.toml`'s `delete` is illustrative and unloaded.
 2. **The post-rebase tag machinery cannot fire.** `git rebase` is denied, and a
    denied command has no effect of any kind (FR-4.24), so `note-rebase` never sets
    the tag and everything in 40-state.toml that depends on it is unreachable. That
