@@ -4,6 +4,7 @@ import (
 	"slices"
 
 	"github.com/scriptedworld/qwark/internal/command"
+	"github.com/scriptedworld/qwark/internal/reach"
 	"github.com/scriptedworld/qwark/internal/shell"
 )
 
@@ -18,6 +19,7 @@ type subject struct {
 	options command.Options
 	tags    map[string]bool
 	agent   string
+	cwd     string
 	groups  map[string]Group
 }
 
@@ -76,6 +78,8 @@ func (sub *subject) evaluate(clause Clause) (bool, string) {
 		return sub.tags[clause.Tag], clause.Tag
 	case clause.Agent != nil:
 		return sub.agentIs(*clause.Agent)
+	case clause.Cwd != "":
+		return sub.cwdWithin(clause.Cwd)
 	case clause.Option != "":
 		return sub.optionHolds(clause)
 	case clause.Kind != "":
@@ -118,6 +122,42 @@ func (sub *subject) agentIs(name string) (bool, string) {
 		return true, "(main session)"
 	}
 	return true, name
+}
+
+// cwdWithin reports whether the call was made from this directory or from
+// somewhere inside it.
+//
+// **The comparison is `internal/reach`'s, not a string prefix.** As text
+// `/home/x/proj` is a prefix of `/home/x/project` while neither directory
+// contains the other, and a scoping clause that got this wrong would hand one
+// repository's policy to its neighbour on the strength of a shared spelling.
+// Symlinks are resolved on both sides for the same reason they are everywhere
+// else here: two spellings of one directory must reach one answer.
+//
+// Both failure modes decline rather than match. A rule naming a relative
+// directory cannot be placed, and a request carrying no cwd cannot be located,
+// and in neither case does qwark know the call was made where the rule says.
+// Validation refuses a relative value at load, so reaching that branch means a
+// rule file changed under a running process.
+//
+// The cause quotes the directory the RULE named rather than the one the call
+// came from. The rule's own text is what a reader is holding when they ask why
+// it fired, and the cwd is in the log entry beside the verdict.
+func (sub *subject) cwdWithin(dir string) (bool, string) {
+	if sub.cwd == "" {
+		return false, ""
+	}
+
+	radius, err := reach.New(dir)
+	if err != nil {
+		return false, ""
+	}
+
+	inside, err := radius.Contains(sub.cwd, sub.cwd)
+	if err != nil || !inside {
+		return false, ""
+	}
+	return true, dir
 }
 
 func (sub *subject) factHolds(name string) (bool, string) {

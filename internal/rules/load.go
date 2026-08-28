@@ -37,6 +37,7 @@ var (
 	ErrUnknownNode   = errors.New("clause names a node type the parser does not have")
 	ErrUnknownFlag   = errors.New("clause names a statement flag that does not exist")
 	ErrGroupMatch    = errors.New("a group compares by value or partial, nothing else")
+	ErrRelativeCwd   = errors.New("clause names a working directory that is not absolute")
 )
 
 // ruleFileSuffix is what a directory contributes. A directory named on the

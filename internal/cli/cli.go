@@ -21,15 +21,20 @@ usage:
   qwark ast [--debug] [command]   outline the syntax tree of a command
   qwark facts [command]           list the properties a command establishes
   qwark rules PATH...             load rule files and report what they hold
-  qwark judge [--agent=T] RULES COMMAND...
+  qwark judge [--agent=T] [--cwd=DIR] RULES COMMAND...
                                   judge a command against a rule set, as the
-                                  agent type T; default none is the main session
+                                  agent type T and from directory DIR; default
+                                  agent none is the main session
   qwark hook RULES...             run as the PreToolUse hook: read one call
                                   from stdin, judge it, answer on stdout
   qwark help                      this text
 
 With no command argument, ast and facts read the command from stdin. --debug
 prints the raw node structs instead of the outline.
+
+Every real call carries a working directory, so a rule with a cwd clause is
+inert until --cwd names one. It is not defaulted: where qwark happens to be
+standing is not where the call came from.
 `
 
 // Exit statuses. Distinguishing them means a caller can tell "qwark was asked
@@ -148,7 +153,7 @@ func check(paths []string, stdout, stderr io.Writer) int {
 // This exists so a rule can be tried before it is the reason a command failed.
 // A rule set that has never judged anything is a policy nobody has run.
 func judge(args []string, stdout, stderr io.Writer) int {
-	args, agent := agentOf(args)
+	args, agent, cwd := contextOf(args)
 
 	paths, spoken := split(args)
 	if len(paths) == 0 || len(spoken) == 0 {
@@ -170,7 +175,7 @@ func judge(args []string, stdout, stderr io.Writer) int {
 		return statusOK
 	}
 
-	outcome := set.Evaluate(parsed, rules.Context{Agent: agent})
+	outcome := set.Evaluate(parsed, rules.Context{Agent: agent, Cwd: cwd})
 
 	_, _ = fmt.Fprintf(stdout, "%s\n", outcome.Action)
 	for _, finding := range outcome.Findings {
@@ -187,29 +192,50 @@ func judge(args []string, stdout, stderr io.Writer) int {
 	return statusOK
 }
 
-// agentFlag names the agent a judgement is made as.
-const agentFlag = "--agent="
+// The two payload fields a judgement can be made as. Both are things the
+// request carries and the subject cannot set, which is what makes either safe
+// to scope a policy on.
+const (
+	agentFlag = "--agent="
+	cwdFlag   = "--cwd="
+)
 
-// agentOf takes the agent off the front of the arguments, so a rule set can be
-// tried as the agent that will be judged by it rather than only as the session
-// running the command.
+// contextOf takes the agent and the working directory off the front of the
+// arguments, so a rule set can be tried as the caller that will be judged by it
+// rather than only as the session running the command.
 //
-// **The default is the empty agent, and that is the main session rather than a
-// missing value**: a main-session call carries no agent type, so `judge` with
-// no option already exercises the caller every session has. There is no
-// spelling here for "any agent", deliberately: a rule set is judged as somebody,
+// **The default agent is the empty agent, and that is the main session rather
+// than a missing value**: a main-session call carries no agent type, so `judge`
+// with no option already exercises the caller every session has. There is no
+// spelling for "any agent", deliberately: a rule set is judged as somebody,
 // because at runtime it always is.
+//
+// **The default cwd is empty, and that is a missing value rather than a
+// directory.** The two differ because the payload differs: a main-session call
+// really does carry no agent type, while every call carries a cwd. So judging
+// without `--cwd` exercises a caller the hook will never see, and a cwd clause
+// declines rather than matching. That is the safe direction and it is still a
+// trap: a rule tried without `--cwd` looks inert. Nothing defaults it to the
+// process's own directory, because a gate answering about where it happens to
+// be standing is answering a question nobody asked.
 //
 // Only leading occurrences are taken. Everything after the rules path may be
 // the command being judged, and a gate that ate an argument out of the middle
 // of the command would be judging something other than what was typed.
-func agentOf(args []string) ([]string, string) {
-	agent := ""
-	for len(args) > 0 && strings.HasPrefix(args[0], agentFlag) {
-		agent = strings.TrimPrefix(args[0], agentFlag)
+func contextOf(args []string) ([]string, string, string) {
+	agent, cwd := "", ""
+	for len(args) > 0 {
+		switch {
+		case strings.HasPrefix(args[0], agentFlag):
+			agent = strings.TrimPrefix(args[0], agentFlag)
+		case strings.HasPrefix(args[0], cwdFlag):
+			cwd = strings.TrimPrefix(args[0], cwdFlag)
+		default:
+			return args, agent, cwd
+		}
 		args = args[1:]
 	}
-	return args, agent
+	return args, agent, cwd
 }
 
 // split separates the rule paths from the command to judge.

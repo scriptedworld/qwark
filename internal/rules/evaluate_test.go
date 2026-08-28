@@ -1,6 +1,7 @@
 package rules_test
 
 import (
+	"errors"
 	"strings"
 	"testing"
 
@@ -194,6 +195,119 @@ reason = "No agent is named, so every caller is covered."
 	if outcome := judgeAs(t, ruleSet(duties), "some-agent", `git status`); !outcome.Denied() {
 		t.Errorf("Action = %q, want deny: `agent = \"\"` is the main session, and "+
 			"stating no agent at all is what covers everybody", outcome.Action)
+	}
+}
+
+// judgeFrom judges `git status` as a call made from a directory.
+//
+// The command is fixed because these tests vary one thing: where the call came
+// from. `scoped` names git as its other clause, so the command is the constant
+// the directory is compared against.
+func judgeFrom(t *testing.T, files map[string]string, cwd string) rules.Outcome {
+	t.Helper()
+
+	set, err := rules.Load([]string{inFiles(t, files)})
+	if err != nil {
+		t.Fatalf("Load = %v", err)
+	}
+	return set.Evaluate(parseFor(t, `git status`), rules.Context{Cwd: cwd})
+}
+
+// scoped permits a command in one tree and nowhere else, which is the case the
+// cwd clause was built for: `go test` compiles and runs code from the working
+// tree, so it stays refused everywhere, except in the repository whose own
+// tests are the thing being run.
+const scoped = `
+[[rule]]
+id = "tests-run-in-their-own-tree"
+action = "allow"
+reason = "A project may run its own tests."
+  [[rule.clause]]
+  cwd = "/srv/project"
+  [[rule.clause]]
+  index = "0"
+  value = "git"
+`
+
+// COVERS: FR-7.14 | positive
+func TestACwdClausePermitsInsideItsTreeOnly(t *testing.T) {
+	t.Parallel()
+
+	// The partition agent-scoping cannot express. Both calls below are the same
+	// agent type running the same command, and the only thing telling them
+	// apart is which repository they came from.
+	if outcome := judgeFrom(t, ruleSet(scoped), "/srv/project"); outcome.Denied() {
+		t.Errorf("Action = %q, want allow: the call came from the named tree",
+			outcome.Action)
+	}
+	if outcome := judgeFrom(t, ruleSet(scoped), "/srv/other"); !outcome.Denied() {
+		t.Errorf("Action = %q, want deny: a rule scoped to one tree must not "+
+			"carry into another", outcome.Action)
+	}
+}
+
+// COVERS: FR-7.14a | property
+func TestACwdClauseReachesIntoSubdirectoriesAndNotOntoNeighbours(t *testing.T) {
+	t.Parallel()
+
+	// Two halves of one comparison, and getting either wrong is silent.
+	//
+	// A session works in subdirectories of the tree it was started in, so a
+	// clause that held only at the root would be a policy nobody means.
+	if outcome := judgeFrom(t, ruleSet(scoped), "/srv/project/internal/deep"); outcome.Denied() {
+		t.Errorf("Action = %q, want allow: a session works below the root it "+
+			"was started in", outcome.Action)
+	}
+
+	// And `/srv/project-old` is a neighbour of `/srv/project`, not a child of
+	// it. As text one is a prefix of the other; as directories neither contains
+	// the other, and a prefix comparison would hand one repository's permission
+	// to a different repository on the strength of a shared spelling.
+	if outcome := judgeFrom(t, ruleSet(scoped), "/srv/project-old"); !outcome.Denied() {
+		t.Errorf("Action = %q, want deny: `/srv/project-old` is not inside "+
+			"`/srv/project`, whatever their spellings share", outcome.Action)
+	}
+}
+
+// COVERS: FR-7.14b | negative
+func TestACwdClauseDeclinesWhenTheCallNamesNoDirectory(t *testing.T) {
+	t.Parallel()
+
+	// Every real call carries a cwd, so this is the shape of a request qwark
+	// could not read rather than a caller it will meet. It declines, on the
+	// same reading every other unanswerable clause gets: an allow rule must not
+	// match on the strength of qwark not knowing where the call came from.
+	if outcome := judgeFrom(t, ruleSet(scoped), ""); !outcome.Denied() {
+		t.Errorf("Action = %q, want deny: a request with no cwd cannot satisfy "+
+			"a clause about where it came from", outcome.Action)
+	}
+}
+
+// COVERS: FR-7.14b | negative
+func TestARelativeCwdIsRefusedAtLoad(t *testing.T) {
+	t.Parallel()
+
+	// Refused at load rather than declining at every command. A relative
+	// directory would be resolved against whichever process asked, which has
+	// nothing to do with where the agent was started, and a scoping clause that
+	// never holds reads exactly like one that is working.
+	const relative = `
+[[rule]]
+id = "scoped-to-nowhere"
+action = "allow"
+reason = "The directory is relative and cannot be placed."
+  [[rule.clause]]
+  cwd = "project"
+`
+
+	_, err := rules.Load([]string{inFiles(t, ruleSet(relative))})
+	if err == nil {
+		t.Fatal("Load = nil: a relative cwd must be refused at load, or the " +
+			"rule silently applies nowhere")
+	}
+	if !errors.Is(err, rules.ErrRelativeCwd) {
+		t.Errorf("Load = %v, want ErrRelativeCwd so the message says which "+
+			"clause and why", err)
 	}
 }
 

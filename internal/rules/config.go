@@ -173,6 +173,25 @@ type Clause struct {
 	// none.
 	Agent *string `toml:"agent"`
 
+	// Cwd names a directory, and the clause holds while the call was made from
+	// it or from anywhere inside it.
+	//
+	// **Containment, not comparison.** A session works in subdirectories of the
+	// tree it was started in, so an exact test would hold in the root and fail
+	// one level down, which is not a policy anybody means. It is compared by
+	// path components with symlinks resolved, by the same machinery and for the
+	// same reason as the blast radius: as text, `/home/x/proj` contains
+	// `/home/x/project`, and as directories neither contains the other.
+	//
+	// The value must be absolute. A relative one would be resolved against the
+	// working directory of whichever process asked, which has nothing to do
+	// with where the agent was started.
+	//
+	// A request carrying no cwd does not satisfy this clause, on the same
+	// reading as every other unanswerable clause: qwark's own ignorance is not
+	// grounds for an allow rule to match.
+	Cwd string `toml:"cwd"`
+
 	// Reading says which form of a word is tested: the interpreted value the
 	// shell will pass, or the source as written. Interpreted is the default,
 	// because testing what was written is what lets `/home/x/.cl\aude/y` past

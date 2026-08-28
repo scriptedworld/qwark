@@ -2,6 +2,7 @@ package rules
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/scriptedworld/qwark/internal/command"
 	"github.com/scriptedworld/qwark/internal/shell"
@@ -95,6 +96,15 @@ func (s *Set) validateClause(id string, position int, clause Clause) error {
 		}
 	}
 
+	// A relative directory is refused at load rather than declining at every
+	// command. A clause that can never hold reads exactly like one that is
+	// working, and this one would be scoping a policy, so the failure would be
+	// a rule silently applying nowhere or everywhere.
+	if clause.Cwd != "" && !filepath.IsAbs(clause.Cwd) {
+		return fmt.Errorf("%w: rule %s, clause %d: %q",
+			ErrRelativeCwd, id, position, clause.Cwd)
+	}
+
 	return s.validateVocabulary(id, position, clause)
 }
 
@@ -142,5 +152,6 @@ func (c Clause) selectsSomething() bool {
 		c.Option != "" ||
 		c.Kind != "" ||
 		c.Tag != "" ||
-		c.Agent != nil
+		c.Agent != nil ||
+		c.Cwd != ""
 }

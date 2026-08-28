@@ -97,3 +97,46 @@ rule establishes a condition with a lifetime, and other rules name that conditio
 in a clause without knowing how it came to hold. It costs more than the rest,
 being the only shape whose answer depends on anything beyond the command in front
 of it.
+
+### 6. Refused everywhere except where it belongs
+
+The scoping shape, and it is written **inside the deny rule**, never as an allow
+beside it:
+
+    [[rule]]
+    id     = "no-go-execution-outside-its-own-tree"
+    action = "deny"
+
+      [[rule.clause]]
+      index = "0"
+      value = "go"
+
+      [[rule.clause]]
+      index = "1"
+      group = "go-executes"
+
+      [[rule.clause]]
+      cwd    = "/home/ancient/.projects/qwark"
+      absent = true
+
+**The reflex is to write a scoped allow, and it does not work.** There is no
+overridable deny in this engine: the strictest action wins, so an allow naming a
+directory cannot lift a deny that already fired. Adding one leaves both rules
+live and the command refused, which reads as the clause being broken.
+
+So the exception goes where shape 3 puts every exception, in the rule it
+modifies, and for the same reason: a reader of the deny rule sees the whole of
+it. Measured 2026-08-28, judging a probe under `.ephemera/` with the scoped
+rules alongside the originals; the originals fired and the scope looked inert.
+
+The same holds for the agent clause, which shares the shape. What differs is
+what the two are good for: `agent` names a role a dispatcher assigned, and `cwd`
+names a tree, so a policy that varies by repository has only one of them to be
+written with.
+
+**An inverted clause in a deny rule is the safe direction, and it is worth
+saying why.** Inversion is satisfied by absence, including absence qwark caused
+by not understanding something. Here that means a request whose directory could
+not be established does not satisfy `cwd`, so `absent = true` holds, so the
+denial stands. The rule fails closed on ignorance, which is what a deny rule
+must do and what the same clause in an allow rule would not.

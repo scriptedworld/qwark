@@ -17,6 +17,17 @@ type Context struct {
 	// call. It comes from the payload rather than the environment because the
 	// subject can reach an environment variable and cannot set this.
 	Agent string
+
+	// Cwd is the directory the call was made from, as the payload reported it
+	// (FR-10.1). Same trust model as Agent and for the same reason: it is
+	// payload rather than environment, so the subject cannot set it.
+	//
+	// It partitions policy on the axis that actually varies. Scoping by agent
+	// alone gives ten sessions of one type in ten repositories a single policy,
+	// while the limits wanted here are contextual by repository: a tree
+	// mid-rebuild and a tree under a freeze are the same `agent_type` and want
+	// different answers.
+	Cwd string
 }
 
 // A Finding is one rule that applied, with what it said and what set it off.
@@ -106,6 +117,7 @@ func (s *Set) Evaluate(parsed *shell.Parsed, ctx Context) Outcome {
 		options: options,
 		tags:    ctx.Tags,
 		agent:   ctx.Agent,
+		cwd:     ctx.Cwd,
 		groups:  s.Groups,
 	})
 

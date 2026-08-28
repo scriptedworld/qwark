@@ -76,7 +76,10 @@ func Judged(set *rules.Set) Judge {
 				[]string{"(engine) unparseable"}
 		}
 
-		outcome := set.Evaluate(parsed, rules.Context{Agent: request.AgentType})
+		outcome := set.Evaluate(parsed, rules.Context{
+			Agent: request.AgentType,
+			Cwd:   request.Cwd,
+		})
 		return decisionOf(outcome.Action), explain(outcome), named(outcome)
 	}
 }
