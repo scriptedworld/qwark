@@ -109,6 +109,19 @@ func (s *Set) Evaluate(parsed *shell.Parsed, ctx Context) Outcome {
 		groups:  s.Groups,
 	})
 
+	return settle(s.declarationsHold(out, simple, options, undeclared))
+}
+
+// declarationsHold applies the two declaration switches to a verdict the rules
+// have already reached.
+//
+// Both refuse for the same underlying reason, that qwark cannot account for
+// what the command was told to do, and both are applied after the rules rather
+// than before so that a refusal names everything that was wrong instead of one
+// thing that was.
+func (s *Set) declarationsHold(
+	out Outcome, simple command.Simple, options command.Options, undeclared error,
+) Outcome {
 	// A rule set may say it does not require declarations, which is what makes
 	// a structural-only phase possible: FR-4.16 arrives before shape decides
 	// anything, so requiring it means refusing every command rather than
@@ -142,7 +155,7 @@ func (s *Set) Evaluate(parsed *shell.Parsed, ctx Context) Outcome {
 		}
 	}
 
-	return settle(out)
+	return out
 }
 
 // unaccounted turns each fault decomposition recorded into a finding of its
