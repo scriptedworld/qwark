@@ -142,11 +142,26 @@ qwark passes it at **108 of 108**, with 19 open and exempt.
 
 ## What is not done
 
-`NEXT_STEPS.md` carries the detail. In short: **qwark has never gated a live
-session.** The hook is registered in `.claude/settings.local.json` and has never
-been active; whether arming it needs a restart or an approval is unestablished.
+`NEXT_STEPS.md` carries the detail.
 
-**Arming it makes this repository nearly unusable, by design.** Under the shipped
-rules `git status` and `git log` are allowed, and `ls`, `cat`, `grep`, `go build`,
-`git add` and `git commit` are denied. Getting out again needs no Bash: delete the
-`hooks` key from `.claude/settings.local.json` with the Edit tool.
+**qwark has gated a live session, and the result is recorded rather than
+predicted.** 2026-08-28: the hook registered in `.claude/settings.local.json`
+was active for a whole session in this tree. Under the shipped rules `git status`
+and `git log` ran; `ls`, `cat`, `find`, `grep`, `go`, `bolt`, `qwark` itself,
+`git add -N` and `git commit -F` were all refused, most of them at
+`declared commands only` because `git` is the one declared command.
+
+**Arming it makes this repository nearly unusable, by design, and that is now
+measured rather than expected.** A session cannot build qwark, test it, run the
+gate, list a directory, or commit. It also cannot run `qwark judge`, which is
+this project's own way of trying a rule before trusting it.
+
+**Two properties of the registration, both measured that day.** A change to an
+existing hook takes effect on the very next command, with no restart. And
+`permissions.deny` naming `settings.local.json` itself removes the documented
+escape from anything but a person: deleting the `hooks` key with the Edit tool
+stops being available to the session that needs it.
+
+Getting out needs no Bash and no root: move `.claude/settings.local.json` aside,
+which is a person's command when the gate is wedged and the session's own Edit
+otherwise.

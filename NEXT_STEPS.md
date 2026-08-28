@@ -172,8 +172,20 @@ not need the thing just taken away. A tool qwark does not model is refused rathe
 than waved through, so a matcher wide enough to send Write here blocks loudly
 instead of judging nothing while looking installed.
 
-**Not yet installed.** `qwark` is not on `PATH` as a gate and `settings.json`
-carries no hook entry, so nothing is gated yet.
+**Installed, and it has gated a live session.** `qwark` is on `PATH` at
+`/usr/local/bin/qwark`, and `.claude/settings.local.json` registers
+`qwark hook /etc/qwark/rules || exit 2` on `PreToolUse` for Bash. It gated a
+whole session in this tree on 2026-08-28, refusing `ls`, `cat`, `grep`, `go`,
+`bolt`, `qwark` itself and both mandated commit forms, while allowing
+`git status` and `git log`.
+
+**The registration is parked right now**, at `.ephemera/settings.local.json.wedged`,
+so this tree is ungated. `START_HERE.md` says why and what restores it.
+
+**`/usr/local/bin/qwark` is root-owned and stale.** It still contains the
+ownership check retired in `fa9c9cd`. `bin/qwark` is user-owned and current, and
+the no-root direction means the hook should name that instead. Filed at
+`clank/inbox/qwark/binary-is-installed-to-a-root-path`.
 
 **Two limits to know before relying on it.** Two *main sessions* are
 indistinguishable: if writer and runner are both top-level launches, no clause
@@ -280,9 +292,25 @@ layers**.
 
 ## Known limits, written down so they are not rediscovered
 
+- **The `[shell]` policy is parsed and never consulted.** `ShellPolicy.Verify`
+  is defined at `internal/rules/shell.go:78` and called from nothing but
+  `shell_test.go`, and no code reads `SHELL` from the environment. So FR-1.5,
+  FR-1.7, FR-1.8, FR-1.9 and FR-1.10 describe a check with no caller, while
+  `00-structure.toml` declares `allow = ["/bin/bash", "/usr/bin/bash"]` and
+  reads as though bash were enforced. Confirmed 2026-08-28. Filed at
+  `clank/inbox/qwark/shell-policy-is-parsed-and-never-consulted`, which also
+  measures that the Bash tool's shell is zsh carrying the user's aliases.
+- **The observation phase is blocked on FR-4.16 being enforced in the engine.**
+  `internal/rules/evaluate.go:112-120` denies an undeclared command
+  unconditionally, so a rule set that omits declarations denies everything
+  rather than judging by shape alone. Suspending it needs a code change and a
+  ruling, both open.
 - **qwark gates Bash only.** The Write and Edit tools reach the rule files, the
   shell snapshot, `.git/hooks` and `settings.json` without passing through it.
-  Every class-three rule needs a `permissions.deny` twin plus ownership.
+  Every class-three rule needs a `permissions.deny` twin. **A twin naming
+  `settings.local.json` itself removes the escape hatch from the session**, so
+  the documented way out, deleting the `hooks` key with the Edit tool, stops
+  being available to anyone but a person. Measured 2026-08-28.
 - **A coding agent that can write files and run its tests has arbitrary
   execution** regardless of qwark. `go test` runs code the agent just wrote. What
   qwark constrains is what is typed, not what the typed thing executes.
