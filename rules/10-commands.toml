@@ -364,9 +364,9 @@ this tree, including code written moments ago. `go build` and `go vet` do not.""
   index = "1"
   group = "go-executes"
 
-# The five git denials. Each names one class and states that class's reason, so
-# a command in more than one is refused with each reason given, which is what
-# tells its author whether a different spelling would help. It would not.
+# The six git denials by class. Each names one class and states that class's
+# reason, so a command in more than one is refused with each reason given, which
+# is what tells its author whether a different spelling would help. It would not.
 
 [[rule]]
 id     = "no-git-hook-running"

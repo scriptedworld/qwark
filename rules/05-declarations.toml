@@ -142,6 +142,17 @@ operands = "text"
   # The long form is declared beside it so `--file=` is available and unambiguous.
   short.F = { means = "message-file", takes_value = true, kind = "path" }
 
+  # Declared so it can be REFUSED BY NAME. `no-skipping-hooks` in
+  # 30-options.toml carries the reason `--no-verify` is not available, and an
+  # option no declaration mentions never reaches it: the accounted check refuses
+  # the word one step earlier, saying only that it is unaccounted for. Both
+  # spellings deny, so this changes no verdict; what it changes is whether the
+  # person who tried it is told that the hooks are the point.
+  #
+  # This is shape 3's failure mode, in the pattern file: a rule about an option
+  # is only honest when the option is declared.
+  long.no-verify = { means = "no-verify" }
+
 # ============================================================================
 # go
 # ============================================================================

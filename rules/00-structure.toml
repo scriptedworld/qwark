@@ -47,6 +47,17 @@
 #                             session that silently became a rule for everybody
 #                             would hand out permission nobody granted.
 #
+#   cwd = "/srv/project"      the call was made from this directory OR FROM
+#                             ANYWHERE INSIDE IT. Containment by path
+#                             component with symlinks resolved, not a prefix
+#                             of the text: a session works below the root it
+#                             started in, and `/srv/proj` is a prefix of
+#                             `/srv/project` while neither contains the other.
+#                             Payload, like `agent`, so the subject cannot set
+#                             it. The value must be absolute; a relative one is
+#                             refused at load. A request carrying no cwd does
+#                             not satisfy the clause.
+#
 #   value / partial / pattern   the whole word / anywhere within / a regex over
 #                               the whole word (anchored)
 #   reading = "interpreted"     what the shell will pass (DEFAULT)
