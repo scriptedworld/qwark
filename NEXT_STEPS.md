@@ -231,7 +231,7 @@ is the second and not a replacement. It matters for what to invest in now:
   its meaning in the `justfile`. Either the proxy owns the recipe, or the manifest
   keeps it out of the agent's write surface.
 
-## Two contradictions inside the rule set
+## Three contradictions inside the rule set
 
 1. **`commit-must-be-signed` fires on a signed commit.** `--gpg-sign` is not
    declared, so the `absent = true` clause holds and the rule tells somebody who
@@ -250,6 +250,65 @@ is the second and not a replacement. It matters for what to invest in now:
    history-rewriting, which made `no-deleting-after-a-rebase`'s own instruction
    impossible to follow. The word is allowed, and `expire`, `delete` and `drop`
    are denied at ordinal 2.
+3. **`no-touching-qwark` guards two paths that hold nothing, and neither of the
+   two that hold everything.** `group.qwark-control` names `/etc/qwark/` and
+   `/var/lib/qwark/`. The first is abandoned and the second does not exist. The
+   live rule set is at `~/.config/qwark/rules` and the decision log at
+   `~/.local/state/qwark/`, and `match = "partial"` compares fragments, so
+   nothing covers them. Judged against `rules/`, `cp` over `00-structure.toml`
+   and `rm` of `decisions.jsonl` are both **allow**, while `ls /etc/qwark/rules`
+   is refused.
+
+   The group was written when `/etc/qwark/rules` was the install target;
+   `gate/30-install-to-a-user-owned-path` moved the set and left the guard
+   pointing at the old address. This is the third of the three things FR-4.17's
+   retirement leaned on, after the `permissions.deny` twin, that was assumed to
+   hold and does not.
+
+   Not applied here: hard rule 4a wants a person to agree a rule change in words
+   first. Written up with the measurement and a repro in
+   `clank/tasks/qwark/rules/40-the-path-group-guards-dead-paths.ready/`.
+
+## What installing the source set costs, measured
+
+The structural-only phase is being validated in live sessions now. The question
+for the phase after it is whether a session can still do the work, and it is
+answered rather than predicted.
+
+FACT 2026-08-28. 84 unique commands, judged against both sets with `bin/qwark`
+built from `18e4f8a`: every command in the live decision log, plus a floor of
+what this repository cannot be worked in without. Live allows 79 of 84, source
+allows 70. `.ephemera/can-work-continue.py` regenerates it; the results are kept
+in `clank/tasks/qwark/rules/40-the-path-group-guards-dead-paths.ready/evidence/`.
+
+**Nine commands are allowed today and refused by the source set. Four of them
+are how qwark gets built and gated:**
+
+    go test ./...                no-go-execution   compiles and runs this tree
+    bolt -c bolt.qwark.yaml      no-executors      runs a recipe from the tree
+    python3 <script>             no-interpreters   runs code given as an argument
+    sed -n 1,40p FILE            no-interpreters   same class, though this reads
+
+Each denial is correct about the general case and each stops the project
+developing itself. `78e0410` built the declaration table, and it does not help:
+these are deny rules, which fire whatever is declared. So the gap is not
+declaration coverage, and no amount of it closes this.
+
+The remaining five are wanted, or nearly. `rm -rf` and reaching a PATH directory
+are deliberate. `ls` on the rules directory is the guard in contradiction 3,
+firing on the dead path, and `CLAUDE.md` rule 4a explicitly permits reading
+either copy, so refusing a read is over-broad even once the group is corrected.
+
+**The mechanism that would resolve it already has a task.**
+`rules/30-a-clause-for-the-working-directory.planning` adds a clause selecting
+on `cwd`, which arrives in the payload on the same footing as `agent_type` and
+which the subject cannot set. With it, `go test` and `bolt` stay refused
+everywhere and are permitted inside this tree. Without it the choices are worse:
+weaken the rule for every repository, or accept that the tree cannot build
+itself under its own gate.
+
+**This is the decision the next phase waits on**, and it is a rules change, so
+it wants an answer in words before anything is written.
 
 ## Waiting on an answer
 
@@ -318,17 +377,44 @@ layers**.
   reads as though bash were enforced. Confirmed 2026-08-28. Filed at
   `clank/inbox/qwark/shell-policy-is-parsed-and-never-consulted`, which also
   measures that the Bash tool's shell is zsh carrying the user's aliases.
-- **The observation phase is blocked on FR-4.16 being enforced in the engine.**
-  `internal/rules/evaluate.go:112-120` denies an undeclared command
-  unconditionally, so a rule set that omits declarations denies everything
-  rather than judging by shape alone. Suspending it needs a code change and a
-  ruling, both open.
+- **The observation phase is running.** It was blocked on FR-4.16: the engine
+  denied an undeclared command unconditionally, so a rule set omitting
+  declarations denied everything rather than judging by shape. `f39b70b` settled
+  that the enforcement stays and gave it a switch, and the live `06-allow.toml`
+  sets `required = false`. Measured 2026-08-28: against the live set `ls -la`,
+  `cat`, `grep`, `go build` and `git commit -F` all run, and only shape is
+  refused.
 - **qwark gates Bash only.** The Write and Edit tools reach the rule files, the
   shell snapshot, `.git/hooks` and `settings.json` without passing through it.
   Every class-three rule needs a `permissions.deny` twin. **A twin naming
   `settings.local.json` itself removes the escape hatch from the session**, so
   the documented way out, deleting the `hooks` key with the Edit tool, stops
   being available to anyone but a person. Measured 2026-08-28.
+
+  **The twin is written and does not hold.** `.claude/settings.local.json`
+  carries four `deny` entries covering `Write` and `Edit` on the live rules and
+  on the registration itself. Measured 2026-08-28: `rm` through Bash and `Write`
+  through the tool both reached `~/.config/qwark/rules` past them. So the
+  property FR-4.17 dropped is carried by neither the twin nor, until
+  contradiction 3 is fixed, by qwark's own path group. **Nothing mechanical
+  protects the live rules today**, and hard rule 4a, an instruction to an agent,
+  is the whole of it.
+
+- **No drift check runs.** The live set and the source set are two copies with
+  nothing comparing them, and the figure in `CLAUDE.md` describing them has gone
+  stale twice. There is no `qwark verify` subcommand; `qwark --help` lists `ast`,
+  `facts`, `rules`, `judge` and `hook`. A gate that cannot check its own
+  deployment is the candidate this wants, and the earlier objection that `diff`
+  and `sha256sum` were themselves refused no longer applies: both run under the
+  live set.
+- **The registration is project-scoped, so looking for it at user scope finds
+  nothing.** It lives in `qwark/.claude/settings.local.json` and gates sessions
+  in this tree only. `~/.claude/settings.json` symlinks into silo and holds
+  `SessionStart` and `SessionEnd` and no `PreToolUse`, which is correct rather
+  than a fault: no Bash command **outside this repository** is judged, and that
+  is the phase. An inbox entry filed 2026-08-28 read the user-scope file and
+  concluded qwark had never been registered anywhere. Check both scopes.
+
 - **A coding agent that can write files and run its tests has arbitrary
   execution** regardless of qwark. `go test` runs code the agent just wrote. What
   qwark constrains is what is typed, not what the typed thing executes.
