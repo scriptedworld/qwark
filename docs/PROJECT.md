@@ -38,8 +38,10 @@ other project, and it gates the agent doing the work rather than the work itself
     internal/cli/       ast, facts, rules, judge, hook
     internal/reach/     blast-radius containment
     internal/repo/      which branch is checked out, without running git
+    internal/audit/     the decision log, one JSON object per line
     rules/              the shipped rule set, in five files plus declarations
     install/            the settings fragment that registers the hook
+    scripts/            what the gate needs and a jig cannot carry generically
     docs/               this file, and one file per decision, lesson, pattern
 
 **`REQUIREMENTS.md` and `SUPPRESSIONS` are deliberately single files at the root,
@@ -47,39 +49,42 @@ and not directories.** *The split is pending* below says why.
 
 ## The gate
 
-    bolt -c bolt.common-quality.yaml -c bolt.go-std-quality.yaml -c bolt.qwark.yaml
+    bolt --definitions go-std-quality go-std-quality .
+    bolt common-quality .
 
-**Read `run_result.yaml` in the stamped run directory. Never the exit status.**
-bolt has exited **0** on a run whose artifact said `success: false`.
+**Read `result.yaml` in the stamped run directory. Never the exit status.** bolt
+has exited **0** on a run whose artifact said `success: false`, and it exits 1
+when it could not carry the run out at all, which is a different claim from a
+check having failed.
 
-**That command currently FAILS, and not because of anything in qwark.** `coverage`
-reports `below_minimum: 1` because `entrypoint` now runs *after* it:
+Both pass, 2026-08-28: `success: true` in each artifact, 7 tasks and 3.
 
-    linked jigs   … 09_tests  10_coverage  11_vuln  12_entrypoint
-    bolt's old    … 09_tests  10_entrypoint  11_coverage  12_vuln
+**The composition is one jig per run, not an overlay.** `bolt -c a -c b` is gone
+with the rebuild; the current CLI is `bolt <jig> <directory>`, and flags come
+before the positionals. How the two quality jigs should compose is unsettled and
+tracked in `clank/tasks/toolbox/port-the-jigs/10`.
 
-`entrypoint` appends `cmd/qwark/main.go`'s profile to `coverage.out`, which only
-helps if it runs first. The shared jig removed it correctly, since it names a
-project's own main package, and an overlay's tasks are appended last, so no
-adopter can put it back in place. bolt's FR-2.9 pins execution to declaration
-order, and there is no ordering key to override that with.
+**`bolt.qwark.yaml` has not been ported to the new schema** and is therefore not
+run. `bolt qwark .` fails wrench validation: `/version` is a number where a
+string is wanted, and its first task has no `name`. What the overlay carried is
+either in the shared jig now or in the definitions file below, so nothing is
+being skipped silently, but the file is dead as it stands.
 
-**Filed as `clank/inbox/toolbox/entrypoint-runs-after-coverage/`**, with the
-evidence and a repro. The ruling on it: *"entrypoint should be part of the
-standard for go projects … if it's my project, it will follow that pattern, and
-therefore need that test."* So it goes back into the shared jig, written
-generically: `go list ./cmd/...` returns one package in every Go project here and
-its basename is the binary name.
+**`main()` is measured, not excluded.** Hard rule 5. The shared jig leaves an
+`entrypoint` placeholder defaulting to `true`; qwark fills it from
+`bolt.go-std-quality.definitions.yaml` with `scripts/cover-entrypoint.sh`, which
+builds with `go build -cover`, runs `qwark help`, and converts the profile for
+the adapter to merge. A placeholder is one argument and is shell-quoted, which
+is why the chain lives in a script and not in the value.
 
-**When that lands, delete the `entrypoint` task from `bolt.qwark.yaml`.**
+`bolt secrets .` **fails and never passed here**: `detect-secrets` wants a
+`.secrets.baseline` this repository has never had. Creating one records the
+current findings as accepted, which is suppression-shaped, so it waits on a
+ruling rather than being generated.
 
-Until then the older invocation still passes, and measures the pre-split checkers:
-
-    bolt -c ../bolt/bolt.go-std-quality.yaml -c bolt.qwark.yaml    # 12/12, older rules
-
-Against the linked jigs: 11 of 12 tasks pass; coverage 94.2% with one file under
-the floor for the reason above; 207 tests carrying a `COVERS` line; 127
-requirements of which 19 have no test, and all 19 are `[?]`.
+Measured 2026-08-28 from the passing runs: 129 requirement rows, every one held
+to coverage has a test at **109 of 109**, and 17 open questions are exempt.
+Every test cites a requirement the document defines.
 
 ### Adopter status
 
@@ -155,6 +160,14 @@ and `git log` ran; `ls`, `cat`, `find`, `grep`, `go`, `bolt`, `qwark` itself,
 measured rather than expected.** A session cannot build qwark, test it, run the
 gate, list a directory, or commit. It also cannot run `qwark judge`, which is
 this project's own way of trying a rule before trusting it.
+
+**The live set is now two files of shape only, and the tree is workable.** That
+was `78e0410`'s declaration table plus `required = false`; a session commits,
+builds and runs the gate, and only compound shapes are refused. What the full
+set would still cost is measured in `NEXT_STEPS.md` under *What installing the
+source set costs*: nine commands lost, four of them how qwark is built and
+gated. Those four are deny rules, which no amount of declaration reaches, and
+the `cwd` clause is the mechanism that resolves it.
 
 **Two properties of the registration, both measured that day.** A change to an
 existing hook takes effect on the very next command, with no restart. And
