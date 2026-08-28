@@ -1,0 +1,18 @@
+# qwark's values for the placeholders in bolt.go-std-quality.yaml.
+#
+# The file is a flat mapping of placeholder name to scalar value. There is no
+# `definitions:` wrapper here: the jig has one because the block sits inside a
+# larger document, and this document is nothing else.
+#
+# One entry, and it exists because of hard rule 5: a coverage failure is never
+# settled by excluding the file. `cmd/qwark/main.go` holds one statement that no
+# test process can reach, and the shared jig leaves a slot for measuring it
+# rather than a rule for how, because every project's binary and its smallest
+# safe invocation are different.
+#
+# A placeholder is ONE ARGUMENT and is shell-quoted, so this names a program and
+# never a command line. The build-and-run chain lives in the script.
+#
+# The path is relative to the base rather than to {config_dir}, because the
+# script belongs to this project and not to the shared definition it fills in.
+entrypoint: scripts/cover-entrypoint.sh
