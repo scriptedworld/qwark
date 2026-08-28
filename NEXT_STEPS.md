@@ -299,16 +299,25 @@ are deliberate. `ls` on the rules directory is the guard in contradiction 3,
 firing on the dead path, and `CLAUDE.md` rule 4a explicitly permits reading
 either copy, so refusing a read is over-broad even once the group is corrected.
 
-**The mechanism that would resolve it already has a task.**
-`rules/30-a-clause-for-the-working-directory.planning` adds a clause selecting
-on `cwd`, which arrives in the payload on the same footing as `agent_type` and
-which the subject cannot set. With it, `go test` and `bolt` stay refused
-everywhere and are permitted inside this tree. Without it the choices are worse:
-weaken the rule for every repository, or accept that the tree cannot build
-itself under its own gate.
+**The mechanism is built.** `a85b1b9` adds a clause selecting on `cwd`, which
+arrives in the payload on the same footing as `agent_type` and which the subject
+cannot set. `go test` and `bolt` can stay refused everywhere and run inside this
+tree. Measured against a probe: allow at the root, allow in a subdirectory, deny
+from another repository, deny from a neighbour whose name shares a prefix, and
+deny when the request carries no directory at all.
 
-**This is the decision the next phase waits on**, and it is a rules change, so
-it wants an answer in words before anything is written.
+**Writing the scope is not what the reflex suggests.** There is no overridable
+deny, so a scoped allow beside the existing deny leaves both live and the
+command refused. The scope goes inside the deny rule as an inverted `cwd`
+clause, which also fails closed. Shape 6 in
+`docs/PATTERNS/the-mechanicals-the-shapes-a-rule-can-be-written-in.md`.
+
+**What is left is the policy, and it is a rules change.** Which denials become
+tree-scoped, and to which trees, wants an answer in words before anything is
+written. The four that block this repository are the obvious first set:
+`no-go-execution`, `no-executors`, and `no-interpreters` for `python3` and for
+`sed`. The last is worth separating: `sed -n 1,40p FILE` reads a file and is
+caught by a rule about running code supplied as an argument.
 
 ## Waiting on an answer
 
