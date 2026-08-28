@@ -292,6 +292,24 @@ layers**.
 
 ## Known limits, written down so they are not rediscovered
 
+- **FR-4.18 has a live instance, and it was found by being bitten.** That
+  requirement says using a name the shell may resolve to something other than
+  the intended program is refused, and notes that a backslash suppresses alias
+  expansion but not a shell function. Measured 2026-08-28 on this machine:
+
+      \grep -n   "THE GATE IS ARMED" qwark/START_HERE.md   ->  line 8
+      \grep -rln "THE GATE IS ARMED" qwark/                 ->  no match
+
+  Same binary, same string, same file. Recursive `grep` silently skips
+  gitignored files, so `START_HERE.md` and everything under `.ephemera/` are
+  invisible to it, and the backslash does not restore the real binary. It
+  produced a false clean on a real check: a recursive search reported no dead
+  clank SHAs in this repository while `START_HERE.md` held three.
+
+  FR-4.18 is `[?]` and carries no test. This is the evidence that it is worth
+  building rather than deferring, and it is also a caution about qwark's own
+  measurements: any finding here derived from a recursive `grep` has a blind
+  spot the size of the gitignore.
 - **The `[shell]` policy is parsed and never consulted.** `ShellPolicy.Verify`
   is defined at `internal/rules/shell.go:78` and called from nothing but
   `shell_test.go`, and no code reads `SHELL` from the environment. So FR-1.5,
