@@ -30,9 +30,34 @@ import (
 // and there is no store to put them in, so honouring some of the machinery and
 // not the rest would make the half that works look like the whole of it.
 func Decider(set *rules.Set) hook.Decider {
+	judged := Judged(set)
+
 	return func(request hook.Request) (hook.Decision, string) {
+		decision, reason, _ := judged(request)
+		return decision, reason
+	}
+}
+
+// A Judge answers like a Decider and also names the rules that produced the
+// answer.
+type Judge func(hook.Request) (hook.Decision, string, []string)
+
+// Judged is Decider with the rule names kept.
+//
+// The reason string is written for a model to read and is deliberately prose.
+// The names are for the record: an entry in the log saying a command was denied
+// without saying which rule did it cannot be counted, grouped, or compared
+// against the same command under a different rule set, which is the whole
+// purpose of writing it down.
+//
+// The engine's own refusals are named here too, as `(engine) …`, because a
+// refusal for being unparseable or for naming a tool qwark does not model is
+// still a decision somebody will want to count.
+func Judged(set *rules.Set) Judge {
+	return func(request hook.Request) (hook.Decision, string, []string) {
 		if request.ToolName != hook.ToolBash {
-			return hook.DecisionDeny, wrongTool(request.ToolName)
+			return hook.DecisionDeny, wrongTool(request.ToolName),
+				[]string{"(engine) tool not modelled"}
 		}
 
 		call, err := request.Bash()
@@ -40,11 +65,29 @@ func Decider(set *rules.Set) hook.Decider {
 			// The payload named Bash and did not carry a Bash call. Reading
 			// that as an empty command would judge something nobody sent.
 			return hook.DecisionDeny, fmt.Sprintf(
-				"qwark could not read the Bash call it was asked about:\n  %v", err)
+				"qwark could not read the Bash call it was asked about:\n  %v", err),
+				[]string{"(engine) unreadable payload"}
 		}
 
-		return Verdict(set, call.Command, request.AgentType)
+		parsed, err := shell.Parse(call.Command)
+		if err != nil {
+			return hook.DecisionDeny, fmt.Sprintf(
+				"qwark could not parse this command, so it cannot judge it:\n  %v", err),
+				[]string{"(engine) unparseable"}
+		}
+
+		outcome := set.Evaluate(parsed, rules.Context{Agent: request.AgentType})
+		return decisionOf(outcome.Action), explain(outcome), named(outcome)
 	}
+}
+
+// named lists the rules behind a verdict, in the order they were collected.
+func named(outcome rules.Outcome) []string {
+	names := make([]string, 0, len(outcome.Findings))
+	for _, finding := range outcome.Findings {
+		names = append(names, finding.Rule)
+	}
+	return names
 }
 
 // Verdict judges one command as one agent, and says why.

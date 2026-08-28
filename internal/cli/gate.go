@@ -3,7 +3,9 @@ package cli
 import (
 	"fmt"
 	"io"
+	"time"
 
+	"github.com/scriptedworld/qwark/internal/audit"
 	"github.com/scriptedworld/qwark/internal/gate"
 	"github.com/scriptedworld/qwark/internal/hook"
 	"github.com/scriptedworld/qwark/internal/rules"
@@ -33,7 +35,55 @@ func runHook(paths []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return hook.Run(stdin, stdout, stderr, refusing(refusals))
 	}
 
-	return hook.Run(stdin, stdout, stderr, gate.Decider(set))
+	log, err := audit.To(audit.DefaultPath())
+	if err != nil {
+		// A gate that cannot open its log still judges. Refusing here would
+		// make an unwritable directory a way to stop every command, and the
+		// verdict is not less correct for going unrecorded.
+		_, _ = fmt.Fprintf(stderr, "qwark could not open its log: %v\n", err)
+	}
+	defer func() { _ = log.Close() }()
+
+	return hook.Run(stdin, stdout, stderr, recording(log, set, stderr))
+}
+
+// recording wraps a decider so every judgement is written down.
+//
+// **The decision is made first and recorded second, and the recording cannot
+// change it.** A failed write is reported on stderr and the verdict stands. The
+// alternative, refusing when the log is unwritable, would turn a full disk into
+// an estate-wide outage and make the audit trail the way to stop the machine.
+//
+// That is the permissive direction and it is a real hole: somebody who can fill
+// the disk can stop the recording without stopping the commands. Closing it
+// needs a writer the subject is not, which is the same answer the leaking-bucket
+// note reaches for tag state, and it arrives with the proxy rather than here.
+func recording(log *audit.Recorder, set *rules.Set, errOut io.Writer) hook.Decider {
+	judged := gate.Judged(set)
+
+	return func(request hook.Request) (hook.Decision, string) {
+		decision, reason, fired := judged(request)
+
+		entry := audit.Entry{
+			At:        time.Now(),
+			RuleSet:   set.Digest,
+			Decision:  string(decision),
+			Tool:      request.ToolName,
+			Rules:     fired,
+			Agent:     request.AgentType,
+			Cwd:       request.Cwd,
+			SessionID: request.SessionID,
+		}
+		if call, err := request.Bash(); err == nil {
+			entry.Command = call.Command
+		}
+
+		if err := log.Record(entry); err != nil {
+			_, _ = fmt.Fprintf(errOut, "qwark could not record its decision: %v\n", err)
+		}
+
+		return decision, reason
+	}
 }
 
 // preflight settles whether this rule set can be believed, before any command

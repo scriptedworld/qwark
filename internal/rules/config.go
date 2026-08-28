@@ -12,6 +12,11 @@ type File struct {
 	// rather than a rule because it does not depend on the command.
 	Shell *ShellPolicy `toml:"shell"`
 
+	// Declarations says whether a command must be described before it may run.
+	// Absent means yes, which is FR-4.16 and the default this project is built
+	// around: when qwark cannot account for something, it refuses.
+	Declarations *DeclarationPolicy `toml:"declarations"`
+
 	// Group holds named sets a clause can test membership of.
 	Group map[string]Group `toml:"group"`
 

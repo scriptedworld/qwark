@@ -1,0 +1,103 @@
+# qwark, the structural phase: permission, and no requirement to be described.
+#
+# ############################################################################
+# THE STRUCTURAL PHASE IS THIS FILE AND `00-structure.toml`, AND NOTHING ELSE.
+#
+# `05-declarations.toml`, `10-commands.toml`, `20-paths.toml`, `30-options.toml`
+# and `40-state.toml` exist in the source tree and are deliberately NOT loaded.
+# They deny by command class, by path and by option, and those are later phases.
+# ############################################################################
+#
+# ----------------------------------------------------------------------------
+# TURNING OFF THE REQUIREMENT TO DECLARE, AND WHAT IT COSTS
+# ----------------------------------------------------------------------------
+#
+# FR-4.16 refuses a command qwark holds no declaration for, and it arrives
+# BEFORE shape decides anything. So a rule set of structural rules alone refuses
+# every command rather than judging the ones it understands. Measured
+# 2026-08-28: `00-structure.toml` plus a permissive allow rule answered
+# "(engine) declared commands only" to `ls`, `rm -rf` and `git add -N` alike.
+#
+# Declaring commands instead was tried and abandoned for a stated reason: it
+# refused roughly two thirds of what sessions actually run, before any
+# replacement for those commands existed, which stops the work rather than
+# shaping it.
+#
+# ############################################################################
+# WHAT THIS GIVES UP. Read it before assuming the gate is stronger than it is.
+#
+# ANY COMMAND WORD RUNS, if its shape is clean. That includes interpreters:
+#
+#     python3 -c '<any program>'
+#
+# is a single command with no redirection, substitution, pipe or glob, so
+# nothing here objects to it, and what it executes is invisible to every rule.
+# `sudo`, `curl`, `chmod`, `just`, `make` and every task runner are permitted on
+# the same terms.
+#
+# **This phase is observation, not containment.** The corpus figures describing
+# what qwark would refuse were measured against a rule set that refused
+# undeclared words, and they do not describe this one.
+#
+# The way back is to declare commands and then delete the `[declarations]` table
+# below. It is a single boolean with no middle ground on purpose: a partial
+# version, where some commands need declaring and others do not, is a list of
+# exceptions nobody can read as a policy.
+# ############################################################################
+
+# BOTH ARE SAID, AND BOTH ARE NEEDED, because the two refusals sit at different
+# levels. `required` covers the command word. `accounted` covers the options a
+# DECLARED command carries (FR-6.7). An undeclared command's options are never
+# decomposed, so while nothing is declared, `accounted` looks unnecessary and is
+# not: declare one command for any reason, including wanting to write a rule
+# about it later, and every option it carries starts being refused again.
+#
+# Saying both means this phase behaves the same whether or not a declaration
+# file happens to be loaded, rather than depending on an absence somebody
+# changes months from now for an unrelated reason.
+#
+# BOTH ARE FOR NOW. The way back is to declare commands with their option sets,
+# then delete this table. Deleting it restores FR-4.16 and FR-6.7 as written,
+# because absent means required.
+
+[declarations]
+required  = false
+accounted = false
+
+# ============================================================================
+# Permission
+# ============================================================================
+#
+# THIS RULE EXISTS TO SATISFY FR-4.22 AND NOTHING ELSE.
+#
+# Deny is the engine's default: a command is denied unless an allow rule matched
+# it. `00-structure.toml` carries only denials, so the structural rules alone
+# permit nothing, which is indistinguishable from a broken gate.
+#
+# WHAT IT DOES NOT DO. It does not weaken a structural denial: the strictest
+# action wins (FR-4.14), so anything that redirects, substitutes, pipes, globs,
+# backgrounds, or carries more than one statement is refused with this rule
+# having matched it. It does not reach a form with no word at ordinal 0, so
+# `((x=1))` and `let x=1` stay denied by its silence as well as by name.
+#
+# It does not survive the phase. A rule that permits on the strength of a
+# command merely having a name is right while the gate is observing what real
+# use looks like, and wrong afterwards. Delete it rather than narrowing it.
+#
+# AN `allow` VERDICT REPLACES THE NORMAL PERMISSION FLOW rather than passing to
+# it, so the prompt Claude Code would otherwise raise does not appear. A
+# structurally clean command runs unprompted, `rm -rf <path>` among them,
+# because no option rule is loaded. The ruling that `rm -f`, `-r` and `-rf` are
+# refused lives in `30-options.toml` and returns with that file.
+
+[[rule]]
+id     = "allow-a-single-plain-command"
+action = "allow"
+reason = """
+A command whose effect is fixed by its own text is permitted while the gate is
+observing. Everything else here denies by shape; nothing judges what the
+command is, and that is the phase rather than the design."""
+
+  [[rule.clause]]
+  index   = "0"
+  pattern = ".*"

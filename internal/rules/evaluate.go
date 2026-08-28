@@ -109,7 +109,13 @@ func (s *Set) Evaluate(parsed *shell.Parsed, ctx Context) Outcome {
 		groups:  s.Groups,
 	})
 
-	if undeclared != nil {
+	// A rule set may say it does not require declarations, which is what makes
+	// a structural-only phase possible: FR-4.16 arrives before shape decides
+	// anything, so requiring it means refusing every command rather than
+	// judging the ones the structural rules understand. Absent, the answer is
+	// yes and FR-4.16 holds as written. See DeclarationPolicy for what turning
+	// it off gives up, which is more than it looks.
+	if undeclared != nil && s.required() {
 		out.Action = ActionDeny
 		out.Findings = append([]Finding{{
 			Rule:   ruleDeclared,
@@ -125,9 +131,15 @@ func (s *Set) Evaluate(parsed *shell.Parsed, ctx Context) Outcome {
 	// declared is exactly the case where qwark does not know what the command
 	// was told to do, which is the same ignorance that refuses an undeclared
 	// command one level up.
-	if faults := unaccounted(options); len(faults) > 0 {
-		out.Action = ActionDeny
-		out.Findings = append(faults, out.Findings...)
+	// Gated separately from the check above, because the two sit at different
+	// levels: an undeclared command's options are never decomposed, so turning
+	// off the declaration requirement does not reach this one. A phase that
+	// wants neither has to say so twice. See DeclarationPolicy.
+	if s.accounted() {
+		if faults := unaccounted(options); len(faults) > 0 {
+			out.Action = ActionDeny
+			out.Findings = append(faults, out.Findings...)
+		}
 	}
 
 	return settle(out)

@@ -55,7 +55,22 @@ const ruleFileSuffix = ".toml"
 // explicit deny rule outranks any declaration, so a file adding a command still
 // cannot run it past a deny stated elsewhere.
 type Set struct {
-	Shell    ShellPolicy
+	// Digest identifies this rule set by its content, so a decision recorded
+	// in the log says which policy produced it. A verdict is only comparable
+	// to another verdict made under the same rules, the way a measurement is
+	// only comparable within a tool version.
+	//
+	// It is computed over content and never over paths, so the same rules
+	// installed live and sitting in the repository hash the same. That makes it
+	// the drift check too: equal digests mean equal policy.
+	Digest string
+
+	Shell ShellPolicy
+
+	// Declarations says whether an undeclared command is refused. Nil means it
+	// is, which is FR-4.16 as written.
+	Declarations *DeclarationPolicy
+
 	Groups   map[string]Group
 	Commands map[string]command.Declaration
 	Rules    []Rule
@@ -84,7 +99,13 @@ func Load(paths []string) (*Set, error) {
 		return nil, fmt.Errorf("%w in %s", ErrNoRulesFound, strings.Join(paths, ", "))
 	}
 
+	digest, err := digestOf(files)
+	if err != nil {
+		return nil, err
+	}
+
 	set := &Set{
+		Digest:   digest,
 		Groups:   map[string]Group{},
 		Commands: map[string]command.Declaration{},
 		origin:   map[string]string{},
@@ -175,6 +196,17 @@ func (s *Set) merge(path string, file File) error {
 			return err
 		}
 		s.Shell = *file.Shell
+	}
+
+	// Claimed like any other definition, so two files cannot each say something
+	// about whether declarations are required and leave the answer depending on
+	// which was read last. Turning FR-4.16 off is the single widest change a
+	// rule file can make, and it must be traceable to one file that said so.
+	if file.Declarations != nil {
+		if err := s.claim(path, "declarations", "whether declarations are required"); err != nil {
+			return err
+		}
+		s.Declarations = file.Declarations
 	}
 
 	for name, group := range file.Group {

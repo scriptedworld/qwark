@@ -69,11 +69,21 @@ so the vocabulary has to be visible before a rule is written.
 *Derives from:* **The decision model**; **Rules are layered by cost**;
 **The strictest action wins**; **Tags have lifetimes**; **Configuration**.
 
-Twenty-five of this section's thirty-two requirements are built and tested.
-Seven are open: rules in cost order (FR-4.2), tag lifetime and its countdown
-(FR-4.7, FR-4.13), the three logging rules (FR-4.8, FR-4.9, FR-4.9a), and shell
+Twenty-seven of this section's thirty-three requirements are built and tested.
+Six are open: rules in cost order (FR-4.2), tag lifetime and its countdown
+(FR-4.7, FR-4.13), environment values in the log (FR-4.9, FR-4.9a), and shell
 name resolution (FR-4.18). Three more were retired on 2026-08-28 and are
 recorded at the end of this file.
+
+**FR-4.9 and FR-4.9a stay open for a reason worth stating.** The log records
+what bore on the decision, and today nothing from the process environment does:
+the verdict is reached from the command text, the agent type and the working
+directory, all of which arrive in the payload. The withholding machinery is
+specified and the entry format carries a place for it, so a variable recorded as
+present-but-withheld is already expressible; nothing populates it, because
+logging variables that changed no verdict would write secrets to disk for no
+gain. These close when something actually reads the environment, and the first
+candidate is the shell check of FR-1.8.
 
 | ID | Requirement | |
 |---|---|---|
@@ -84,10 +94,10 @@ recorded at the end of this file.
 | FR-4.5 | No Bash command is permitted while any rule file will not parse. A gate that turns permissive when its own configuration breaks reports success and guards nothing. | [A] |
 | FR-4.6 | A denial caused by an unreadable rule file names the file, the line and the text, and fixing it does not itself require Bash. | [A] |
 | FR-4.7 | A tag may outlive the command that set it, and decay after a stated number of further commands. | [?] |
-| FR-4.8 | Every command is logged, along with whatever detail of its environment bore on the decision. | [?] |
+| FR-4.8 | Every command is logged, along with whatever detail of its environment bore on the decision. One JSON object per line, appended and never truncated, because a log with earlier entries missing reads as a clean history and answers "what happened" confidently and wrongly. **A failure to record does not change a verdict**: the decision is made before it reaches the log, and refusing when the log is unwritable would turn a full disk into a way of stopping every command. That is the permissive direction, chosen deliberately and recorded as a hole rather than solved quietly, since somebody who can fill the disk can stop the recording without stopping the commands. | [A] |
 | FR-4.9 | Environment variable values are logged except where a rule file says not to. The declaration says what is **withheld**, not what is permitted, and a withheld variable is recorded as present-but-withheld and not omitted, so the log never implies a variable was absent. | [?] |
 | FR-4.9a | A value is also withheld when its **name matches a declared secret-shaped pattern**: token, secret, key, password, credential and the like. Naming variables one at a time fails open, because a credential added tomorrow is logged until somebody remembers it exists. Matching by shape catches the ones nobody thought of, which is the only kind that gets written to a durable file by accident. | [?] |
-| FR-4.9b | **Every log entry carries the identity of the rule set it was judged against**, as one digest over the set as loaded rather than a list per file. A decision is only comparable to another decision made under the same rules, the way a measurement is only comparable within a tool version, so an entry that cannot say which policy produced it cannot be read alongside one from any other day. One digest rather than per-file, because the verdict is made against all of the files together and a per-file list lengthens every entry without answering the question anybody asks of it. | [?] |
+| FR-4.9b | **Every log entry carries the identity of the rule set it was judged against**, as one digest over the set as loaded rather than a list per file. A decision is only comparable to another decision made under the same rules, the way a measurement is only comparable within a tool version, so an entry that cannot say which policy produced it cannot be read alongside one from any other day. One digest rather than per-file, because the verdict is made against all of the files together and a per-file list lengthens every entry without answering the question anybody asks of it. **It is computed over content and never over paths**, so the same rules installed live and sitting in the source tree hash identically. That makes the digest the drift check as well as the identifier: equal digests mean equal policy, whatever it is called and wherever it lives, which is the question two copies always raise and the one a path-inclusive digest could never answer. | [A/D] |
 | FR-4.10 | Writing code or a file through a here-document is refused. It is stated separately from the redirection ban because its reason is separate: such content was never a diff and leaves nothing to review. | [A] |
 | FR-4.11 | A rule is a set of clauses, and it applies only when all of them match. There is no disjunction inside a rule: alternatives go in separate rules, so each can be checked by reading it alone. | [A] |
 | FR-4.12 | A command that will not parse is denied, and the reason returned is the parser's own message. | [A] |
