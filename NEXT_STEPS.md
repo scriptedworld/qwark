@@ -423,6 +423,20 @@ layers**.
   protects the live rules today**, and hard rule 4a, an instruction to an agent,
   is the whole of it.
 
+  **The twin's replacement has a name, and it is not qwark.** `grim`, in
+  `repos.live.toml`: *"The mandatory tool proxy. Supplies the file tools and
+  gates each call against the manifest, where qwark judges Bash against the same
+  one. Neither is the other's backend, and both must read it or it binds
+  nothing."*
+
+  That last clause is the whole of why the twin fails and grim would not. A twin
+  is a **second list**, kept in step by hand, and this repository has now watched
+  three such lists drift off their subjects in a day. One manifest read by two
+  gates has no second list to keep in step. qwark's own decision file talks about
+  "the proxy" generically and never names grim or states the shared-manifest
+  property; it is stronger than what that file records, and the file should say
+  so.
+
 - **No drift check runs.** The live set and the source set are two copies with
   nothing comparing them, and the figure in `CLAUDE.md` describing them has gone
   stale twice. There is no `qwark verify` subcommand; `qwark --help` lists `ast`,
