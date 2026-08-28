@@ -64,11 +64,11 @@ with the rebuild; the current CLI is `bolt <jig> <directory>`, and flags come
 before the positionals. How the two quality jigs should compose is unsettled and
 tracked in `clank/tasks/toolbox/port-the-jigs/10`.
 
-**`bolt.qwark.yaml` has not been ported to the new schema** and is therefore not
-run. `bolt qwark .` fails wrench validation: `/version` is a number where a
-string is wanted, and its first task has no `name`. What the overlay carried is
-either in the shared jig now or in the definitions file below, so nothing is
-being skipped silently, but the file is dead as it stands.
+**`bolt.qwark.yaml` is retired**, not ported. It carried exactly one task,
+`entrypoint`, and that is now the shared jig's placeholder filled by the
+definitions file below, so porting it would have restated something already
+homed. An overlay was the right shape while the CLI composed jigs and is not a
+shape the CLI has.
 
 **`main()` is measured, not excluded.** Hard rule 5. The shared jig leaves an
 `entrypoint` placeholder defaulting to `true`; qwark fills it from
@@ -98,8 +98,9 @@ links in bolt for exactly that reason.
 
 The links are gitignored. The same files arrive from the anvil layer in a built
 image, so committing a copy here would make a third statement of one thing.
-**`bolt.qwark.yaml` is tracked**, because the overlay is this project's own
-content, and is the part a shared definition must never carry.
+**`bolt.go-std-quality.definitions.yaml` and `scripts/` are tracked**, because
+the placeholder values and the script they name are this project's own content,
+and are the part a shared definition must never carry.
 
 ### The split is pending, and this is why
 

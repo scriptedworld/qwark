@@ -26,8 +26,9 @@ START_HERE.md
 # encode where ../toolbox happens to sit.
 #
 # Named one at a time rather than as `bolt.*.yaml`, because that glob would also
-# swallow `bolt.qwark.yaml` -- this project's own overlay, which IS tracked and
-# is the one part a shared definition must never carry.
+# swallow `bolt.go-std-quality.definitions.yaml` -- this project's own values for
+# the shared jig's placeholders, which IS tracked and is the one part a shared
+# definition must never carry.
 bolt.common-quality.yaml
 bolt.go-std-quality.yaml
 bolt.secrets.yaml

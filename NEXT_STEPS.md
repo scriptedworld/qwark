@@ -7,11 +7,16 @@ do about it, and what is waiting on an answer.
 
 ## Built, committed, and passing the gate
 
-The jig passes all twelve tasks; coverage 94.3% with every file above the 80%
-per-file floor; 207 tests carrying a `COVERS` line; **127** requirements, of which
-19 have no test and every one of those is deferred.
+Both jigs pass, every file above the 80% per-file floor including `main()`,
+which is measured rather than exempted. **132** requirement rows, three of them
+retired, so **129 live**; 17 have no test and every one of those is an open
+question. The traceability task reports 109 of 109 for the settled ones.
 
-    bolt -c ../bolt/bolt.go-std-quality.yaml -c bolt.qwark.yaml
+    bolt --definitions go-std-quality go-std-quality .
+    bolt common-quality .
+
+Re-measured 2026-08-28. The earlier figures here were taken under
+`bolt -c a -c b`, a CLI that no longer exists.
 
 Count the requirements independently with
 `grep -oE 'FR-[0-9]+\.[0-9]+[a-z]?' REQUIREMENTS.md | sort -u | wc -l`. bolt's
@@ -54,20 +59,23 @@ bolt still holds a copy from before that fixing started.
   test are all `[?]`, open and exempt. bolt was not failing on uncovered
   requirements because it runs the older checker, which reported them as context.
 
-Adopting turned up two things. The first is still open:
+Adopting turned up two things, and the first is settled:
 
-1. **`entrypoint` must be defined in full, not overridden.** It is *deliberately*
-   absent from the shared jig, since *"a shared definition carries the rule and
-   never the subject"*, and a task naming `./cmd/bolt` fails for every adopter in
-   a way that looks like the adopter's fault. `bolt.qwark.yaml` currently supplies
-   only `command` and says the rest is inherited; under the toolbox jig there is
-   nothing to inherit, so it needs `description`, `tags`, `requires`, `timeout`
-   and the declared `output` as well.
+1. **`entrypoint` is a placeholder, not a task to define.** It was going to need
+   defining in full, since *"a shared definition carries the rule and never the
+   subject"* and a task naming `./cmd/bolt` fails for every adopter in a way that
+   looks like the adopter's fault. The shared jig answered it differently and
+   better: the task stays shared, and what varies is one substituted value,
+   defaulting to `true` so a project with no binary is unaffected. qwark supplies
+   `scripts/cover-entrypoint.sh` through
+   `bolt.go-std-quality.definitions.yaml`, and the overlay that used to carry
+   the task is retired.
 2. **The `.gitignore` carries the linked set**: `bin/`, covering both
    `bin/qwark` and the two linked checker scripts, alongside
    `bolt.common-quality.yaml`, `bolt.go-std-quality.yaml`, `bolt.secrets.yaml`,
-   `adapters/`, `config/`, `coverage.out` and `.bolt*/`. **`bolt.qwark.yaml` stays
-   tracked**, because the overlay is this project's own content and is exactly the
+   `adapters/`, `config/`, `coverage.out` and `.bolt*/`.
+   **`bolt.go-std-quality.definitions.yaml` stays tracked**, because the
+   placeholder values are this project's own content and are exactly the
    part a shared definition must not carry.
 
    A tracked symlink stores its target path as content, which encodes where
@@ -255,19 +263,25 @@ is the second and not a replacement. It matters for what to invest in now:
    `/var/lib/qwark/`. The first is abandoned and the second does not exist. The
    live rule set is at `~/.config/qwark/rules` and the decision log at
    `~/.local/state/qwark/`, and `match = "partial"` compares fragments, so
-   nothing covers them. Judged against `rules/`, `cp` over `00-structure.toml`
-   and `rm` of `decisions.jsonl` are both **allow**, while `ls /etc/qwark/rules`
-   is refused.
+   nothing covered them. Judged against `rules/` before the fix, `cp` over
+   `00-structure.toml` and `rm` of `decisions.jsonl` were both **allow**, while
+   `ls /etc/qwark/rules` was refused.
 
    The group was written when `/etc/qwark/rules` was the install target;
    `gate/30-install-to-a-user-owned-path` moved the set and left the guard
-   pointing at the old address. This is the third of the three things FR-4.17's
+   pointing at the old address. This was the third of the three things FR-4.17's
    retirement leaned on, after the `permissions.deny` twin, that was assumed to
-   hold and does not.
+   hold and did not.
 
-   Not applied here: hard rule 4a wants a person to agree a rule change in words
-   first. Written up with the measurement and a repro in
-   `clank/tasks/qwark/rules/40-the-path-group-guards-dead-paths.ready/`.
+   **Fixed in source at `7eacb72`**, agreed in words first per hard rule 4a, with
+   FR-10.11 and two tests. Both commands above now deny. **The live set is
+   unchanged**, this phase being structural-only, so it is the deployment that is
+   still open rather than the rule. Measurement and repro in
+   `clank/tasks/qwark/rules/40-the-path-group-guards-dead-paths.complete/`.
+
+   It stays listed here because the other two contradictions are open and this
+   one names the shape they share: a guard that outlives the address of its
+   subject protects nothing and reads as though it does.
 
 ## What installing the source set costs, measured
 
@@ -279,13 +293,13 @@ FACT 2026-08-28. 84 unique commands, judged against both sets with `bin/qwark`
 built from `18e4f8a`: every command in the live decision log, plus a floor of
 what this repository cannot be worked in without. Live allows 79 of 84, source
 allows 70. `.ephemera/can-work-continue.py` regenerates it; the results are kept
-in `clank/tasks/qwark/rules/40-the-path-group-guards-dead-paths.ready/evidence/`.
+in `clank/tasks/qwark/rules/40-the-path-group-guards-dead-paths.complete/evidence/`.
 
 **Nine commands are allowed today and refused by the source set. Four of them
 are how qwark gets built and gated:**
 
     go test ./...                no-go-execution   compiles and runs this tree
-    bolt -c bolt.qwark.yaml      no-executors      runs a recipe from the tree
+    bolt common-quality .        no-executors      runs a recipe from the tree
     python3 <script>             no-interpreters   runs code given as an argument
     sed -n 1,40p FILE            no-interpreters   same class, though this reads
 
