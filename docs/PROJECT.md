@@ -68,9 +68,21 @@ status, and the refusal kinds (`base-missing`, `jig-unreadable`,
 `src/error.rs` and never appear there. So the test is which file the kind comes
 from rather than whether the message reads sensibly.
 
-A third case is neither, and bolt withholds `nonzero-exit` for it deliberately:
-a task its own time limit killed returns before the fold, because that status is
-bolt's signal rather than an answer the tool gave.
+A third kind, `time-limit`, is neither, and bolt withholds `nonzero-exit` for it
+deliberately: a task its own limit killed never reaches the fold, because that
+status is bolt's signal rather than an answer the tool gave. Synthesising one
+would report the kill twice, the second time as an exit nobody produced.
+
+**A killed task still fails, and still writes an envelope.** `timed_out` in
+`src/run.rs` writes `success: false` with the limit reason first and then
+extends it with whatever the partial run had already reported, so a tool that
+found forty problems before hanging keeps all forty. A timed-out run cannot
+read as a pass, because what it did not reach is exactly what is unknown about
+it.
+
+The general form is bolt's FR-6.1a: it reaches a verdict itself only where no
+adapter result is available to take, and each case says so where it arises.
+Reading the kind is how a caller tells which happened.
 
 **The composition is one jig per run, not an overlay.** `bolt -c a -c b` is gone
 with the rebuild; the current CLI is `bolt <jig> <directory>`, and flags come
