@@ -57,7 +57,20 @@ has exited **0** on a run whose artifact said `success: false`, and it exits 1
 when it could not carry the run out at all, which is a different claim from a
 check having failed.
 
-Both pass, 2026-08-28: `success: true` in each artifact, 7 tasks and 3.
+Both pass: `success: true` in each artifact, 7 tasks and 3.
+
+**Then read the `kind` on each reason, because a failure has two meanings.** A
+tool said no, or bolt could not run it, and only the second indicts the gate
+rather than the tree. The two vocabularies are disjoint in bolt's source:
+`nonzero-exit` is emitted in one place, `src/run.rs`, while folding a task's exit
+status, and the refusal kinds (`base-missing`, `jig-unreadable`,
+`unknown-placeholder`, `task-without-command` and the rest) live in
+`src/error.rs` and never appear there. So the test is which file the kind comes
+from rather than whether the message reads sensibly.
+
+A third case is neither, and bolt withholds `nonzero-exit` for it deliberately:
+a task its own time limit killed returns before the fold, because that status is
+bolt's signal rather than an answer the tool gave.
 
 **The composition is one jig per run, not an overlay.** `bolt -c a -c b` is gone
 with the rebuild; the current CLI is `bolt <jig> <directory>`, and flags come
