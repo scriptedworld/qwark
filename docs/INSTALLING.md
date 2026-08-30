@@ -90,6 +90,22 @@ day.
 
 ## Check it before you rely on it
 
+### What actually loaded
+
+    qwark rules ~/.config/qwark/rules
+
+That reports what the deployed path holds: the shells declared, the groups, the
+declarations, and the rule count by action. Run it against `rules/` as well and
+compare the two, because a directory contributes every `.toml` file in it and
+nothing else, so a file that was never copied is not an error. The set loads
+cleanly and enforces less.
+
+Compare by walking the shipped set rather than the deployed one. A check that
+iterates the deployed directory never visits a file missing from it, so it
+reports nothing while the gap it was written to find goes unnamed.
+
+### What it decides
+
 `judge` takes the same rule paths and the same request fields the hook does, so
 the policy can be exercised as the caller that will meet it.
 
