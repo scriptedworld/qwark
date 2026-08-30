@@ -49,15 +49,19 @@ and not directories.** *The split is pending* below says why.
 
 ## The gate
 
-    bolt --definitions go-std-quality go-std-quality .
-    bolt common-quality .
+    just checks
+
+Three jigs, all passing: common-quality, go-std-quality and secrets. The recipe
+reads each verdict out of `result.yaml` and fails on the first one that is not
+`true`, so a green line is a quoted artifact rather than an exit status.
+
+`just test`, `just coverage`, `just format-check`, `just build`, `just install`
+and `just leak-scan` run the pieces alone. `just --list` is the whole interface.
 
 **Read `result.yaml` in the stamped run directory. Never the exit status.** bolt
 has exited **0** on a run whose artifact said `success: false`, and it exits 1
 when it could not carry the run out at all, which is a different claim from a
 check having failed.
-
-Both pass: `success: true` in each artifact, 7 tasks and 3.
 
 **Then read the `kind` on each reason, because a failure has two meanings.** A
 tool said no, or bolt could not run it, and only the second indicts the gate
@@ -102,10 +106,18 @@ builds with `go build -cover`, runs `qwark help`, and converts the profile for
 the adapter to merge. A placeholder is one argument and is shell-quoted, which
 is why the chain lives in a script and not in the value.
 
-`bolt secrets .` **fails and never passed here**: `detect-secrets` wants a
-`.secrets.baseline` this repository has never had. Creating one records the
-current findings as accepted, which is suppression-shaped, so it waits on a
-ruling rather than being generated.
+**`main()` is measured only when the definitions are passed**, which is why
+`just checks` reaches `bolt` through `just/project.just` rather than through the
+shared `_verdict`. Without `--definitions go-std-quality` the placeholder stays
+`true`, the entry point never runs, and `cmd/qwark/main.go` reports 0.0% against
+the floor. That is the jig being right, and the fix is to supply the value
+rather than to exempt the file.
+
+The secrets jig passes. It takes a `.secrets.baseline` when one exists and scans
+`git ls-files` when none does, so this tree needs no baseline. The recipe is
+`leak-scan` and not `secrets`, because a recipe named `secrets` can be read by
+detect-secrets as a key whose value is the line beneath it, and a project then
+fails its own leak check on the recipe that runs it.
 
 From the passing runs: 132 requirement rows, three of them retired, so 129 live.
 Every one held to coverage has a test at **112 of 112**, and 17 open questions

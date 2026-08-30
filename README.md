@@ -313,8 +313,20 @@ engine's job through the `agent` clause rather than the launcher's.
 
 ## Building and testing
 
-    go build -o bin/qwark ./cmd/qwark
-    go test ./...
+    just build        the binary
+    just test         the suite
+    just checks       every gate: quality, tests, coverage, secrets
+    just --list       the whole interface
+
+`just install` puts the binary where the hook invokes it from, comparing bytes
+rather than timestamps so a second run reports it current instead of rewriting
+it. `just clean` removes run directories and coverage output and **leaves
+`bin/qwark` standing**, because that file is what the `PreToolUse` hook executes
+on every Bash call in every live session; removing it does not degrade the gate,
+it removes the thing deciding whether commands may run.
+
+The underlying commands are `go build -o bin/qwark ./cmd/qwark` and
+`go test ./...` if you would rather not use `just`.
 
 Tests live in an external test package and exercise the public API. Each names
 the requirement it discharges in a comment directly above it, and the gate fails
