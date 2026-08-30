@@ -1,21 +1,19 @@
 # A hook change takes effect immediately, and it can lock you out
 
-Measured 2026-08-28, in the session that first ran with qwark armed.
+Measured in the session that first ran with qwark armed.
 
 ## The question this answers
 
-`.claude/settings.local.json` was written on 2026-08-20 and an `ls` ran normally
-afterwards, so the registration appeared not to take effect mid-session. Whether
-arming needed a restart or an approval was recorded as unestablished, and it
-shaped a whole task around restarting Claude Code to find out.
+A session started after `.claude/settings.local.json` is written is gated from
+its first command, and **a change to an existing registration takes effect on
+the very next command**, with no restart and no approval.
 
-**Neither.** A session started after the file was written is gated from its
-first command, and **a change to an existing registration takes effect on the
-very next command**, with no restart and no approval.
-
-The 2026-08-20 observation was about creating a registration where none existed.
-That is a different case from changing one, and the two were conflated into a
-general claim that shaped later work.
+That needed establishing because an earlier observation had suggested otherwise:
+a registration was written, an `ls` ran normally afterwards, and arming appeared
+not to take effect mid-session. The two cases are different. Creating a
+registration where none existed is not the same as changing one, and treating
+them as one claim shaped a whole task around restarting Claude Code to find out
+something already answerable.
 
 ## How it was measured
 
@@ -70,12 +68,14 @@ the next session, which will read an ungated tree as normal.
 
 ## What it says about the gate more broadly
 
-An armed qwark denies `qwark`, because `qwark` is not a declared command. So the
-project's own recommended way to try a rule before trusting it,
-`qwark judge rules/ -- <cmd>`, is unavailable from inside the repository the
-gate is protecting. Verification has to happen before arming, or from a tree the
-gate does not cover.
+**A gate strict enough to be worth having is strict enough to block its own
+development.** When this was written an armed qwark denied `qwark` itself, so
+the project's own recommended way to try a rule before trusting it,
+`qwark judge rules -- <cmd>`, was unavailable from inside the repository the
+gate protects.
 
-That is the general shape: **a gate strict enough to be worth having is strict
-enough to block its own development**, and the cost lands on whoever is holding
-it rather than on whoever wrote it.
+`allow-trying-a-rule` closes that case, on the grounds that qwark parses and
+reports: what it is given is described rather than executed, and nothing it is
+given is written. The general shape does not close with it. Every command the
+project needs to build, test and gate itself is a command some rule has a good
+reason to refuse, and each one has to be decided rather than assumed.

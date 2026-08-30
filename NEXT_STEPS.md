@@ -304,11 +304,11 @@ The structural-only phase is being validated in live sessions now. The question
 for the phase after it is whether a session can still do the work, and it is
 answered rather than predicted.
 
-FACT 2026-08-28. 84 unique commands, judged against both sets with `bin/qwark`
-built from `18e4f8a`: every command in the live decision log, plus a floor of
-what this repository cannot be worked in without. Live allows 79 of 84, source
-allows 70. `.ephemera/can-work-continue.py` regenerates it; the results are kept
-in `clank/tasks/qwark/rules/40-the-path-group-guards-dead-paths.complete/evidence/`.
+84 unique commands, judged against both sets with `bin/qwark` built from
+`18e4f8a`: every command in the live decision log, plus a floor of what this
+repository cannot be worked in without. Live allows 79 of 84, source allows 70.
+`.ephemera/can-work-continue.py` regenerates it; the results are kept in
+`clank/tasks/qwark/rules/40-the-path-group-guards-dead-paths.complete/evidence/`.
 
 **Nine commands are allowed today and refused by the source set. Four of them
 are how qwark gets built and gated:**

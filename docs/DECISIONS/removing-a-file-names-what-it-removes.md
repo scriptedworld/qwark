@@ -1,22 +1,16 @@
 # Removing a file names what it removes
 
-Ruled 2026-08-28, revising the ruling of 2026-08-19.
-
 > bare `rm` is fine, but `rm -f` or `rm -r` or `rm -rf` is NOT
 
-## What changed
+`rm -f`, `rm -r` and `rm -rf` are all denied. Bare `rm <path>` is explicitly
+permitted rather than merely undenied: it has an allow rule of its own,
+`allow-removing-a-named-file`.
 
-The 2026-08-19 ruling was three cases:
+## Why recursion is a denial and not an ask
 
-    rm -r -f   forbidden, because of -f
-    rm -r      no -f: ask, warning that it is recursive
-    rm -f      no -r: forbidden
-
-`rm -r` was an `ask`. It is now a `deny`. Everything else is unchanged, and
-bare `rm <path>` is explicitly permitted rather than merely undenied: it has an
-allow rule of its own, `allow-removing-a-named-file`.
-
-## Why the middle case moved
+An earlier form of this ruling made `rm -r` an `ask`, warning that it was
+recursive, and denied only the two cases carrying `-f`. That distinction did not
+survive contact with what the two options actually do.
 
 Recursion and a glob fail in the same way. What `rm -r <dir>` deletes is decided
 by what the tree holds at the moment it runs, not by anything the command says,
@@ -35,20 +29,14 @@ Emptying a directory means naming its files. There is no permitted spelling of
 "remove this tree", and that is deliberate rather than an omission waiting to be
 filled. A person at a terminal is not what the gate is for.
 
-## The worked example was rewritten in the same change
+## What the worked example in `30-options.toml` now teaches
 
-`30-options.toml` taught the strictest-wins precedence argument through these
-three cases: two rules rather than three, because `rm -rf` matches both and the
-deny takes it, so neither rule has to know the other exists.
+Two rules cover three spellings, because `rm -rf` matches both. With both set to
+`deny` that demonstrates composition rather than escalation: `rm -rf` is refused
+with both reasons given under FR-4.25, so its author learns that the force is a
+problem and the recursion is a problem, instead of being sent round twice.
 
-That argument is still true and is still what the two rules demonstrate. It is
-no longer visible in their **actions**, because both are now `deny`, so the
-comment would have taught a rule the file no longer holds. It now demonstrates
-composition rather than escalation: `rm -rf` is refused with both reasons given
-under FR-4.25, so its author learns the force is a problem and the recursion is
-a problem, instead of being sent round twice.
-
-**A comment that explains a rule is part of that rule.** Changing the action and
+**A comment that explains a rule is part of that rule.** Changing an action and
 leaving the explanation is how a file comes to document something that is not
 there, and the next reader believes the comment.
 

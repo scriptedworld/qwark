@@ -1,7 +1,5 @@
 # A recursive grep here cannot see your working files
 
-FACT, measured 2026-08-28.
-
 ## The measurement
 
 Same binary, same string, same file:

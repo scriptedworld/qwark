@@ -107,9 +107,9 @@ is why the chain lives in a script and not in the value.
 current findings as accepted, which is suppression-shaped, so it waits on a
 ruling rather than being generated.
 
-Measured 2026-08-28 from the passing runs: 129 requirement rows, every one held
-to coverage has a test at **109 of 109**, and 17 open questions are exempt.
-Every test cites a requirement the document defines.
+From the passing runs: 132 requirement rows, three of them retired, so 129 live.
+Every one held to coverage has a test at **112 of 112**, and 17 open questions
+are exempt. Every test cites a requirement the document defines.
 
 ### Adopter status
 
@@ -175,25 +175,23 @@ qwark passes it at **108 of 108**, with 19 open and exempt.
 
 `NEXT_STEPS.md` carries the detail.
 
-**qwark has gated a live session, and the result is recorded rather than
-predicted.** 2026-08-28: the hook registered in `.claude/settings.local.json`
-was active for a whole session in this tree. Under the shipped rules `git status`
-and `git log` ran; `ls`, `cat`, `find`, `grep`, `go`, `bolt`, `qwark` itself,
-`git add -N` and `git commit -F` were all refused, most of them at
-`declared commands only` because `git` is the one declared command.
+**qwark gates this repository, and what that costs is measured rather than
+predicted.** The hook in `.claude/settings.local.json` is live, and the tree is
+workable because the loaded set is two files of shape only: a session commits,
+builds and runs the gate, and only compound shapes are refused.
 
-**Arming it makes this repository nearly unusable, by design, and that is now
-measured rather than expected.** A session cannot build qwark, test it, run the
-gate, list a directory, or commit. It also cannot run `qwark judge`, which is
-this project's own way of trying a rule before trusting it.
+An early arming with declarations required and almost nothing declared refused
+`ls`, `cat`, `find`, `grep`, `go`, `bolt`, `git add -N` and `git commit -F`,
+most of them at `declared commands only`. That is the shape of a half-declared
+table rather than a verdict on the design, and it is why the declaration work is
+sized by command plus option set.
 
-**The live set is now two files of shape only, and the tree is workable.** That
-was `78e0410`'s declaration table plus `required = false`; a session commits,
-builds and runs the gate, and only compound shapes are refused. What the full
-set would still cost is measured in `NEXT_STEPS.md` under *What installing the
-source set costs*: nine commands lost, four of them how qwark is built and
-gated. Those four are deny rules, which no amount of declaration reaches, and
-the `cwd` clause is the mechanism that resolves it.
+Installing the full source set would still cost nine commands, listed in
+`NEXT_STEPS.md` under *What installing the source set costs*. Four of them are
+how qwark is built and gated, they are deny rules that no amount of declaration
+reaches, and the `cwd` clause is the mechanism that resolves it. `qwark judge`
+is not among them: `allow-trying-a-rule` permits it, so trying a rule before
+trusting it works from inside the tree the gate protects.
 
 **Two properties of the registration, both measured that day.** A change to an
 existing hook takes effect on the very next command, with no restart. And
