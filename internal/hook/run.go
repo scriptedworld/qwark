@@ -15,7 +15,7 @@ import (
 //	0 with a decision   the decision is honoured
 //	0 with no JSON      no decision; the normal permission flow proceeds
 //	2                   the call is blocked, stderr goes back to the model
-//	any other non-zero  a `non_blocking_error` -- THE TOOL PROCEEDS
+//	any other non-zero  a `non_blocking_error`, SO THE TOOL PROCEEDS
 //
 // So a gate that crashes, or that exits 1 the way a Unix program usually
 // reports failure, lets the command through. Exit 2 is the only status that

@@ -20,7 +20,7 @@ START_HERE.md
 example_graphs/
 
 # This machine's hook registration. It names absolute paths that exist here and
-# nowhere else -- /etc/qwark/rules, and qwark on PATH -- so it is a local
+# nowhere else (/etc/qwark/rules, and qwark on PATH), so it is a local
 # arrangement rather than something to hand to whoever clones this.
 # install/settings-fragment.json is the tracked account of what it should say.
 .claude/settings.local.json
@@ -28,11 +28,11 @@ example_graphs/
 # The adopted jig links. `toolbox/jigs.yaml` declares the set; `link-jigs` makes
 # them. They are ignored because in a built image the same files arrive from the
 # anvil layer beneath, so a committed copy would be a third statement of one
-# thing -- and a tracked symlink stores its target path as content, which would
+# thing. A tracked symlink also stores its target path as content, which would
 # encode where ../toolbox happens to sit.
 #
 # Named one at a time rather than as `bolt.*.yaml`, because that glob would also
-# swallow `bolt.go-std-quality.definitions.yaml` -- this project's own values for
+# swallow `bolt.go-std-quality.definitions.yaml`, this project's own values for
 # the shared jig's placeholders, which IS tracked and is the one part a shared
 # definition must never carry.
 bolt.common-quality.yaml

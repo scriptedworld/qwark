@@ -3,8 +3,8 @@
 #
 # Hard rule 5: a coverage failure is never settled by excluding the file. main()
 # is unreachable from `go test` because nothing in a test calls it, so it is
-# measured instead -- built with -cover, run once, and its profile merged with
-# the test one by the adapter.
+# measured instead: built with -cover, run once, and its profile merged with the
+# test one by the adapter.
 #
 # Called by the `tests` task of bolt.go-std-quality.yaml through the {entrypoint}
 # placeholder, which is one argument by design, so this takes the work directory
