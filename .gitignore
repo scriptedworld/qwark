@@ -13,6 +13,12 @@ coverage.out
 # Session handoff. Ephemeral by design; state lives in the tracked documents.
 START_HERE.md
 
+# Parse trees of real commands, one directory each, rendered from the decisions
+# log at ~/.local/state/qwark/decisions.jsonl. Generated rather than authored,
+# and half a megabyte of SVG, so it is regenerated rather than stored:
+#     ~/.projects/wrench/.ephemera/make-ast-gallery.sh example_graphs
+example_graphs/
+
 # This machine's hook registration. It names absolute paths that exist here and
 # nowhere else -- /etc/qwark/rules, and qwark on PATH -- so it is a local
 # arrangement rather than something to hand to whoever clones this.
