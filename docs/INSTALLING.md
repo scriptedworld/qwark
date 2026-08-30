@@ -117,9 +117,9 @@ installed.
 Every decision is appended to `$XDG_STATE_HOME/qwark/decisions.jsonl`, falling
 back to `~/.local/state/qwark/decisions.jsonl`. One JSON object per line:
 
-    {"at":"...","rule_set":"47d8fcfa576a62b0","decision":"allow","tool":"Bash",
+    {"at":"<timestamp>","rule_set":"<digest>","decision":"allow","tool":"Bash",
      "command":"git status","rules":["allow-reading-the-repository"],
-     "agent":"","cwd":"/srv/project","session":"..."}
+     "cwd":"/srv/project","session":"<id>"}
 
 `rule_set` is a digest of the rules that judged the call, which is what lets
 entries made under different policies be told apart rather than compared with
