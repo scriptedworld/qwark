@@ -21,11 +21,11 @@ a gate whose confusion is the way through it.**
 Declaring every command is a smaller job than it looks: *"you don't use that many
 tools."*
 
-### Where it sits against its siblings
+### Where it sits against the build tooling
 
-`silo/docs/GLOSSARY.md` is the canonical statement of how bolt, toolbox and anvil
-fit together. **qwark is not part of that chain.** It is a consumer of it like any
-other project, and it gates the agent doing the work rather than the work itself.
+qwark is not part of the quality tooling this project is gated by. It is a
+consumer of it like any other project, and it gates the agent doing the work
+rather than the work itself.
 
 ## Layout
 
@@ -50,6 +50,10 @@ and not directories.** *The split is pending* below says why.
 ## The gate
 
     just checks
+
+The gate runs through `bolt`, a quality-gate runner that executes a named jig
+against a directory and writes a result file. It is a separate and unpublished
+project, so a clone with no siblings runs `go test ./...` and reviews the rest.
 
 Three jigs, all passing: common-quality, go-std-quality and secrets. The recipe
 reads each verdict out of `result.yaml` and fails on the first one that is not
@@ -90,8 +94,8 @@ Reading the kind is how a caller tells which happened.
 
 **The composition is one jig per run, not an overlay.** `bolt -c a -c b` is gone
 with the rebuild; the current CLI is `bolt <jig> <directory>`, and flags come
-before the positionals. How the two quality jigs should compose is unsettled and
-tracked in `clank/tasks/toolbox/port-the-jigs/10`.
+before the positionals. How the two quality jigs should compose is unsettled,
+and it is a question for the tooling rather than for this repository.
 
 **`bolt.qwark.yaml` is retired**, not ported. It carried exactly one task,
 `entrypoint`, and that is now the shared jig's placeholder filled by the
@@ -121,22 +125,25 @@ The secrets jig passes. It takes a `.secrets.baseline` when one exists and scans
 detect-secrets as a key whose value is the line beneath it, and a project then
 fails its own leak check on the recipe that runs it.
 
-From the passing runs: 132 requirement rows, three of them retired, so 129 live.
-Every one held to coverage has a test at **112 of 112**, and 17 open questions
-are exempt. Every test cites a requirement the document defines.
+Every requirement held to coverage has a test, every test cites a requirement
+`REQUIREMENTS.md` defines, and the open questions are exempt rather than
+counted against it. The traceability task prints the figures; take them from a
+run rather than from here.
 
-### Adopter status
+### The jig files are links, and that is why a clone is missing them
 
-**All ten links of the `go` set resolve.** qwark is the first repository to have
-adopted cleanly, because it never carried a vendored jig; `link-jigs` refused four
-links in bolt for exactly that reason.
+The jig definitions, the adapters and the checker scripts are symlinks into a
+sibling checkout. Ten of them, and this is how to see that they all resolve:
 
     for f in bin/*.py adapters/*/*.py config/*.yml bolt.*.yaml; do
       [ -e "$f" ] && echo "ok   $f" || echo "BROKEN $f"
     done
 
-The links are gitignored. The same files arrive from the anvil layer in a built
-image, so committing a copy here would make a third statement of one thing.
+They are gitignored. A tracked symlink stores its target path as content, which
+would encode where the sibling happens to sit, and in a built image the same
+files arrive from the layer beneath, so a committed copy would be a third
+statement of one thing.
+
 **`bolt.go-std-quality.definitions.yaml` and `scripts/` are tracked**, because
 the placeholder values and the script they name are this project's own content,
 and are the part a shared definition must never carry.
@@ -170,9 +177,8 @@ Kinds: `positive`, `negative`, `edge`, `property`, `regression`. The
 requirement `REQUIREMENTS.md` never defined, so renaming a requirement means
 fixing every test that cites it.
 
-A requirement marked `[?]` is an open question and carries no test. The newer
-checker in toolbox holds *settled* requirements to a test and exempts `[?]`;
-qwark passes it at **108 of 108**, with 19 open and exempt.
+A requirement marked `[?]` is an open question. It carries no test, and the
+checker holds only settled requirements to one.
 
 ## Conventions particular to this repository
 
@@ -207,7 +213,7 @@ reaches, and the `cwd` clause is the mechanism that resolves it. `qwark judge`
 is not among them: `allow-trying-a-rule` permits it, so trying a rule before
 trusting it works from inside the tree the gate protects.
 
-**Two properties of the registration, both measured that day.** A change to an
+**Two properties of the registration matter more than they look.** A change to an
 existing hook takes effect on the very next command, with no restart. And
 `permissions.deny` naming `settings.local.json` itself removes the documented
 escape from anything but a person: deleting the `hooks` key with the Edit tool

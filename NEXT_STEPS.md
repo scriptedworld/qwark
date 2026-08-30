@@ -22,11 +22,13 @@ Count the requirements independently with
 `grep -oE 'FR-[0-9]+\.[0-9]+[a-z]?' REQUIREMENTS.md | sort -u | wc -l`. bolt's
 traceability task reports the same number from its own reading.
 
-**There is no `justfile` here, and there should not be one.** Every recipe one
-would carry is either a wrapper around the command above or a copy of a task bolt
-already defines, which is the second copy free to drift that the no-vendoring
-rule forbids. It also puts an executor and an agent-writable task definition
-inside the blast radius, which is the thing qwark is being built to refuse.
+**The Justfile pack is here, and it puts a task definition inside the tree.**
+`Justfile` and `just/base.just` are the shared pack, byte-identical across
+projects; `just/lang.just` is this project's own. That is the same file qwark
+refuses to let an agent write: `/Justfile` is in the `task-definition` group of
+`20-paths.toml`, and `Justfile` is in the `permissions.deny` list of the
+registration, which is the half a rule cannot enforce. Whether the shared half
+should be a symlink instead of a copy is open, below.
 
 - `internal/shell`: parse as Bash, gather every fact in one walk, and record the
   parser's own vocabularies (node types, operators, statement flags).
@@ -194,20 +196,21 @@ not need the thing just taken away. A tool qwark does not model is refused rathe
 than waved through, so a matcher wide enough to send Write here blocks loudly
 instead of judging nothing while looking installed.
 
-**Installed, and it has gated a live session.** `qwark` is on `PATH` at
-`/usr/local/bin/qwark`, and `.claude/settings.local.json` registers
-`qwark hook /etc/qwark/rules || exit 2` on `PreToolUse` for Bash. It gated a
-whole session in this tree on 2026-08-28, refusing `ls`, `cat`, `grep`, `go`,
-`bolt`, `qwark` itself and both mandated commit forms, while allowing
-`git status` and `git log`.
+**Installed, and gating this tree now.** `.claude/settings.local.json` registers
+`bin/qwark hook ~/.config/qwark/rules || exit 2` on `PreToolUse` for Bash, both
+paths absolute. The live set is two files, `00-structure.toml` and
+`06-allow.toml`, so what is refused is shape: compound calls, pipes,
+redirections, globs, substitutions, here-documents, backgrounding and prefix
+assignments. Everything else runs, which is why a session can still build,
+commit and run the gate.
 
-**The registration is parked right now**, at `.ephemera/settings.local.json.wedged`,
-so this tree is ungated. `START_HERE.md` says why and what restores it.
+An earlier arming with declarations required refused `ls`, `cat`, `grep`, `go`
+and both mandated commit forms, most of them at `declared commands only`. That
+is a half-declared table rather than a verdict on the design.
 
 **`/usr/local/bin/qwark` is root-owned and stale.** It still contains the
 ownership check retired in `fa9c9cd`. `bin/qwark` is user-owned and current, and
-the no-root direction means the hook should name that instead. Filed at
-`clank/inbox/qwark/binary-is-installed-to-a-root-path`.
+the no-root direction is why the registration names that instead.
 
 **Two limits to know before relying on it.** Two *main sessions* are
 indistinguishable: if writer and runner are both top-level launches, no clause
@@ -500,7 +503,7 @@ layers**.
   happens before the verdict is known. The seam is `order` in the evaluator, today
   the identity.
 
-## Open questions that used to sit in DESIGN-NOTES
+## Open questions carried over from the design notes
 
 | Question | State |
 |---|---|
