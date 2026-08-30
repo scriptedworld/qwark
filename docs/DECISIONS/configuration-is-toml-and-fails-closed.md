@@ -52,3 +52,14 @@ that parses and matches nothing. It is the same family as reading the artifact
 rather than the exit status, pointing the other way. That one says a zero exit
 does not mean the work was good; this one says an empty result does not mean the
 work was done.
+
+**Agreement on a corpus cannot establish this property**, which is worth saying
+because a replay is the evidence somebody will reach for. An independent
+structural implementation reproduced every verdict in this project's decision log
+and reports that its own default falls the other way: no rule fired means allow.
+On real traffic the two are indistinguishable, because real traffic always
+matches something. They diverge only on the empty ruleset, which is exactly the
+case the replay contains none of and the case the property is about.
+
+So outcome equivalence and default direction are separate claims, and only the
+second is a safety property.
