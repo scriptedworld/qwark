@@ -19,9 +19,12 @@ test:
 # rather than excluded, which is hard rule 5. `go test -race` needs cgo, which
 # is why CGO_ENABLED is 1 here and 0 in build.
 #
-# scripts/cover-entrypoint.sh already exists in this tree and is what the
-# go-std-quality jig invokes for the same purpose. If it does what this recipe
-# does, call it instead and delete the inline version.
+# THIS DUPLICATES scripts/cover-entrypoint.sh DELIBERATELY, and the adoption
+# notes withdrew the suggestion to collapse them. They have different consumers:
+# the script writes a coverage profile into bolt's work directory for the
+# adapter to merge, and this recipe prints a percentage for a person. Merging
+# them would make the human-facing output a side effect of a machine artefact,
+# and one caller would be served badly.
 
 # the suite with coverage, and the minimum enforced
 coverage:

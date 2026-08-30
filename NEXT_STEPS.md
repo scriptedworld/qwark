@@ -85,6 +85,20 @@ Adopting turned up two things, and the first is settled:
    images, so there they arrive from the layer beneath and a copy committed here
    would be a third statement of the same thing.
 
+**The Justfile pack is copied rather than linked, and whether it should be
+linked is open.** `Justfile` and `just/base.just` are byte-identical across
+adopters and drift the moment one improves, which is how this tree ran a stale
+pack until a checker found it. Linking them into toolbox is the same arrangement
+the jigs already have, for the same reason. `just/lang.just` stays a real file
+either way, being this project's own.
+
+The argument against, which is not an objection to the direction: a copy reaches
+a tree when its owner re-takes it, and a link reaches every tree the instant the
+source changes. `_verdict` going variadic was safe that way. A change to `clean`
+would not have been, and `clean` is the recipe that has already taken this estate
+down once. So the question is not copy against link, it is whether the shared
+files need a review gate that a symlink removes.
+
 ## git, classified
 
 **git is classified across all 64 porcelain commands**, checked mechanically
