@@ -37,10 +37,13 @@ wrong. The tree is what says which characters are eligible to be tested, and
 choosing the subject and text answering the question, which is also the shape
 the path and filename rules take.
 
-Worth stating because a replay of this project's decision log against a purely
-textual glob predicate reproduced every verdict, and the log contains no command
-with a quoted metacharacter. Agreement there is agreement on a corpus that
-cannot separate the two.
+The decision log exercises this constantly. Commands like
+`find internal -name '*_test.go'` and `grep -oE 'FR-[0-9]+\.[0-9]+[a-z]?' …`
+carry a metacharacter inside quotes and establish no glob fact, so the
+distinction is load-bearing on ordinary traffic rather than on a constructed
+case. A replay against an independent implementation that also tests only the
+literal parts reproduced every verdict in the log, which is agreement on a
+corpus that does separate a whole-word predicate from a parts-aware one.
 
 It still does not make the gate a guarantee. The archive-guard header's
 conclusion stands unchanged: a tool-layer gate cannot stop a program that names a

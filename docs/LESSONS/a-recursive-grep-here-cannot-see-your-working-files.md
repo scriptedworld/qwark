@@ -57,6 +57,35 @@ not, the recursion is lying to you.
 hole.** Several in this repository were, including the search for citations of a
 retired requirement. That one happened to find what it needed in tracked files.
 
+## The same failure without gitignore, when the pattern is narrower than the claim
+
+A second instance, and the hole was in the pattern rather than in the file set.
+
+The question was whether the decision log contained any command with a quoted
+metacharacter. The search asked for a metacharacter after an escaped double
+quote:
+
+    grep -o '"command":"[^"]*\\"\*[^"]*"' …/decisions.jsonl     nothing
+
+That returned nothing, and "nothing" was published as *the log contains no such
+command*. It contains many. Almost every real case is single-quoted,
+`find internal -name '*_test.go'`, and the pattern could not see one. Widening it
+to a metacharacter inside any quoted run found eighteen in the same file, one of
+which was the failed search itself.
+
+**The claim was about quoting and the search was about one spelling of quoting.**
+That is the same shape as the recursive case: a narrower question answered
+confidently, whose answer reads identically to the broader one.
+
+The conclusion drawn from it was worse than the error. A corpus that separates
+two implementations is evidence they agree; a corpus that cannot separate them is
+not. Getting the search wrong turned the first into the second and inverted what
+the agreement was worth.
+
+**So a negative result wants its own positive control.** Before believing that a
+pattern finds nothing, run it against a case constructed to match. Here that
+would have cost one command and caught it immediately.
+
 ## Why this belongs to qwark specifically
 
 qwark exists because a command's name does not reliably say what will run. This
