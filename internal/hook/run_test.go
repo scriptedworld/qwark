@@ -45,7 +45,7 @@ func TestADecisionExitsZeroAndTravelsInTheJSON(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.3a | negative
+// COVERS: FR-10.3a, FR-10.3b | negative
 func TestAnUnreadablePayloadExitsTwo(t *testing.T) {
 	t.Parallel()
 
