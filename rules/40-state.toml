@@ -43,7 +43,8 @@
 #   requirement one level down, and it is reachable by the Write tool with no
 #   shell involved, so it needs a `permissions.deny` entry as well as
 #   ownership. How the state is stored at all is still open: an appended file
-#   each run trims under a lock, or a sideboard process. See DESIGN-NOTES.
+#   each run trims under a lock, or a sideboard process. See
+#   docs/DECISIONS/the-leaking-bucket-has-no-honest-home-in-mode-one.md.
 # ---------------------------------------------------------------------------
 
 # ============================================================================

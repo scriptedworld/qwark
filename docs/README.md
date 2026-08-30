@@ -1,12 +1,13 @@
-# qwark, why it is built this way
+# qwark documentation
 
-The reasoning behind qwark, one topic per file under `docs/`. What qwark is and
-what it is for is in [`docs/PROJECT.md`](docs/PROJECT.md). `REQUIREMENTS.md`
-states what must be true, and stays a single file while the traceability checker
-takes a single path, for the reason under *The split is pending* in
-`docs/PROJECT.md`. Open questions are in `NEXT_STEPS.md`.
+    INSTALLING.md   deploying it, registering the hook, and the log
+    RULES.md        what a rule is, the declarations, the shipped set
+    PROJECT.md      the layout, and how this repository is gated
 
-## Decisions, `docs/DECISIONS/`
+`../REQUIREMENTS.md` states what must be true, and `../NEXT_STEPS.md` carries
+what is not done and what is waiting on an answer.
+
+## Decisions, `DECISIONS/`
 
 The reasoning that would otherwise survive only in a commit message.
 
@@ -47,23 +48,23 @@ The reasoning that would otherwise survive only in a commit message.
 `configuration-is-toml-and-fails-closed` ·
 `observability-and-withheld-environment-values`
 
-## Lessons, `docs/LESSONS/`
+## Lessons, `LESSONS/`
 
-What the shell turned out to do, each found the hard way.
+What the shell turned out to do, each found the hard way. These are what a gate
+learns from having to read a command the same way the shell will, which is a
+narrower thing than knowing how shells behave.
 
 `zsh-executes-code-from-inside-a-glob`, the finding that settles the shell
 question and the reason `no-glob` is in tier one ·
 `no-spelling-of-a-command-is-immune-to-shadowing` ·
 `aliases-reach-the-bash-tool` ·
 `the-shell-is-zsh-and-the-decision-is-to-change-it` ·
-`an-escape-defeats-a-path-rule`
+`an-escape-defeats-a-path-rule` ·
+`a-hook-change-takes-effect-immediately-and-can-lock-you-out` ·
+`a-recursive-grep-here-cannot-see-your-working-files`
 
-Some of these are general, and their general form lives in silo:
-`silo/docs/LESSONS/cli-aliases.md` carries what is true of any shell on this
-machine. What is here is what only a gate learns, having to read a command the
-same way the shell will.
+## Patterns, `PATTERNS/`
 
-## Patterns, `docs/PATTERNS/`
-
-`the-mechanicals-the-shapes-a-rule-can-be-written-in`, the five shapes a rule
-takes with the worked example for each. Read it before writing a rule.
+`the-mechanicals-the-shapes-a-rule-can-be-written-in`, the six shapes a rule
+takes with the worked example for each, and the two that look right and do not
+work. Read it before writing a rule.

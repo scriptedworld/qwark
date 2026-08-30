@@ -44,9 +44,9 @@ func (e *ParseError) Unwrap() error { return e.Err }
 //
 // **The shell has to be established, not inferred from the tool's name.**
 // Claude Code's Bash tool runs zsh 5.9 on the machine this was written on,
-// where `$0` is `/bin/zsh` and `BASH_VERSION` is unset, and the
-// decision recorded in DESIGN-NOTES is to force that shell to bash rather than
-// to teach qwark zsh.
+// where `$0` is `/bin/zsh` and `BASH_VERSION` is unset. The decision is to
+// force that shell to bash rather than to teach qwark zsh, and it is recorded
+// in docs/LESSONS/the-shell-is-zsh-and-the-decision-is-to-change-it.md.
 //
 // That decision is what makes this variant correct, so it is a precondition and
 // not a default. Reading zsh as bash fails silently rather than loudly: of ten

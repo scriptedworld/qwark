@@ -1,7 +1,7 @@
 # qwark, Requirements
 
-Derived from my own statements, recorded in `DESIGN-NOTES.md` and the files it
-indexes. qwark is a `PreToolUse` hook for Claude Code; the first mode gates the
+Derived from my own statements, recorded in `docs/` and indexed by
+`docs/README.md`. qwark is a `PreToolUse` hook for Claude Code; the first mode gates the
 Bash tool.
 
 Requirements are stated as observable properties: each says what is true of a run,

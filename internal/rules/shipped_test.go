@@ -69,10 +69,9 @@ func TestTheRegistrationCarriesTheDenyListQwarkCannotEnforce(t *testing.T) {
 	// through it, so a path protected only by a rule in 20-paths.toml is
 	// protected against a shell and against nothing else.
 	//
-	// This was documented in DESIGN-NOTES and shipped as prose: the fragment
-	// explained at length that a permissions.deny twin was needed and carried
-	// none. A control that exists only in the paragraph describing it is the
-	// failure this test exists to catch.
+	// The fragment once explained at length that a permissions.deny twin was
+	// needed and carried none. A control that exists only in the paragraph
+	// describing it is what this test catches.
 	body, err := os.ReadFile(filepath.Join("..", "..", "install", "settings-fragment.json"))
 	if err != nil {
 		t.Fatalf("reading the shipped registration: %v", err)
