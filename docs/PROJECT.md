@@ -107,11 +107,13 @@ the adapter to merge. A placeholder is one argument and is shell-quoted, which
 is why the chain lives in a script and not in the value.
 
 **`main()` is measured only when the definitions are passed**, which is why
-`just checks` reaches `bolt` through `just/project.just` rather than through the
-shared `_verdict`. Without `--definitions go-std-quality` the placeholder stays
-`true`, the entry point never runs, and `cmd/qwark/main.go` reports 0.0% against
-the floor. That is the jig being right, and the fix is to supply the value
-rather than to exempt the file.
+`checks` in `just/lang.just` calls
+`just _verdict go-std-quality --definitions go-std-quality`. Without the flag
+the placeholder stays `true`, the entry point never runs, and
+`cmd/qwark/main.go` reports 0.0% against the floor. Both directions are
+checkable: `just _verdict go-std-quality` on its own still fails there. That is
+the jig being right, and the fix is to supply the value rather than to exempt
+the file.
 
 The secrets jig passes. It takes a `.secrets.baseline` when one exists and scans
 `git ls-files` when none does, so this tree needs no baseline. The recipe is

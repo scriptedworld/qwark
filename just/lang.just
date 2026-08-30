@@ -8,7 +8,7 @@
 # everything: quality, tests, coverage, secrets
 checks:
     @just _verdict common-quality
-    @just _verdict go-std-quality
+    @just _verdict go-std-quality --definitions go-std-quality
     @just leak-scan
 
 # the suite
