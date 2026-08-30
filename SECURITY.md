@@ -74,6 +74,7 @@ command through.
 
 The shell qwark parses for is the shell that will run the command. The mismatch
 is silent rather than loud: of ten zsh constructs the bash parser rejects only
-two, while four parse cleanly and mean something else. qwark verifies the
-declared shell against what the environment reports, which is worth exactly as
-much as that environment being unwritable.
+two, while four parse cleanly and mean something else. `[shell]` declares which
+grammar the parser assumes and `qwark rules` prints it, which is a statement of
+intent rather than a check: nothing compares that declaration against the shell
+the agent's tool actually spawns.
