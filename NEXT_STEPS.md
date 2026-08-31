@@ -406,6 +406,30 @@ layers**.
 
 ## Known limits, written down so they are not rediscovered
 
+- **THE RULE SYNTAX IS WHAT MOST WANTS REVISION**, and two gaps in it account
+  for most of the bulk. `rules/` is 2,196 lines, 779 in `10-commands.toml`
+  alone, and duplication is why.
+
+  **A clause cannot say OR.** An argument pattern matches one shape, so a
+  command acceptable in three forms takes three rules differing in one field.
+  A later edit has to find all three and nothing reports that one was missed.
+
+  **A command cannot be denied with exceptions carved out of it.** The worked
+  case:
+
+      git branch -D                  refuse
+      git branch -D some-prefix/*    permit
+
+  There is no spelling for that. The available move is to enumerate the
+  permitted uses instead, which inverts the policy: a reader sees a list of
+  allowances and cannot tell what it protects against, and anything nobody
+  thought of is permitted by omission rather than refused by intent.
+  `docs/RULES.md` already names a list of exceptions nobody can read as a
+  policy as the failure to avoid; this is that failure reached from the other
+  side.
+
+  Both are syntax rather than engine. Neither is scheduled, and the rule set
+  should not be grown further on the current spelling.
 - **FR-4.18 has a live instance, and it was found by being bitten.** That
   requirement says using a name the shell may resolve to something other than
   the intended program is refused, and notes that a backslash suppresses alias

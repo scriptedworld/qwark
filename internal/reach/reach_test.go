@@ -35,19 +35,19 @@ func contains(t *testing.T, radius reach.Radius, base, path string) bool {
 func TestAPathInsideTheRadiusIsContained(t *testing.T) {
 	t.Parallel()
 
-	radius := radiusAt(t, "/home/ancient/proj")
+	radius := radiusAt(t, "/home/user/proj")
 
 	for _, path := range []string{
-		"/home/ancient/proj",
-		"/home/ancient/proj/a",
-		"/home/ancient/proj/a/b/c.go",
-		"/home/ancient/proj/./a",
-		"/home/ancient/proj/a/../b",
+		"/home/user/proj",
+		"/home/user/proj/a",
+		"/home/user/proj/a/b/c.go",
+		"/home/user/proj/./a",
+		"/home/user/proj/a/../b",
 	} {
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()
 
-			if !contains(t, radius, "/home/ancient/proj", path) {
+			if !contains(t, radius, "/home/user/proj", path) {
 				t.Errorf("%q reported as outside", path)
 			}
 		})
@@ -58,21 +58,21 @@ func TestAPathInsideTheRadiusIsContained(t *testing.T) {
 func TestASiblingWhoseNameSharesAPrefixIsNotContained(t *testing.T) {
 	t.Parallel()
 
-	// The trap. `/home/ancient/project` begins with `/home/ancient/proj` as
+	// The trap. `/home/user/project` begins with `/home/user/proj` as
 	// text, and is not inside it as a path. A gate comparing strings would let
 	// every write to the neighbouring directory through.
-	radius := radiusAt(t, "/home/ancient/proj")
+	radius := radiusAt(t, "/home/user/proj")
 
 	for _, path := range []string{
-		"/home/ancient/project",
-		"/home/ancient/project/secrets",
-		"/home/ancient/proj-backup",
-		"/home/ancient/projX",
+		"/home/user/project",
+		"/home/user/project/secrets",
+		"/home/user/proj-backup",
+		"/home/user/projX",
 	} {
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()
 
-			if contains(t, radius, "/home/ancient/proj", path) {
+			if contains(t, radius, "/home/user/proj", path) {
 				t.Errorf("%q reported as inside; it only shares a prefix as text", path)
 			}
 		})
@@ -83,11 +83,11 @@ func TestASiblingWhoseNameSharesAPrefixIsNotContained(t *testing.T) {
 func TestClimbingOutIsNotContained(t *testing.T) {
 	t.Parallel()
 
-	radius := radiusAt(t, "/home/ancient/proj")
+	radius := radiusAt(t, "/home/user/proj")
 
 	for _, path := range []string{
-		"/home/ancient/proj/../../../etc/passwd",
-		"/home/ancient/proj/a/../../b",
+		"/home/user/proj/../../../etc/passwd",
+		"/home/user/proj/a/../../b",
 		"/etc/passwd",
 		"/",
 		"/home/ancient",
@@ -95,7 +95,7 @@ func TestClimbingOutIsNotContained(t *testing.T) {
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()
 
-			if contains(t, radius, "/home/ancient/proj", path) {
+			if contains(t, radius, "/home/user/proj", path) {
 				t.Errorf("%q reported as inside", path)
 			}
 		})
@@ -106,18 +106,18 @@ func TestClimbingOutIsNotContained(t *testing.T) {
 func TestARelativePathIsResolvedAgainstWhereTheCommandRuns(t *testing.T) {
 	t.Parallel()
 
-	radius := radiusAt(t, "/home/ancient/proj")
+	radius := radiusAt(t, "/home/user/proj")
 
 	cases := []struct {
 		base string
 		path string
 		want bool
 	}{
-		{base: "/home/ancient/proj", path: "a.go", want: true},
-		{base: "/home/ancient/proj/sub", path: "a.go", want: true},
-		{base: "/home/ancient/proj/sub", path: "../a.go", want: true},
-		{base: "/home/ancient/proj", path: "../other", want: false},
-		{base: "/home/ancient/proj/sub", path: "../../../etc/passwd", want: false},
+		{base: "/home/user/proj", path: "a.go", want: true},
+		{base: "/home/user/proj/sub", path: "a.go", want: true},
+		{base: "/home/user/proj/sub", path: "../a.go", want: true},
+		{base: "/home/user/proj", path: "../other", want: false},
+		{base: "/home/user/proj/sub", path: "../../../etc/passwd", want: false},
 	}
 
 	for _, c := range cases {
@@ -230,7 +230,7 @@ func TestARelativeRadiusOrBaseIsRefused(t *testing.T) {
 		t.Errorf("New(relative) = %v, want %v", err, reach.ErrRelativeRoot)
 	}
 
-	radius := radiusAt(t, "/home/ancient/proj")
+	radius := radiusAt(t, "/home/user/proj")
 	if _, err := radius.Contains("relative/base", "a.go"); !errors.Is(err, reach.ErrRelativeBase) {
 		t.Errorf("Contains(relative base) = %v, want %v", err, reach.ErrRelativeBase)
 	}
@@ -245,7 +245,7 @@ func TestARadiusOfTheWholeFilesystemContainsEverything(t *testing.T) {
 	// anything at all.
 	radius := radiusAt(t, "/")
 
-	for _, path := range []string{"/", "/etc/passwd", "/home/ancient/proj"} {
+	for _, path := range []string{"/", "/etc/passwd", "/home/user/proj"} {
 		if !contains(t, radius, "/", path) {
 			t.Errorf("%q reported as outside the root of the filesystem", path)
 		}
