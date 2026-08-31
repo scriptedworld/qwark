@@ -12,7 +12,7 @@ func clauseSet(clause string) map[string]string {
 	return map[string]string{"00.toml": declarations + `
 [group.protected]
 match = "partial"
-members = ["/etc/", "/home/ancient/.claude/"]
+members = ["/etc/", "/home/user/.claude/"]
 
 [group.subcommands]
 members = ["log", "status"]
@@ -111,7 +111,7 @@ func TestAClauseSelectingPaths(t *testing.T) {
 	if !held(t, clause, `rm /etc/passwd`) {
 		t.Error("a path clause did not match a protected path")
 	}
-	if held(t, clause, `rm /home/ancient/work/x`) {
+	if held(t, clause, `rm /home/user/work/x`) {
 		t.Error("a path clause matched a path outside the group")
 	}
 	if held(t, clause, `git /etc/passwd`) {
@@ -165,10 +165,10 @@ func TestAClauseChoosesWhichReadingItTests(t *testing.T) {
 	const interpreted = "  [[rule.clause]]\n  partial = \".claude\"\n"
 	const written = "  [[rule.clause]]\n  partial = \".claude\"\n  reading = \"written\"\n"
 
-	if !held(t, interpreted, `rm /home/ancient/.cl\aude/x`) {
+	if !held(t, interpreted, `rm /home/user/.cl\aude/x`) {
 		t.Error("the interpreted reading did not see through an escape")
 	}
-	if held(t, written, `rm /home/ancient/.cl\aude/x`) {
+	if held(t, written, `rm /home/user/.cl\aude/x`) {
 		t.Error("the written reading saw through an escape, so this proves nothing")
 	}
 }

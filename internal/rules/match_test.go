@@ -40,7 +40,7 @@ func TestPartialMatchesAnywhereWithin(t *testing.T) {
 	}
 
 	for _, hit := range []string{
-		"/home/ancient/.claude/settings.json",
+		"/home/user/.claude/settings.json",
 		".claude",
 		"x.claude",
 	} {
@@ -48,7 +48,7 @@ func TestPartialMatchesAnywhereWithin(t *testing.T) {
 			t.Errorf(`Partial(".claude") did not match %q`, hit)
 		}
 	}
-	if match.Matches("/home/ancient/claude") {
+	if match.Matches("/home/user/claude") {
 		t.Error("partial matched a value not containing the text")
 	}
 }
@@ -219,7 +219,7 @@ func TestASpecStatingNoneOrSeveralIsRefused(t *testing.T) {
 func TestAMatchQuotesItselfAsWritten(t *testing.T) {
 	t.Parallel()
 
-	const expr = `/home/ancient/\.claude/.*`
+	const expr = `/home/user/\.claude/.*`
 
 	match, err := rules.Pattern(expr)
 	if err != nil {

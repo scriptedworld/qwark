@@ -59,7 +59,7 @@ func TestSomethingMerelyNamedBashIsRefused(t *testing.T) {
 	// accept a shell on the strength of what it is called.
 	for _, reported := range []string{
 		"/tmp/bash",
-		"/home/ancient/.local/bin/bash",
+		"/home/user/.local/bin/bash",
 		"/usr/local/bin/bash",
 		"bash",
 		"./bash",

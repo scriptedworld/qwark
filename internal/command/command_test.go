@@ -216,8 +216,8 @@ func TestAnEscapeInsideAPathDoesNotHideIt(t *testing.T) {
 
 	// The shell reaches .claude either way. A rule protecting that directory
 	// is defeated by the second spelling unless the escape is resolved first.
-	plain, _ := onlySimple(t, `rm /home/ancient/.claude/settings.json`).At(1)
-	hidden, _ := onlySimple(t, `rm /home/ancient/.cl\aude/settings.json`).At(1)
+	plain, _ := onlySimple(t, `rm /home/user/.claude/settings.json`).At(1)
+	hidden, _ := onlySimple(t, `rm /home/user/.cl\aude/settings.json`).At(1)
 
 	if hidden.Value != plain.Value {
 		t.Errorf("escaped path resolved to %q, want %q", hidden.Value, plain.Value)

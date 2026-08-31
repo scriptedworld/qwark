@@ -90,7 +90,7 @@ func TestClimbingOutIsNotContained(t *testing.T) {
 		"/home/user/proj/a/../../b",
 		"/etc/passwd",
 		"/",
-		"/home/ancient",
+		"/home/user",
 	} {
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()

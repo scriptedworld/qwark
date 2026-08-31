@@ -123,7 +123,7 @@ func simpleOf(parsed *shell.Parsed, call *syntax.CallExpr) Simple {
 // string and returns no error, so a caller cannot tell a fixed word from one it
 // silently guessed at. It refuses command substitution properly, but the silent
 // case is the dangerous one: deciding about `rm -rf /x` when the shell will act
-// on `rm -rf /home/ancient/x` is exactly the mistake a parser was adopted to
+// on `rm -rf /home/user/x` is exactly the mistake a parser was adopted to
 // stop making.
 func literal(word *syntax.Word) (value string, escaped, determined bool) {
 	var built strings.Builder
@@ -176,7 +176,7 @@ const quotedEscapes = "$`\"\\\n"
 // The parser keeps escapes in a literal's value: **`a\ b` arrives as `a\ b`
 // while bash passes `a b`**, so a gate comparing that value
 // against a path is comparing a string the shell will never produce. Written as
-// `rm /home/ancient/.cl\aude/x`, the shell reaches `.claude` and an unresolved
+// `rm /home/user/.cl\aude/x`, the shell reaches `.claude` and an unresolved
 // comparison does not.
 func unescape(raw string) (string, bool) {
 	if !strings.ContainsRune(raw, '\\') {

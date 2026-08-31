@@ -13,8 +13,8 @@ import (
 // out of the installed binary rather than recalled.
 const payload = `{
   "session_id": "1e422d1b",
-  "transcript_path": "/home/ancient/.claude/projects/x/1e422d1b.jsonl",
-  "cwd": "/home/ancient/.projects/qwark",
+  "transcript_path": "/home/user/.claude/projects/x/1e422d1b.jsonl",
+  "cwd": "/home/user/.projects/qwark",
   "prompt_id": "p-1",
   "permission_mode": "default",
   "agent_id": "a-7",
@@ -40,7 +40,7 @@ func TestARequestIsReadAsItIsSent(t *testing.T) {
 		want  string
 	}{
 		{field: "session_id", got: request.SessionID, want: "1e422d1b"},
-		{field: "cwd", got: request.Cwd, want: "/home/ancient/.projects/qwark"},
+		{field: "cwd", got: request.Cwd, want: "/home/user/.projects/qwark"},
 		{field: "permission_mode", got: request.PermissionMode, want: "default"},
 		{field: "hook_event_name", got: request.HookEventName, want: "PreToolUse"},
 		{field: "tool_name", got: request.ToolName, want: "Bash"},
@@ -253,7 +253,7 @@ func TestAMainSessionCallCarriesNoAgentAndIsStillRead(t *testing.T) {
 	// dependable rather than assumed.
 	const mainSession = `{
 	  "session_id": "s-1",
-	  "cwd": "/home/ancient/.projects/qwark",
+	  "cwd": "/home/user/.projects/qwark",
 	  "permission_mode": "default",
 	  "hook_event_name": "PreToolUse",
 	  "tool_name": "Bash",

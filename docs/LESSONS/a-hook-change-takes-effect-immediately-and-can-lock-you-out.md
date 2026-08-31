@@ -29,8 +29,8 @@ restarted between the edit and the call.
 
 The same edit added the `permissions.deny` twin FR-10.10 asks for:
 
-    "Edit(/home/ancient/.projects/qwark/.claude/settings.local.json)"
-    "Write(/home/ancient/.projects/qwark/.claude/settings.local.json)"
+    "Edit(/home/user/.projects/qwark/.claude/settings.local.json)"
+    "Write(/home/user/.projects/qwark/.claude/settings.local.json)"
 
 That is correct in intent. An agent that can edit the file declaring its own
 constraint has no constraint, and the deny closes it.
