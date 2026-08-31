@@ -15,7 +15,7 @@ error*:
     $((2+2))           value="4"  err=<nil>                    (silent)
 
 A caller cannot tell a fixed word from one that was quietly guessed at. Reasoning
-about `rm -rf /x` while the shell acts on `rm -rf /home/ancient/x` is the
+about `rm -rf /x` while the shell acts on `rm -rf /home/user/x` is the
 predecessor's class of error, reached by a different route.
 
 Environment variables are eliminated from command lines too, so the substitution

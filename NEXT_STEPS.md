@@ -309,7 +309,7 @@ is the second and not a replacement. It matters for what to invest in now:
    FR-10.11 and two tests. Both commands above now deny. **The live set is
    unchanged**, this phase being structural-only, so it is the deployment that is
    still open rather than the rule. Measurement and repro in
-   `clank/tasks/qwark/rules/40-the-path-group-guards-dead-paths.complete/`.
+   the task tracker.
 
    It stays listed here because the other two contradictions are open and this
    one names the shape they share: a guard that outlives the address of its
@@ -325,7 +325,7 @@ answered rather than predicted.
 `18e4f8a`: every command in the live decision log, plus a floor of what this
 repository cannot be worked in without. Live allows 79 of 84, source allows 70.
 `.ephemera/can-work-continue.py` regenerates it; the results are kept in
-`clank/tasks/qwark/rules/40-the-path-group-guards-dead-paths.complete/evidence/`.
+the task tracker.
 
 **Nine commands are allowed today and refused by the source set. Four of them
 are how qwark gets built and gated:**
@@ -454,7 +454,7 @@ layers**.
   FR-1.7, FR-1.8, FR-1.9 and FR-1.10 describe a check with no caller, while
   `00-structure.toml` declares `allow = ["/bin/bash", "/usr/bin/bash"]` and
   reads as though bash were enforced. Confirmed 2026-08-28. Filed at
-  `clank/inbox/qwark/shell-policy-is-parsed-and-never-consulted`, which also
+  the task tracker, which also
   measures that the Bash tool's shell is zsh carrying the user's aliases.
 - **The observation phase is running.** It was blocked on FR-4.16: the engine
   denied an undeclared command unconditionally, so a rule set omitting

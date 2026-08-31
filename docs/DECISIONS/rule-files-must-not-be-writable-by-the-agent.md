@@ -13,7 +13,7 @@
 > **What holds the property now**, and it is weaker on purpose, in three parts
 > that were expected to be jointly sufficient and are not:
 >
-> `silo/CLAUDE.md` hard rule 4a, that an agent does not edit these files without
+> the estate standing rule that an agent does not edit these files without
 > a person in the conversation. Policy rather than mechanism, and currently
 > carrying most of the weight.
 >

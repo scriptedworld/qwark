@@ -30,7 +30,7 @@ The interpreted reading is the default.
     reading = "interpreted"   what the shell will pass       (default)
     reading = "written"       the source, escapes intact
 
-Testing what was written is what lets `/home/ancient/.cl\aude/x` past a rule
+Testing what was written is what lets `/home/user/.cl\aude/x` past a rule
 about `.claude`. The written reading still earns its place, since a rule about
 *how* something was spelled is a real thing to want and the alias ban is one, but
 it has to be asked for.

@@ -116,7 +116,7 @@ beside it:
       group = "go-executes"
 
       [[rule.clause]]
-      cwd    = "/home/ancient/.projects/qwark"
+      cwd    = "/home/user/.projects/qwark"
       absent = true
 
 **The reflex is to write a scoped allow, and it does not work.** There is no
