@@ -32,6 +32,28 @@ It is recorded because the reason is invisible from the code, and because a
 reader who finds a Go program in an estate that moved its other Go program to
 Rust is owed the answer.
 
+## What Go costs, since a decision naming only its upside is not one
+
+**Branch coverage is not available.** Go measures statements, so a gate can ask
+what ran and not which way a condition went. `if` with no `else` has a false
+path the toolchain cannot see. Nothing here closes that; the jig gates on
+statements and says so rather than reporting a guarantee nobody established.
+
+**`main` cannot be reached by a test.** Nothing in a test process calls it, so
+it is uncovered by construction, and covering it means building with
+`go build -cover`, running the binary, and appending a second profile to the
+first. That is a whole extra mechanism for one function.
+
+**So `main` holds exactly one statement**, and this is a requirement rather than
+a style: `cmd/qwark/main.go` calls `cli.Main` and exits. Everything real is in
+`internal/cli`, which a test reaches normally. The binary's own `help` then
+costs almost nothing to run and proves the one unreachable statement executed.
+
+Rust needs none of this: an integration test runs the binary and the profile is
+one artifact. **The entry-point pattern exists because of the language, not
+because it is better design**, and it is worth knowing which of the two you are
+looking at.
+
 ## The alternative that was live
 
 Rust, which is what bolt runs and what wrench measured fastest per document.
