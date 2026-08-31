@@ -34,10 +34,19 @@ Rust is owed the answer.
 
 ## What Go costs, since a decision naming only its upside is not one
 
-**Branch coverage is not available.** Go measures statements, so a gate can ask
-what ran and not which way a condition went. `if` with no `else` has a false
-path the toolchain cannot see. Nothing here closes that; the jig gates on
-statements and says so rather than reporting a guarantee nobody established.
+**Branch coverage is reachable and not measurable.** Go reports statements, so
+the toolchain can say what ran and not which way a condition went: an `if` with
+no `else` has a false path it cannot see.
+
+Covering every edge is still ordinary work. A table-driven test with a case per
+branch does it, and a test hierarchy that follows the seams gets you there by
+construction rather than by hunting. **What is missing is the instrument that
+confirms it.** Nothing reports which branches went unvisited, so the guarantee
+rests on discipline and review where the statement number rests on measurement,
+and only one of those degrades quietly.
+
+The jig gates on statements and says so, rather than reporting a guarantee
+nothing established.
 
 **`main` cannot be reached by a test.** Nothing in a test process calls it, so
 it is uncovered by construction, and covering it means building with
