@@ -406,6 +406,23 @@ layers**.
 
 ## Known limits, written down so they are not rediscovered
 
+- **A NAMED DIRECTORY IS A THIRD EXPANSION AND NOTHING SEES IT.** zsh's
+  `hash -d proj=/somewhere` makes `~proj/x` expand to `/somewhere/x`. qwark
+  reads `~proj/x` as an ordinary literal word, so a protected-path rule reasons
+  about the text while the shell acts on the directory. Measured: against the
+  live rules, `rm ~proj/x` is allowed.
+
+  This is the failure `nothing-is-expanded` exists to prevent, reached by a
+  route it does not cover. That decision enumerated command substitution,
+  arithmetic and `$HOME`; a named directory is a fourth case and the
+  enumeration was of what somebody thought of.
+
+  **It is a rule decision rather than a code change.** The available answers
+  are to deny a word beginning `~` followed by anything but `/`, which is
+  cheap and refuses a legitimate form, or to report such a word as undetermined
+  so a clause on its value cannot hold, which matches how `$HOME` is already
+  treated. Neither is taken. **`~/` alone is unambiguous and is resolved for
+  rule-file members only, which is FR-4.29 and a different thing.**
 - **THE RULE SYNTAX IS WHAT MOST WANTS REVISION**, and two gaps in it account
   for most of the bulk. `rules/` is 2,196 lines, 779 in `10-commands.toml`
   alone, and duplication is why.
