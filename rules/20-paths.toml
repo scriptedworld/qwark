@@ -10,8 +10,8 @@
 #
 #   match = "partial" on the group, because a protected path is a PREFIX. A
 #                     group of paths compared for exact equality would match
-#                     `/home/ancient/.claude` and miss
-#                     `/home/ancient/.claude/settings.json`, which is every
+#                     `/home/user/.claude` and miss
+#                     `/home/user/.claude/settings.json`, which is every
 #                     case that matters. Silent non-matching is the worst way
 #                     for a deny rule to fail.
 #
@@ -26,7 +26,7 @@
 # unwritable.
 #
 # These rules also read the INTERPRETED value, which is the default and is
-# load-bearing here: `rm /home/ancient/.cl\aude/x` reaches .claude, and a rule
+# load-bearing here: `rm /home/user/.cl\aude/x` reaches .claude, and a rule
 # reading what was written sees `.cl\aude` and misses.
 # ---------------------------------------------------------------------------
 #
@@ -39,7 +39,7 @@
 #
 # Measured on this machine:
 #
-#   ~/.claude/settings.json -> /home/ancient/.projects/dotfiles/claude/settings.json
+#   ~/.claude/settings.json -> /home/user/.projects/dotfiles/claude/settings.json
 #
 # So `partial = "/.claude/settings.json"` never fires: by the time the rule
 # sees it, the path is the dotfiles one. Written in resolved form the rule
@@ -156,8 +156,8 @@ members = [
 [group.executable-path]
 match = "partial"
 members = [
-  "/home/ancient/bin/",
-  "/home/ancient/.local/bin/",
+  "~/bin/",
+  "~/.local/bin/",
   "/usr/local/bin/",
   "/usr/bin/",
   "/bin/",

@@ -186,7 +186,52 @@ func read(path string) (File, error) {
 		return File{}, fmt.Errorf("%w: %s: %w", ErrUnreadable, path, err)
 	}
 
+	if err := resolveHome(&parsed); err != nil {
+		return File{}, fmt.Errorf("%w: %s: %w", ErrUnreadable, path, err)
+	}
+
 	return parsed, nil
+}
+
+// resolveHome turns a leading `~/` in a group member into the running user's
+// home directory.
+//
+// THIS IS NOT THE EXPANSION `nothing-is-expanded` FORBIDS, and the difference
+// is who wrote the text. That decision is about a word in the command being
+// judged, where a silently empty `$HOME` would have qwark reason about
+// `rm -rf /x` while the shell acts on `rm -rf /home/user/x`. Here the text is
+// qwark's own configuration, read once at load. The alternative is a shipped
+// rule set carrying one machine's absolute paths.
+//
+// A HOME THAT CANNOT BE FOUND IS A REFUSAL, NOT A GUESS. Resolving `~/bin/` to
+// `/bin/` would silently widen a protected-path group to every user on the
+// host, which is the failure the decision exists to prevent, reached from the
+// configuration side.
+//
+// Only a leading `~/` is touched. A tilde anywhere else is left as written,
+// because a path may legitimately contain one.
+func resolveHome(file *File) error {
+	var home string
+
+	for name, group := range file.Group {
+		for i, member := range group.Members {
+			if !strings.HasPrefix(member, "~/") {
+				continue
+			}
+			if home == "" {
+				found, err := os.UserHomeDir()
+				if err != nil {
+					return fmt.Errorf(
+						"group %q member %q needs a home directory and none was found: %w",
+						name, member, err)
+				}
+				home = found
+			}
+			group.Members[i] = filepath.Join(home, member[2:])
+		}
+	}
+
+	return nil
 }
 
 // merge folds one file into the set, refusing any definition another file

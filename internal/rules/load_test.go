@@ -272,3 +272,40 @@ func TestThisRepositorysOwnRuleFilesLoad(t *testing.T) {
 		t.Error("the repository's rule files declare no permitted shell")
 	}
 }
+
+// COVERS: FR-4.29 | positive
+func TestALeadingTildeInAGroupMemberBecomesTheHomeDirectory(t *testing.T) {
+	// A shipped rule set must not carry one machine's absolute paths, and a
+	// protected-path group that silently lost its home prefix would widen to
+	// every user on the host. So the resolution happens at load and a member
+	// keeping its tilde would be a member matching nothing.
+	home, err := os.UserHomeDir()
+	if err != nil {
+		t.Skipf("no home directory on this host: %v", err)
+	}
+
+	dir := inFiles(t, map[string]string{
+		"00-groups.toml": `
+[group.paths]
+match = "partial"
+members = ["~/bin/", "/usr/bin/", "~name/not-a-home"]
+`,
+	})
+
+	set, err := rules.Load([]string{dir})
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+
+	got := set.Groups["paths"].Members
+	want := []string{filepath.Join(home, "bin"), "/usr/bin/", "~name/not-a-home"}
+
+	if len(got) != len(want) {
+		t.Fatalf("members = %v, want %v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("member %d = %q, want %q", i, got[i], want[i])
+		}
+	}
+}
