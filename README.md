@@ -172,8 +172,13 @@ the shapes a rule takes and which one fits a given intent.
 
 `just --list` is the whole interface, and `just build` and `just test` are the
 two you want. They wrap `go build -o bin/qwark ./cmd/qwark` and `go test ./...`,
-which is what a clone can run on its own: the full quality gate needs tooling
-that is not published yet. CONTRIBUTING.md says what that means for a change.
+which is what a clone can run on its own. The full quality gate needs two
+sibling checkouts, neither on a package registry:
+
+    git clone https://github.com/scriptedworld/bolt.git    ../bolt
+    git clone https://github.com/scriptedworld/toolbox.git ../toolbox
+
+CONTRIBUTING.md says what that means for a change.
 
 ## Licence
 
