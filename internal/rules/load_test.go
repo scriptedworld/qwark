@@ -275,6 +275,8 @@ func TestThisRepositorysOwnRuleFilesLoad(t *testing.T) {
 
 // COVERS: FR-4.29 | positive
 func TestALeadingTildeInAGroupMemberBecomesTheHomeDirectory(t *testing.T) {
+	t.Parallel()
+
 	// A shipped rule set must not carry one machine's absolute paths, and a
 	// protected-path group that silently lost its home prefix would widen to
 	// every user on the host. So the resolution happens at load and a member
