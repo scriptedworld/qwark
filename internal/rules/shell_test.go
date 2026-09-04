@@ -38,7 +38,18 @@ func TestAnotherShellIsRefused(t *testing.T) {
 
 	// zsh is the case this was written for: the tool named Bash was running
 	// zsh 5.9 on the machine where qwark was written.
-	for _, reported := range []string{"/bin/zsh", "/bin/dash", "/bin/sh", "/usr/bin/fish"} {
+	//
+	// `/bin/sh` IS NOT IN THIS LIST AND MUST NOT BE. It was, until 2026-09-04,
+	// and it failed on Arch, where `/bin/sh` is a symlink to `bash`. Verify
+	// resolves both sides before comparing — deliberately, so that a rule about
+	// a shell is not a rule about one way of spelling it — so `/bin/sh` there
+	// resolves to a permitted shell and is accepted. The code was right and this
+	// list contradicted the design it was testing.
+	//
+	// Which shell `/bin/sh` is varies by distribution: dash on Debian and
+	// Ubuntu, bash on Arch and Fedora. So it belongs in neither list, because
+	// the answer depends on the machine rather than on the rule.
+	for _, reported := range []string{"/bin/zsh", "/bin/dash", "/usr/bin/fish"} {
 		t.Run(reported, func(t *testing.T) {
 			t.Parallel()
 
