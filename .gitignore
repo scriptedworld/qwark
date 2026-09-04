@@ -31,12 +31,18 @@ example_graphs/
 # thing. A tracked symlink also stores its target path as content, which would
 # encode where ../toolbox happens to sit.
 #
-# Named one at a time rather than as `bolt.*.yaml`, because that glob would also
-# swallow `bolt.go-std-quality.definitions.yaml`, this project's own values for
-# the shared jig's placeholders, which IS tracked and is the one part a shared
-# definition must never carry.
-bolt.common-quality.yaml
-bolt.go-std-quality.yaml
+# MATCHED BY SHAPE. The objection recorded here was to `bolt.*.yaml`, which would
+# also swallow `bolt.go-std-quality.definitions.yaml` — this project's own values
+# for the shared jig's placeholders, which IS tracked and is the one part a
+# shared definition must never carry. `bolt.*-quality.yaml` is the narrower form
+# and cannot match a `*.definitions.yaml`, so the objection was to the wrong glob
+# rather than to globbing at all.
+#
+# A pattern covers a set that grows and a list does not. bolt adopted toolbox's
+# `rust` set on 2026-09-03 and left two links untracked, because adopting a set
+# and editing five .gitignore files are different acts and only the first is
+# forced.
+bolt.*-quality.yaml
 bolt.secrets.yaml
 adapters/
 config/
