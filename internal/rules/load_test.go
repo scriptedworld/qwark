@@ -311,3 +311,50 @@ members = ["~/bin/", "/usr/bin/", "~name/not-a-home"]
 		}
 	}
 }
+
+// COVERS: FR-4.29 | negative
+func TestAHomeThatWouldWidenAMemberRefusesToLoad(t *testing.T) {
+	// THE DANGEROUS CASE IS A HOME THAT IS PRESENT AND WRONG, not one that is
+	// missing. The first version of this refused only on absence, so `HOME=/`
+	// loaded and turned `~/scratch/` into `/scratch/`. For a deny group that
+	// widens in the safe direction; for an allow rule it hands out permission
+	// nobody granted.
+	//
+	// A review found it by inverting the refusal into a silent guess and
+	// watching every test still pass. These are the tests that were missing.
+	dir := inFiles(t, map[string]string{
+		"00-groups.toml": `
+[group.paths]
+match = "partial"
+members = ["~/scratch/"]
+`,
+	})
+
+	// `empty` names no sentinel: os.UserHomeDir reports its own failure there
+	// and the wrapped text is the whole answer. The other two are qwark's own
+	// judgement about a home it did find, so each states which one.
+	for name, c := range map[string]struct {
+		home string
+		want error
+	}{
+		"root":     {"/", rules.ErrHomeRoot},
+		"relative": {"not-absolute", rules.ErrHomeRelative},
+		"empty":    {"", nil},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Setenv("HOME", c.home)
+
+			set, err := rules.Load([]string{dir})
+			if err == nil {
+				t.Fatalf("HOME=%q loaded and resolved to %v, want a refusal",
+					c.home, set.Groups["paths"].Members)
+			}
+			if !errors.Is(err, rules.ErrUnreadable) {
+				t.Errorf("error = %v, want it to wrap ErrUnreadable", err)
+			}
+			if c.want != nil && !errors.Is(err, c.want) {
+				t.Errorf("error = %v, want it to wrap %v", err, c.want)
+			}
+		})
+	}
+}

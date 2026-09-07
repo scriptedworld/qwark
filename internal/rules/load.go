@@ -38,6 +38,8 @@ var (
 	ErrUnknownFlag   = errors.New("clause names a statement flag that does not exist")
 	ErrGroupMatch    = errors.New("a group compares by value or partial, nothing else")
 	ErrRelativeCwd   = errors.New("clause names a working directory that is not absolute")
+	ErrHomeRelative  = errors.New("home directory is not absolute")
+	ErrHomeRoot      = errors.New("home directory is the root, which widens every ~/ member")
 )
 
 // ruleFileSuffix is what a directory contributes. A directory named on the
@@ -203,10 +205,17 @@ func read(path string) (File, error) {
 // qwark's own configuration, read once at load. The alternative is a shipped
 // rule set carrying one machine's absolute paths.
 //
-// A HOME THAT CANNOT BE FOUND IS A REFUSAL, NOT A GUESS. Resolving `~/bin/` to
-// `/bin/` would silently widen a protected-path group to every user on the
-// host, which is the failure the decision exists to prevent, reached from the
-// configuration side.
+// A HOME THAT CANNOT BE TRUSTED IS A REFUSAL, NOT A GUESS, AND ABSENT IS THE
+// EASY HALF. Resolving `~/bin/` to `/bin/` widens a protected-path group to
+// every user on the host, which is the failure this exists to prevent. The
+// first version of this only refused when the variable was missing, so
+// `HOME=/` loaded silently and turned `~/scratch/` into `/scratch/`: for a
+// deny group that is the safe direction, and for an allow rule it hands out
+// permission nobody granted. **The dangerous case is a home that is present
+// and wrong**, and it is the one an absence check never reaches.
+//
+// So a home must be absolute and must not be the root. Those are the two
+// values that make a resolved member match far more than it was written to.
 //
 // Only a leading `~/` is touched. A tilde anywhere else is left as written,
 // because a path may legitimately contain one.
@@ -219,11 +228,9 @@ func resolveHome(file *File) error {
 				continue
 			}
 			if home == "" {
-				found, err := os.UserHomeDir()
+				found, err := usableHome()
 				if err != nil {
-					return fmt.Errorf(
-						"group %q member %q needs a home directory and none was found: %w",
-						name, member, err)
+					return fmt.Errorf("group %q member %q: %w", name, member, err)
 				}
 				home = found
 			}
@@ -232,6 +239,26 @@ func resolveHome(file *File) error {
 	}
 
 	return nil
+}
+
+// usableHome is the home directory, or an error saying why it cannot be used.
+//
+// It refuses more than absence because absence is not the hazard. A home of
+// `/` resolves every `~/` member to a top-level path, and a relative one
+// produces a member that matches nothing while looking like it matches
+// something.
+func usableHome() (string, error) {
+	found, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("needs a home directory and none was found: %w", err)
+	}
+	if !filepath.IsAbs(found) {
+		return "", fmt.Errorf("%w: %q", ErrHomeRelative, found)
+	}
+	if filepath.Clean(found) == string(filepath.Separator) {
+		return "", fmt.Errorf("%w: %q", ErrHomeRoot, found)
+	}
+	return found, nil
 }
 
 // merge folds one file into the set, refusing any definition another file
