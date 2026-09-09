@@ -29,7 +29,7 @@
 # so every rule about `rm` is silent on it.
 #
 # `time` is NOT here: it is a keyword and never a command word, so it is denied
-# by fact in 00-structure.toml instead.
+# by fact in 01-structure.toml instead.
 [group.wrapper]
 members = [
   "env", "xargs", "sudo", "doas", "su", "runuser",
@@ -64,7 +64,7 @@ members = [
 #
 # `export`, `declare`, `readonly`, `local` and `typeset` are NOT here: they
 # parse as declaration keywords rather than command words, and are denied by
-# the `declaration` fact in 00-structure.toml.
+# the `declaration` fact in 01-structure.toml.
 [group.resolution]
 members = [
   "eval", "source", ".", "alias", "unalias",
@@ -648,7 +648,7 @@ arbitrary execution."""
 # widen a refusal and a command appearing in both lists is denied.
 #
 # WHAT KEEPS THESE NARROW IS NOT THIS SECTION. It is tier one in
-# 00-structure.toml and the option tables in 05-declarations.toml. `grep x .`
+# 01-structure.toml and the option tables in 05-declarations.toml. `grep x .`
 # is permitted; `grep x *.md` is a glob, `grep x f | head` is a pipe, and
 # `grep -O prog f` is an undeclared option. None of those is mentioned here.
 # ############################################################################

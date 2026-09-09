@@ -1,7 +1,7 @@
 # qwark, the structural phase: permission, and no requirement to be described.
 #
 # ############################################################################
-# THE STRUCTURAL PHASE IS THIS FILE AND `00-structure.toml`, AND NOTHING ELSE.
+# THE STRUCTURAL PHASE IS THIS FILE AND `01-structure.toml`, AND NOTHING ELSE.
 #
 # `05-declarations.toml`, `10-commands.toml`, `20-paths.toml`, `30-options.toml`
 # and `40-state.toml` exist in the source tree and are deliberately NOT loaded.
@@ -15,7 +15,7 @@
 # FR-4.16 refuses a command qwark holds no declaration for, and it arrives
 # BEFORE shape decides anything. So a rule set of structural rules alone refuses
 # every command rather than judging the ones it understands. Measured
-# 2026-08-28: `00-structure.toml` plus a permissive allow rule answered
+# 2026-08-28: `01-structure.toml` plus a permissive allow rule answered
 # "(engine) declared commands only" to `ls`, `rm -rf` and `git add -N` alike.
 #
 # Declaring commands instead was tried and abandoned for a stated reason: it
@@ -71,7 +71,7 @@ accounted = false
 # THIS RULE EXISTS TO SATISFY FR-4.22 AND NOTHING ELSE.
 #
 # Deny is the engine's default: a command is denied unless an allow rule matched
-# it. `00-structure.toml` carries only denials, so the structural rules alone
+# it. `01-structure.toml` carries only denials, so the structural rules alone
 # permit nothing, which is indistinguishable from a broken gate.
 #
 # WHAT IT DOES NOT DO. It does not weaken a structural denial: the strictest

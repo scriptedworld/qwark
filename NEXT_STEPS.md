@@ -170,7 +170,7 @@ because deny outranks allow. An agent allowance also reaches only the command it
 rule names.
 
 **Still to do.** `rules/` carries no agent-scoped rule, because which agent types
-exist is not qwark's to invent. The vocabulary in `00-structure.toml` documents
+exist is not qwark's to invent. The vocabulary in `01-structure.toml` documents
 the clause, and the policy waits on the roles being named.
 
 ## Mode one runs: `qwark hook`
@@ -198,8 +198,8 @@ instead of judging nothing while looking installed.
 
 **Installed, and gating this tree now.** `.claude/settings.local.json` registers
 `bin/qwark hook ~/.config/qwark/rules || exit 2` on `PreToolUse` for Bash, both
-paths absolute. The live set is two files, `00-structure.toml` and
-`06-allow.toml`, so what is refused is shape: compound calls, pipes,
+paths absolute. The live set is two files, `01-structure.toml` and
+`00-allow.toml`, so what is refused is shape: compound calls, pipes,
 redirections, globs, substitutions, here-documents, backgrounding and prefix
 assignments. Everything else runs, which is why a session can still build,
 commit and run the gate.
@@ -296,7 +296,7 @@ is the second and not a replacement. It matters for what to invest in now:
    live rule set is at `~/.config/qwark/rules` and the decision log at
    `~/.local/state/qwark/`, and `match = "partial"` compares fragments, so
    nothing covered them. Judged against `rules/` before the fix, `cp` over
-   `00-structure.toml` and `rm` of `decisions.jsonl` were both **allow**, while
+   `01-structure.toml` and `rm` of `decisions.jsonl` were both **allow**, while
    `ls /etc/qwark/rules` was refused.
 
    The group was written when `/etc/qwark/rules` was the install target;
@@ -469,14 +469,14 @@ layers**.
   is defined at `internal/rules/shell.go:78` and called from nothing but
   `shell_test.go`, and no code reads `SHELL` from the environment. So FR-1.5,
   FR-1.7, FR-1.8, FR-1.9 and FR-1.10 describe a check with no caller, while
-  `00-structure.toml` declares `allow = ["/bin/bash", "/usr/bin/bash"]` and
+  `01-structure.toml` declares `allow = ["/bin/bash", "/usr/bin/bash"]` and
   reads as though bash were enforced. Confirmed 2026-08-28. Filed at
   the task tracker, which also
   measures that the Bash tool's shell is zsh carrying the user's aliases.
 - **The observation phase is running.** It was blocked on FR-4.16: the engine
   denied an undeclared command unconditionally, so a rule set omitting
   declarations denied everything rather than judging by shape. `f39b70b` settled
-  that the enforcement stays and gave it a switch, and the live `06-allow.toml`
+  that the enforcement stays and gave it a switch, and the live `00-allow.toml`
   sets `required = false`. Measured 2026-08-28: against the live set `ls -la`,
   `cat`, `grep`, `go build` and `git commit -F` all run, and only shape is
   refused.
@@ -549,6 +549,6 @@ layers**.
 | Question | State |
 |---|---|
 | Does a *denied* command decrement a sticky tag's countdown? | **SETTLED.** FR-4.24: a denied command has no effect of any kind. The Redis shape makes it structural rather than remembered, since a denied command issues no update and so cannot tick. |
-| `substitution.parameter` bans `$HOME` and `$PWD` along with the rest. Intended? | **SETTLED, and intended.** `rules/00-structure.toml` says so outright: *"command, process, arithmetic and parameter alike, so $HOME and $PWD are included."* |
+| `substitution.parameter` bans `$HOME` and `$PWD` along with the rest. Intended? | **SETTLED, and intended.** `rules/01-structure.toml` says so outright: *"command, process, arithmetic and parameter alike, so $HOME and $PWD are included."* |
 | Verdict for a command qwark cannot parse. | **SETTLED.** FR-4.12: denied, with the parser's own message, which carries the line and column. |
 | Which environment variables may be logged by value; where the log lives; whether it rotates. | **STILL OPEN.** FR-4.8, FR-4.9, FR-4.9a, all `[?]`. This is mode two, the audit, and the same store question the leaking bucket runs into. |

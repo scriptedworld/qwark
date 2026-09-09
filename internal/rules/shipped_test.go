@@ -188,7 +188,7 @@ func TestTheGuardCoversThePathsQwarkActuallyUses(t *testing.T) {
 
 	// The group named /etc/qwark/ and /var/lib/qwark/ long after the install
 	// target moved to ~/.config/qwark/rules and the log to ~/.local/state.
-	// Measured 2026-08-28: `cp` over the live 00-structure.toml and `rm` of
+	// Measured 2026-08-28: `cp` over the live 01-structure.toml and `rm` of
 	// decisions.jsonl were both ALLOW, while `ls /etc/qwark/rules` was refused.
 	// The guard was working perfectly against an address its subject had left.
 	//
@@ -213,7 +213,7 @@ func TestTheGuardCoversThePathsQwarkActuallyUses(t *testing.T) {
 	//
 	// Derived rather than written twice: moving the log moves the assertion.
 	logPath := audit.DefaultPath()
-	rulePath := filepath.Join(home(t), ".config", "qwark", "rules", "00-structure.toml")
+	rulePath := filepath.Join(home(t), ".config", "qwark", "rules", "01-structure.toml")
 
 	surfaces := map[string]string{
 		"overwriting the live rule set": "cp /tmp/evil.toml " + rulePath,

@@ -77,7 +77,7 @@ understanding something.** That fails safe in a deny rule and is worth reading
 twice in an allow rule.
 
 The full vocabulary, with what each selector means and the values it takes,
-is in the header of `rules/00-structure.toml`, beside the rules that use it.
+is in the header of `rules/01-structure.toml`, beside the rules that use it.
 
 ## Declarations
 
@@ -145,7 +145,7 @@ not, is a list of exceptions nobody can read as a policy.
 precedence, since precedence is fixed by strictness. Run
 `qwark rules rules/` for the counts.
 
-`00-structure.toml` refuses by shape and needs no declarations to do it: command
+`01-structure.toml` refuses by shape and needs no declarations to do it: command
 substitution, globs, redirections, pipes, logical concatenation, here-documents,
 sequences, backgrounding, subshells, loops and function definitions, `time`,
 coprocesses, arithmetic commands, and setting a variable name. Everything in it
@@ -156,7 +156,7 @@ command does.
 the deliberate omissions listed and their reasons, so nobody adds one later
 assuming it was forgotten.
 
-`06-allow.toml` carries the permission a deny-by-default engine needs, and the
+`00-allow.toml` carries the permission a deny-by-default engine needs, and the
 declaration switches, both currently off.
 
 `10-commands.toml` classifies commands by what they do to the world, including
@@ -181,7 +181,7 @@ differently, which is the point of the split:
     deny
       no-interpreters                    This runs code supplied as an argument, …
 
-    $ qwark judge rules/00-structure.toml rules/06-allow.toml -- python3 -c "import os"
+    $ qwark judge rules/01-structure.toml rules/00-allow.toml -- python3 -c "import os"
     allow
       allow-a-single-plain-command       A command whose effect is fixed by its own text …
 

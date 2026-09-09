@@ -163,7 +163,7 @@ agent may legitimately write.
     REQUIREMENTS.md       what must be true
     CONTRIBUTING.md       building, testing, and what a change has to carry
 
-The full clause vocabulary lives in the header of `rules/00-structure.toml`,
+The full clause vocabulary lives in the header of `rules/01-structure.toml`,
 beside the rules that use it, and
 `docs/PATTERNS/the-mechanicals-the-shapes-a-rule-can-be-written-in.md` covers
 the shapes a rule takes and which one fits a given intent.

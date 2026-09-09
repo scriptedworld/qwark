@@ -1,6 +1,6 @@
 # A declaration table, rather than a switch that makes declarations optional
 
-> **The switch this rejected was later built, and is in use.** `06-allow.toml`
+> **The switch this rejected was later built, and is in use.** `00-allow.toml`
 > carries `[declarations] required = false` and `accounted = false`, which is
 > what makes the observation phase below possible after all.
 >
@@ -8,7 +8,7 @@
 > the route to a working gate, and the objection to the switch is still the
 > reason it is temporary rather than a setting: it makes "qwark cannot account
 > for this command" configurable, and that property is the whole of what qwark
-> is. So the switch is documented in `06-allow.toml` with the way back written
+> is. So the switch is documented in `00-allow.toml` with the way back written
 > beside it, deleting the table restores FR-4.16 and FR-6.7 as written, and no
 > shipped set is meant to keep it.
 >
@@ -29,7 +29,7 @@ Omitting `05-declarations.toml` does not produce a gate that judges by shape
 alone; it produces a gate that refuses everything, because the declaration check
 fires before shape ever decides anything.
 
-Measured against a rule set holding only `00-structure.toml` and one catch-all
+Measured against a rule set holding only `01-structure.toml` and one catch-all
 allow rule:
 
     git add -N docs/PROJECT.md    deny  (engine) declared commands only  git

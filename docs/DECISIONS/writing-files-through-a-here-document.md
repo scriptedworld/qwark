@@ -1,7 +1,7 @@
 # Writing code or files through a here-document
 
 **qwark enforces this rule on its own subject.** It is FR-4.10 in
-`REQUIREMENTS.md` and `no-heredoc-write` in `rules/00-structure.toml`, so the gate
+`REQUIREMENTS.md` and `no-heredoc-write` in `rules/01-structure.toml`, so the gate
 refuses of an agent exactly what the standing rules refuse of whoever works here.
 
 Writing code or files with a here-document is not allowed.

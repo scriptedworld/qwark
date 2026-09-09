@@ -11,7 +11,7 @@ package rules
 // It is also all-or-nothing, and it arrives before shape decides anything. A
 // rule set carrying only structural rules therefore refuses every command rather
 // than judging the ones it understands, because the declaration check fires
-// first. Measured 2026-08-28: a set of `00-structure.toml` plus a permissive
+// first. Measured 2026-08-28: a set of `01-structure.toml` plus a permissive
 // allow rule answered `(engine) declared commands only` to `ls`, `rm -rf` and
 // `git add -N` alike.
 //
