@@ -18,6 +18,24 @@ So the gate works on structure. `mvdan.cc/sh/v3/syntax` gives a typed tree, need
 no cgo, and round-trips; tree-sitter-bash was the alternative and loses on both
 counts.
 
+> **Both of those grounds are spent, and the parser changed 2026-09-09.**
+> Round-tripping is not a property this gate uses: it judges a command and never
+> writes one back out. No-cgo was an argument for a pure-Go parser inside a Go
+> program, and qwark is being rewritten in Rust, where tree-sitter is an
+> ordinary crate. The ruling is in
+> `silo/docs/DECISIONS/what-language-each-component-is-written-in.md`.
+>
+> **Everything above and below this note stands**, because it is about parsing
+> versus matching and not about which parser. The predecessor's failure, the
+> glob hybrid, and the limit that a tool-layer gate cannot see a path named at
+> runtime are all parser-independent.
+>
+> The sentence this note interrupts is also the only comparison of the two
+> parsers on record anywhere in the estate, and it says tree-sitter loses. The
+> case for the swap is that it builds a better and more specific tree, and that
+> claim is written down nowhere. Measuring it is queued at
+> `clank/tasks/qwark/rewrite/10-agree-the-format.questions`.
+
 ## One tier-one rule is not a tree question, and it is a hybrid rather than text
 
 `no-glob` selects `fact = "glob"` rather than a node type, because a wildcard

@@ -4,6 +4,14 @@
 command may run.** It takes the tool call on stdin, parses the command the way a
 shell would, judges it against declared rules, and answers with a decision.
 
+**Everything below describes the Go implementation, which is what is on disk and
+what gates this repository today.** A rewrite in Rust with tree-sitter-bash was
+decided 2026-09-09 and is not started. The ruling and its cost are in
+`silo/docs/DECISIONS/what-language-each-component-is-written-in.md`; the shape
+of the new rule set is `docs/PROPOSALS/a-tree-of-declared-commands.md` and
+`docs/PROPOSALS/the-format-for-phases-one-and-two.md`. Read those before
+building anything new here, and read this file for anything that runs now.
+
 ## What it is FOR
 
 *"remember this is ALL about controlling what an Agent can run."*

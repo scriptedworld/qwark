@@ -1,5 +1,20 @@
 # Go, because of `os.Root`
 
+> **Superseded 2026-09-09. qwark is being rewritten in Rust**, and `os.Root`
+> goes with it. The parser choice drove the language: tree-sitter-bash is a C
+> library, which is cgo in Go and an ordinary crate in Rust, and the two grounds
+> that chose `mvdan.cc/sh` were round-tripping, which this gate never uses, and
+> no-cgo, which was an argument for a pure-Go parser inside a Go program.
+>
+> `silo/docs/DECISIONS/what-language-each-component-is-written-in.md` carries the
+> ruling and states the cost: `cap-std` is a dependency where `os.Root` is
+> standard library, for a tool whose whole job is containment. The section below
+> is why that cost is real, so it is kept rather than deleted.
+>
+> **Two of the costs below expire with the language.** Branch coverage is
+> measurable in Rust, and the one-statement `main` exists because a Go test
+> process cannot reach `main`. The last section already said so.
+
 qwark is written in Go. The estate's other tools are Rust and Python, and bolt
 was moved off Go deliberately, so this is a choice rather than a default.
 
