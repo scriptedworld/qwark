@@ -35,6 +35,25 @@ reaches the same place through the `tree-sitter` and `tree-sitter-bash` crates,
 which compile that same C. **The C is not avoided in either language**, and that
 matters again below.
 
+> **Corrected 2026-09-09 by building it. The generated parser is not valid
+> C++.** `parser.c` uses out-of-order designated initializers and `scanner.c`
+> assigns `void*` to a typed pointer; both are legal C11, neither compiles with
+> `g++`, and the errors are `sorry, unimplemented` and `invalid conversion`.
+> The runtime also calls `fdopen`, so it wants `-std=gnu11` rather than
+> `-std=c11`.
+>
+> So the C is compiled as C and linked into the C++ program:
+>
+>     gcc -std=gnu11 -O2 -c tree-sitter/lib/src/lib.c ...
+>     gcc -std=gnu11 -O2 -c tree-sitter-bash/src/parser.c ...
+>     g++ -std=c++20 -O2 -c ts-ast.cpp ...
+>     g++ -o ts-ast ts-ast.o lib.o parser.o scanner.o
+>
+> Four lines in a build file instead of one, and the `extern "C"` declaration
+> above is unchanged. It is still simpler than a crate with a build script, and
+> it is not the single `#include` this section implied. Worth the correction
+> because the whole point of writing it was to find out.
+
 ### Containment is the kernel call, not a wrapper around it
 
 `silo/docs/DECISIONS/what-language-each-component-is-written-in.md` states the
