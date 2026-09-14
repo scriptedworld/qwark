@@ -6,7 +6,7 @@ deleted, so what follows is the only surviving record of the failure its own
 header described.
 
 > `bin/repos status` in the dotfiles repo walked from a configured root,
-> reached the tree and enumerated it, and never contained the literal string —
+> reached the tree and enumerated it, and never contained the literal string -
 > so this hook passed it.
 
 That is not a bug in the regex, and no regex fixes it. The hook was asked what
