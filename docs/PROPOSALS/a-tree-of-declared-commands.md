@@ -1,7 +1,7 @@
 # A tree of declared commands
 
-**Status: proposal, for discussion. Nothing here is built and no rule file has
-been changed.** Hard rule 4a wants a change to qwark's rules described and
+Status: a proposal, for discussion. **Nothing here is built and no rule file
+has been changed.** Hard rule 4a wants a change to qwark's rules described and
 agreed in words before it is written, and this is the description.
 
 ## What stays
@@ -14,14 +14,14 @@ and refusing what cannot be parsed. Everything below sits on top of it.
 
 The declaration model. `05-declarations.toml`, `10-commands.toml`,
 `20-paths.toml`, `30-options.toml` and `40-state.toml` are 1,778 lines that are
-**not deployed**, because incomplete declarations denied everything.
+not deployed, because incomplete declarations denied everything.
 
 That is not drift. It is a deliberate partial deployment: ship the half that
 works, hold back the half that would stop every session. The live set is 391
 lines and the two files in it are the structural rules and the allow rules.
 
-**And the live set denies everything today.** Measured 2026-09-09 by replaying
-1,938 distinct real commands from two hosts' decision logs:
+**And the live set denies everything today.** Replaying 1,938 distinct real
+commands from two hosts' decision logs gives:
 
     verdicts: {'deny': 1938}   100.0%
 
@@ -38,7 +38,7 @@ has to resolve that first.
 
 ## The shape
 
-A multi-branch tree used as an INDEX, not a parse. Navigate to a node, then look
+A multi-branch tree used as an index, not a parse. Navigate to a node, then look
 each observed token up among that node's children. Order does not matter because
 nothing is walked as a path.
 
@@ -57,10 +57,10 @@ nothing is walked as a path.
 
 ### A node carries more than its name
 
-**Arity.** `-F [file]` consumes the next token; `-a` does not. Without it the
+Arity: `-F [file]` consumes the next token; `-a` does not. Without it the
 splitter cannot tell where a flag stops and its argument begins.
 
-**Type**, which is the part that pays for itself twice over:
+Type, which is the part that pays for itself twice over:
 
     path      resolve and canonicalise, then apply containment
     string    opaque, do not path-check it
@@ -69,7 +69,7 @@ splitter cannot tell where a flag stops and its argument begins.
     pattern   a glob, so it may match more than it says
     program   an argument that IS a command
 
-**Spelling collapse.** `-m`, `--message`, `--message=x` and `--message x` are one
+Spelling collapse: `-m`, `--message`, `--message=x` and `--message x` are one
 child, or the tree grows a branch per typing habit.
 
 ### Option style is a property of the command
@@ -89,10 +89,10 @@ property of each option.
 
 ## Verdicts
 
-**Anything not listed is deny.** Absence is refusal.
+Anything not listed is denied. Absence is refusal.
 
-Explicit deny nodes exist anyway, and they earn their place through the message
-rather than the outcome. `CLAUDE.md` puts it exactly: a `reason` is what a
+Explicit deny nodes exist anyway, and they earn their place through the message,
+not the outcome. `CLAUDE.md` puts it exactly: a `reason` is what a
 refused agent is shown, so it is the only thing standing between a denial and a
 session that does not understand why.
 
@@ -109,17 +109,17 @@ Once a node says an argument is a path, qwark can unescape, expand and
 canonicalise it before judging, because it knows which words deserve it. Today
 every word looks the same.
 
-**This is also the missing input to `os.Root`.** `go-because-of-os-root.md`
+This is also the missing input to `os.Root`. `go-because-of-os-root.md`
 chose the language for kernel-enforced containment and says the feature is not
 used yet. A root can only be opened on something known to be a path, and the
 tree is what knows.
 
 ## Discovery is separated from execution
 
-**A tool that finds things does not run things.** `find` produces a list; a list
+A tool that finds things does not run things. `find` produces a list; a list
 goes into a file; a separate, judged step drives execution from that file. The
-file between the two is the point: it can be read before anything acts on it,
-which a pipeline cannot.
+file between the two can be read before anything acts on it, which a pipeline
+cannot offer.
 
 So a class of options is denied wherever it appears, because each one turns a
 data tool into an execution vector:
@@ -138,34 +138,33 @@ data tool into an execution vector:
 The `find` list is not invented here: Claude Code's own Bash tool already
 auto-allows `find` while blocking exactly `-delete`, `-exec`, `-execdir`, `-ok`,
 `-okdir`, `-fprint*`, `-fls` and `-files0-from`. qwark agreeing with that is
-consistency rather than a new policy.
+consistency, not a new policy.
 
-The two non-obvious ones were confirmed against the real binaries here on
-2026-09-09, because a rule written on a guess is worse than no rule:
+The two non-obvious ones were run against the real binaries here, because a
+rule written on a guess is worse than no rule:
 
     sed 's/x/echo RAN/e' file           printed RAN
     git -c alias.qq='!echo RAN' qq      printed RAN
 
-Both execute. `sed` is worth dwelling on: it is in the read-only set of every
+Both execute. `sed` is the one to watch: it is in the read-only set of every
 allowlist in this estate, including the one written into
 `.claude/settings.json` today, and `s///e` makes it an execution vector. An
 option-level rule is the only thing that catches that; a command-level allow
 cannot.
 
-The general rule the tree should carry: **an option whose effect is to run
-something is denied on a command whose declared purpose is to report
-something.** Where execution is genuinely wanted, it is a recipe, which is the
-next section.
+The general rule the tree should carry is that an option whose effect is to run
+something is denied on a command whose declared purpose is to report something.
+Where execution is genuinely wanted, it is a recipe, which is the next section.
 
 ## The mechanical principle
 
 **Anything to be generally executable goes behind a Justfile recipe.**
 
-That makes the declared surface the recipe set rather than the command set.
-Recipes are versioned, reviewed and gated code; a command line is improvised.
-Adding a capability becomes a reviewable diff rather than a rule change.
+That makes the declared surface the recipe set, not the command set. Recipes
+are versioned, reviewed and gated code; a command line is improvised. Adding a
+capability becomes a reviewable diff instead of a rule change.
 
-**And the `just` branch generates itself.** `just --dump --dump-format json`
+And the `just` branch generates itself. `just --dump --dump-format json`
 gives every recipe with its parameters and whether it is private, so that
 subtree is derived per project and is never incomplete. The failure that put the
 last model in a drawer cannot happen on the half of the tree that is generated.
@@ -181,28 +180,28 @@ last model in a drawer cannot happen on the half of the tree that is generated.
 The leftover is four kinds, and only one of them is a design problem:
 
     sh 199, python3 151, bash 8     program-carrying, 16% of everything
-    qwark 97                        your own tool, declare it
+    qwark 97                        qwark itself, so declare it
     docker, magick, omarchy, herdr  real tools with no recipe, about 150
     cp 39, rm 31, mv 17, mkdir 12   file operations, 107
     go 35, gofmt, golangci-lint,
       cargo                         58 calls, 2.6%, and these are the ones
                                     a recipe already wraps
 
-**The compiler and linter calls are 2.6%.** Declaring `just` covers them.
+The compiler and linter calls are 2.6%, and declaring `just` covers them.
 
 ## What this does not solve
 
-**The 16% carrying a program.** `sh -c` and `python3 -c` are ad hoc by
-definition and no recipe wraps them. The `program` type means qwark can recurse
+The 16% carrying a program. `sh -c` and `python3 -c` are ad hoc by definition
+and no recipe wraps them. The `program` type means qwark can recurse
 into the argument and judge it with the same tree, which is better than treating
 it as an opaque string, but it is the case that needs the most care.
 
-**The recipes that do not exist.** `docker`, `magick`, `omarchy` and the rest
-are a list rather than a design question, and they are the "piles of little
+The recipes that do not exist. `docker`, `magick`, `omarchy` and the rest are a
+list and not a design question, and they are the "piles of little
 things" lost from the old system.
 
-**Whether `verdict` inherits.** If `git commit` is allowed, is `git commit
---amend` allowed by default? Inheriting is usable; not inheriting is safe. Not
+Whether `verdict` inherits. If `git commit` is allowed, is `git commit --amend`
+allowed by default? Inheriting is usable; not inheriting is safe. Not
 decided here.
 
 ## The order this can be built in

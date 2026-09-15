@@ -13,7 +13,7 @@ import (
 )
 
 // Everything that can be wrong with a rule set. Every one of them is fatal:
-// **if any rule file cannot be read, no command is permitted.** A gate that
+// if any rule file cannot be read, no command is permitted. A gate that
 // degrades to permissive when its own configuration is broken reports success
 // while guarding nothing.
 //
@@ -49,10 +49,10 @@ const ruleFileSuffix = ".toml"
 // A Set is the aggregated rule set: every file's contents, merged, with each
 // definition remembering which file created it.
 //
-// **A definition belongs to the file that created it.** A file may create
+// A definition belongs to the file that created it. A file may create
 // declarations and groups of its own and may not redefine another file's.
-// Collision is an error rather than a precedence order, so no file can quietly
-// weaken another's definition by being read later.
+// Collision is an error, not a precedence order, so no file can quietly weaken
+// another's definition by being read later.
 //
 // That is safe because a declaration grants eligibility, not permission: an
 // explicit deny rule outranks any declaration, so a file adding a command still
@@ -79,7 +79,7 @@ type Set struct {
 	Rules    []Rule
 
 	// origin remembers which file created each definition, so a collision can
-	// name both files rather than only the one that lost.
+	// name both files and not only the one that lost.
 	origin map[string]string
 }
 
@@ -198,21 +198,20 @@ func read(path string) (File, error) {
 // resolveHome turns a leading `~/` in a group member into the running user's
 // home directory.
 //
-// THIS IS NOT THE EXPANSION `nothing-is-expanded` FORBIDS, and the difference
-// is who wrote the text. That decision is about a word in the command being
+// This is not the expansion `nothing-is-expanded` forbids. The difference is
+// who wrote the text. That decision is about a word in the command being
 // judged, where a silently empty `$HOME` would have qwark reason about
 // `rm -rf /x` while the shell acts on `rm -rf /home/user/x`. Here the text is
 // qwark's own configuration, read once at load. The alternative is a shipped
 // rule set carrying one machine's absolute paths.
 //
-// A HOME THAT CANNOT BE TRUSTED IS A REFUSAL, NOT A GUESS, AND ABSENT IS THE
-// EASY HALF. Resolving `~/bin/` to `/bin/` widens a protected-path group to
-// every user on the host, which is the failure this exists to prevent. The
-// first version of this only refused when the variable was missing, so
-// `HOME=/` loaded silently and turned `~/scratch/` into `/scratch/`: for a
-// deny group that is the safe direction, and for an allow rule it hands out
-// permission nobody granted. **The dangerous case is a home that is present
-// and wrong**, and it is the one an absence check never reaches.
+// A home that cannot be trusted is refused, never guessed at, and a missing
+// one is the easy half. Resolving `~/bin/` to `/bin/` widens a protected-path
+// group to every user on the host. Refusing only a missing variable is not
+// enough: `HOME=/` would load silently and turn `~/scratch/` into
+// `/scratch/`, which for a deny group is the safe direction and for an allow
+// rule hands out permission nobody granted. The dangerous case is a home that
+// is present and wrong, and an absence check never reaches it.
 //
 // So a home must be absolute and must not be the root. Those are the two
 // values that make a resolved member match far more than it was written to.

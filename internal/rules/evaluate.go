@@ -14,13 +14,13 @@ type Context struct {
 	Tags map[string]bool
 
 	// Agent is the `agent_type` the request carried, empty for a main-session
-	// call. It comes from the payload rather than the environment because the
+	// call. It comes from the payload, not the environment, because the
 	// subject can reach an environment variable and cannot set this.
 	Agent string
 
 	// Cwd is the directory the call was made from, as the payload reported it
 	// (FR-10.1). Same trust model as Agent and for the same reason: it is
-	// payload rather than environment, so the subject cannot set it.
+	// payload and not environment, so the subject cannot set it.
 	//
 	// It partitions policy on the axis that actually varies. Scoping by agent
 	// alone gives ten sessions of one type in ten repositories a single policy,
@@ -82,16 +82,16 @@ const (
 
 // Evaluate judges one parsed command.
 //
-// **Deny is the default and it is the engine's, not a rule's.** A command is
+// Deny is the default and it is the engine's, not a rule's. A command is
 // refused unless an allow rule matched it: being in the allowed list *means* an
 // allow rule matched. A rule set containing no allow rules therefore permits
 // nothing, which is the correct reading of an empty policy.
 //
 // A deny settles the verdict, nothing stricter exists, so no later rule can
 // change it, but evaluation continues so the refusal can list everything that
-// was wrong rather than sending its reader round three times.
+// was wrong instead of sending its reader round three times.
 //
-// **A denied command has no effect of any kind**, so tag changes are returned
+// A denied command has no effect of any kind, so tag changes are returned
 // only when the verdict is not a denial.
 func (s *Set) Evaluate(parsed *shell.Parsed, ctx Context) Outcome {
 	facts := parsed.Facts()
@@ -128,15 +128,15 @@ func (s *Set) Evaluate(parsed *shell.Parsed, ctx Context) Outcome {
 // have already reached.
 //
 // Both refuse for the same underlying reason, that qwark cannot account for
-// what the command was told to do, and both are applied after the rules rather
-// than before so that a refusal names everything that was wrong instead of one
-// thing that was.
+// what the command was told to do, and both are applied after the rules so
+// that a refusal names everything that was wrong instead of one thing that
+// was.
 func (s *Set) declarationsHold(
 	out Outcome, simple command.Simple, options command.Options, undeclared error,
 ) Outcome {
 	// A rule set may say it does not require declarations, which is what makes
 	// a structural-only phase possible: FR-4.16 arrives before shape decides
-	// anything, so requiring it means refusing every command rather than
+	// anything, so requiring it means refusing every command instead of
 	// judging the ones the structural rules understand. Absent, the answer is
 	// yes and FR-4.16 holds as written. See DeclarationPolicy for what turning
 	// it off gives up, which is more than it looks.
@@ -151,7 +151,7 @@ func (s *Set) declarationsHold(
 	}
 
 	// A command can be declared and still hold a word the declaration does not
-	// account for. Decomposition records each such word rather than stopping at
+	// account for. Decomposition records each such word and does not stop at
 	// the first, and the verdict has to consult that record: an option nobody
 	// declared is exactly the case where qwark does not know what the command
 	// was told to do, which is the same ignorance that refuses an undeclared
@@ -171,7 +171,7 @@ func (s *Set) declarationsHold(
 }
 
 // unaccounted turns each fault decomposition recorded into a finding of its
-// own, so a refusal names every word it could not account for rather than the
+// own, so a refusal names every word it could not account for, not only the
 // first. One denial that says everything wrong is one round trip; three that
 // each say one thing are three.
 func unaccounted(options command.Options) []Finding {
@@ -244,10 +244,9 @@ func settle(out Outcome) Outcome {
 
 // order decides which rules are evaluated first.
 //
-// **Today it is identity, and that is correct rather than merely convenient.**
-// The strictest action wins, so no ordering can change a verdict; ordering is
-// about how much work is done before the answer is known, not about what the
-// answer is.
+// It is identity, which is correct and not merely convenient. The strictest
+// action wins, so no ordering can change a verdict; ordering is about how much
+// work is done before the answer is known, not about what the answer is.
 //
 // It exists as a seam. Evaluating cheap structural clauses before expensive
 // ones (a node lookup before a path resolution before a call into stored
@@ -259,7 +258,7 @@ func order(rules []Rule) []Rule { return rules }
 //
 // A rule that matched but was outranked did not cause the outcome, and listing
 // it among the reasons reads as though it had: being told a command was refused
-// AND permitted, in one message, tells the reader nothing about which to act on.
+// and permitted, in one message, tells the reader nothing about which to act on.
 func producing(findings []Finding, verdict Action) []Finding {
 	kept := make([]Finding, 0, len(findings))
 	for _, finding := range findings {

@@ -1,18 +1,18 @@
 # qwark
 
-**A `PreToolUse` hook for Claude Code that decides whether a proposed Bash
-command may run.** It takes the tool call on stdin, parses the command the way a
-shell would, judges it against declared rules, and answers with a decision.
+A `PreToolUse` hook for Claude Code that decides whether a proposed Bash command
+may run. It takes the tool call on stdin, parses the command the way a shell
+would, judges it against declared rules, and answers with a decision.
 
 **Everything below describes the Go implementation, which is what is on disk and
-what gates this repository today.** A rewrite in Rust with tree-sitter-bash was
-decided 2026-09-09 and is not started. The ruling and its cost are in
+what gates this repository today.** A rewrite in Rust with tree-sitter-bash is
+decided and not started. The decision and its cost are in
 `silo/docs/DECISIONS/what-language-each-component-is-written-in.md`; the shape
 of the new rule set is `docs/PROPOSALS/a-tree-of-declared-commands.md` and
 `docs/PROPOSALS/the-format-for-phases-one-and-two.md`. Read those before
 building anything new here, and read this file for anything that runs now.
 
-## What it is FOR
+## What it is for
 
 *"remember this is ALL about controlling what an Agent can run."*
 
@@ -20,11 +20,11 @@ qwark is a containment tool and its subject is an agent: a process that may be
 careless, may be wrong about what a command does, and in the limit may be working
 against the person who ran it.
 
-**So when qwark cannot account for something, it refuses.** Unparseable command:
+So when qwark cannot account for something, it refuses. Unparseable command:
 denied. Unparseable rule file: no Bash at all. Undeclared command: denied.
 Undeclared option: denied. A word whose value is not fixed by its text: refused,
-never guessed at. **A gate that degrades to permissive whenever it is confused is
-a gate whose confusion is the way through it.**
+never guessed at. A gate that degrades to permissive whenever it is confused is
+a gate whose confusion is the way through it.
 
 Declaring every command is a smaller job than it looks: *"you don't use that many
 tools."*
@@ -32,8 +32,8 @@ tools."*
 ### Where it sits against the build tooling
 
 qwark is not part of the quality tooling this project is gated by. It is a
-consumer of it like any other project, and it gates the agent doing the work
-rather than the work itself.
+consumer of it like any other project, and it gates the agent doing the work,
+not the work itself.
 
 ## Layout
 
@@ -52,8 +52,8 @@ rather than the work itself.
     scripts/            what the gate needs and a jig cannot carry generically
     docs/               this file, and one file per decision, lesson, pattern
 
-**`REQUIREMENTS.md` and `SUPPRESSIONS` are deliberately single files at the root,
-and not directories.** *The split is pending* below says why.
+`REQUIREMENTS.md` and `SUPPRESSIONS` are deliberately single files at the root,
+and not directories. *The split is pending* below says why.
 
 ## The gate
 
@@ -65,31 +65,31 @@ project, so a clone with no siblings runs `go test ./...` and reviews the rest.
 
 Three jigs, all passing: common-quality, go-std-quality and secrets. The recipe
 reads each verdict out of `result.yaml` and fails on the first one that is not
-`true`, so a green line is a quoted artifact rather than an exit status.
+`true`, so a green line is a quoted artifact and not an exit status.
 
 `just test`, `just coverage`, `just format-check`, `just build`, `just install`
 and `just leak-scan` run the pieces alone. `just --list` is the whole interface.
 
 **Read `result.yaml` in the stamped run directory. Never the exit status.** bolt
-has exited **0** on a run whose artifact said `success: false`, and it exits 1
-when it could not carry the run out at all, which is a different claim from a
-check having failed.
+has exited 0 on a run whose artifact said `success: false`, and it exits 1 when
+it could not carry the run out at all, which is a different claim from a check
+having failed.
 
-**Then read the `kind` on each reason, because a failure has two meanings.** A
-tool said no, or bolt could not run it, and only the second indicts the gate
-rather than the tree. The two vocabularies are disjoint in bolt's source:
-`nonzero-exit` is emitted in one place, `src/run.rs`, while folding a task's exit
-status, and the refusal kinds (`base-missing`, `jig-unreadable`,
-`unknown-placeholder`, `task-without-command` and the rest) live in
-`src/error.rs` and never appear there. So the test is which file the kind comes
-from rather than whether the message reads sensibly.
+Then read the `kind` on each reason, because a failure has two meanings. A tool
+said no, or bolt could not run it, and only the second indicts the gate instead
+of the tree. The two vocabularies are disjoint in bolt's source: `nonzero-exit`
+is emitted in one place, `src/run.rs`, while folding a task's exit status, and
+the refusal kinds (`base-missing`, `jig-unreadable`, `unknown-placeholder`,
+`task-without-command` and the rest) live in `src/error.rs` and never appear
+there. So the test is which file the kind comes from, not whether the message
+reads sensibly.
 
 A third kind, `time-limit`, is neither, and bolt withholds `nonzero-exit` for it
 deliberately: a task its own limit killed never reaches the fold, because that
-status is bolt's signal rather than an answer the tool gave. Synthesising one
-would report the kill twice, the second time as an exit nobody produced.
+status is bolt's signal and not an answer the tool gave. Synthesising one would
+report the kill twice, the second time as an exit nobody produced.
 
-**A killed task still fails, and still writes an envelope.** `timed_out` in
+A killed task still fails, and still writes an envelope. `timed_out` in
 `src/run.rs` writes `success: false` with the limit reason first and then
 extends it with whatever the partial run had already reported, so a tool that
 found forty problems before hanging keeps all forty. A timed-out run cannot
@@ -100,12 +100,12 @@ The general form is bolt's FR-6.1a: it reaches a verdict itself only where no
 adapter result is available to take, and each case says so where it arises.
 Reading the kind is how a caller tells which happened.
 
-**The composition is one jig per run, not an overlay.** `bolt -c a -c b` is gone
-with the rebuild; the current CLI is `bolt <jig> <directory>`, and flags come
-before the positionals. How the two quality jigs should compose is unsettled,
-and it is a question for the tooling rather than for this repository.
+The composition is one jig per run, not an overlay. `bolt -c a -c b` is gone with the rebuild;
+the current CLI is `bolt <jig> <directory>`, and flags come before the
+positionals. How the two quality jigs should compose is unsettled, and it is a
+question for the tooling, not for this repository.
 
-**`bolt.qwark.yaml` is retired**, not ported. It carried exactly one task,
+`bolt.qwark.yaml` is retired, not ported. It carried exactly one task,
 `entrypoint`, and that is now the shared jig's placeholder filled by the
 definitions file below, so porting it would have restated something already
 homed. An overlay was the right shape while the CLI composed jigs and is not a
@@ -118,14 +118,14 @@ builds with `go build -cover`, runs `qwark help`, and converts the profile for
 the adapter to merge. A placeholder is one argument and is shell-quoted, which
 is why the chain lives in a script and not in the value.
 
-**`main()` is measured only when the definitions are passed**, which is why
+`main()` is measured only when the definitions are passed, which is why
 `checks` in `just/lang.just` calls
 `just _verdict go-std-quality --definitions go-std-quality`. Without the flag
 the placeholder stays `true`, the entry point never runs, and
 `cmd/qwark/main.go` reports 0.0% against the floor. Both directions are
 checkable: `just _verdict go-std-quality` on its own still fails there. That is
-the jig being right, and the fix is to supply the value rather than to exempt
-the file.
+the jig being right, and the fix is to supply the value, never to exempt the
+file.
 
 The secrets jig passes. It takes a `.secrets.baseline` when one exists and scans
 `git ls-files` when none does, so this tree needs no baseline. The recipe is
@@ -134,9 +134,9 @@ detect-secrets as a key whose value is the line beneath it, and a project then
 fails its own leak check on the recipe that runs it.
 
 Every requirement held to coverage has a test, every test cites a requirement
-`REQUIREMENTS.md` defines, and the open questions are exempt rather than
-counted against it. The traceability task prints the figures; take them from a
-run rather than from here.
+`REQUIREMENTS.md` defines, and the open questions are exempt instead of counted
+against it. The traceability task prints the figures; take them from a run, not
+from here.
 
 ### The jig files are links, and that is why a clone is missing them
 
@@ -152,8 +152,8 @@ would encode where the sibling happens to sit, and in a built image the same
 files arrive from the layer beneath, so a committed copy would be a third
 statement of one thing.
 
-**`bolt.go-std-quality.definitions.yaml` and `scripts/` are tracked**, because
-the placeholder values and the script they name are this project's own content,
+`bolt.go-std-quality.definitions.yaml` and `scripts/` are tracked, because the
+placeholder values and the script they name are this project's own content,
 and are the part a shared definition must never carry.
 
 ### The split is pending, and this is why
@@ -175,7 +175,7 @@ pragmas: `grep -rn 'nolint\|#nosec' --include='*.go' .` returns nothing.
     docs/DECISIONS/  ->  REQUIREMENTS.md  ->  the tests
       why                what must be true     COVERS: names the requirement
 
-**Every test states which requirement it discharges**, in a comment immediately
+Every test states which requirement it discharges, in a comment immediately
 above it:
 
     // COVERS: FR-2.4 | negative
@@ -190,28 +190,28 @@ checker holds only settled requirements to one.
 
 ## Conventions particular to this repository
 
-- **Tests live in an external test package** (`package foo_test`), exercising the
+- Tests live in an external test package (`package foo_test`), exercising the
   public API. `testpackage` enforces it.
-- **Tests are held to the same bar as the code.** No exemption from `funlen`,
+- Tests are held to the same bar as the code. No exemption from `funlen`,
   `dupl`, `mnd` or the complexity gate. A table that has outgrown the length limit
   wants splitting into several.
-- **Doc comments say why.** The what is in the code underneath them.
-- **No path reaches outside this directory** except the jigs, which are
-  configuration rather than code.
+- Doc comments say why. The what is in the code underneath them.
+- No path reaches outside this directory except the jigs, which are
+  configuration and not code.
 
 ## What is not done
 
 `NEXT_STEPS.md` carries the detail.
 
-**qwark gates this repository, and what that costs is measured rather than
-predicted.** The hook in `.claude/settings.local.json` is live, and the tree is
-workable because the loaded set is two files of shape only: a session commits,
-builds and runs the gate, and only compound shapes are refused.
+qwark gates this repository, and what that costs is measured, not predicted. The
+hook in `.claude/settings.local.json` is live, and the tree is workable because
+the loaded set is two files of shape only: a session commits, builds and runs
+the gate, and only compound shapes are refused.
 
 An early arming with declarations required and almost nothing declared refused
 `ls`, `cat`, `find`, `grep`, `go`, `bolt`, `git add -N` and `git commit -F`,
 most of them at `declared commands only`. That is the shape of a half-declared
-table rather than a verdict on the design, and it is why the declaration work is
+table and not a verdict on the design, and it is why the declaration work is
 sized by command plus option set.
 
 Installing the full source set would still cost nine commands, listed in

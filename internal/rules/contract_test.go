@@ -95,7 +95,7 @@ func TestADeclarationPermitsNothingByItself(t *testing.T) {
 func TestACommandFormWithNoCommandIsRefused(t *testing.T) {
 	t.Parallel()
 
-	// `((x=1))` and `let x=1` evaluate rather than run, and hold no command
+	// `((x=1))` and `let x=1` evaluate instead of running, and hold no command
 	// for a declaration to be looked up by. Finding no command to check is not
 	// the same as finding nothing to check.
 	permissive := ruleSet(`

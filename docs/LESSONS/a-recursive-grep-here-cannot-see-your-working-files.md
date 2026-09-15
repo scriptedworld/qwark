@@ -13,9 +13,9 @@ A recursive search does not reach `START_HERE.md`, and a direct one does.
 
 ## What it is
 
-`grep` here resolves to something gitignore-aware when given `-r`. **A backslash
-did not fix it**, which is how it was identified: `\` suppresses alias expansion
-and not a shell function, so this is a function rather than an alias.
+`grep` here resolves to something gitignore-aware when given `-r`. A backslash
+did not fix it, which is how it was identified: `\` suppresses alias expansion
+and not a shell function, so this is a function, not an alias.
 
 That is FR-4.18 word for word, in this project's own requirements:
 
@@ -23,7 +23,7 @@ That is FR-4.18 word for word, in this project's own requirements:
 > and bash accept a function named `/usr/bin/ls` which shadows the binary.
 
 FR-4.18 is `[?]`, carries no test, and was deferred as defence in depth. It is
-not theoretical. It is the shell this session was running in.
+not theoretical. It is the shell this repository is worked in.
 
 ## What it cost
 
@@ -45,21 +45,21 @@ work is not.
 
     \grep -n <pattern> <explicit-path>          reliable
     find <dir> -type f -exec grep -Hn … {} +    reliable, and reaches everything
-    \grep -rn <pattern> <dir>                   TRACKED FILES ONLY
+    \grep -rn <pattern> <dir>                   tracked files only
 
-**Check a negative result before believing it.** A recursive grep returning
+Check a negative result before believing it. A recursive grep returning
 nothing means "not in any tracked file", which is a narrower claim than "not
 here" and reads identically. Where the answer matters, re-run it against one
 path you know contains the string; if that matches and the recursive one did
 not, the recursion is lying to you.
 
-**Treat any finding derived from a recursive grep as having a gitignore-shaped
-hole.** Several in this repository were, including the search for citations of a
+Treat any finding derived from a recursive grep as having a gitignore-shaped
+hole. Several in this repository were, including the search for citations of a
 retired requirement. That one happened to find what it needed in tracked files.
 
 ## The same failure without gitignore, when the pattern is narrower than the claim
 
-A second instance, and the hole was in the pattern rather than in the file set.
+A second instance, where the hole was in the pattern and not in the file set.
 
 The question was whether the decision log contained any command with a quoted
 metacharacter. The search asked for a metacharacter after an escaped double
@@ -73,7 +73,7 @@ command*. It contains many. Almost every real case is single-quoted,
 to a metacharacter inside any quoted run found eighteen in the same file, one of
 which was the failed search itself.
 
-**The claim was about quoting and the search was about one spelling of quoting.**
+The claim was about quoting and the search was about one spelling of quoting.
 That is the same shape as the recursive case: a narrower question answered
 confidently, whose answer reads identically to the broader one.
 
@@ -90,7 +90,7 @@ would have cost one command and caught it immediately.
 
 qwark exists because a command's name does not reliably say what will run. This
 is that, in the tool the project uses to check its own claims, discovered by
-being bitten rather than by reading the requirement that predicted it.
+being bitten and not by reading the requirement that predicted it.
 
-It is also the argument for building FR-4.18 rather than deferring it further:
+It is also the argument for building FR-4.18 instead of deferring it further:
 the requirement was written from reasoning, and this is the incident.

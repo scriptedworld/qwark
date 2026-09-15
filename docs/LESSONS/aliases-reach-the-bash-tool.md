@@ -8,7 +8,7 @@ The Bash tool's shell is a login, non-interactive zsh: `$-` is `569JOXYl`,
 carrying no `i`, and `[[ -o interactive ]]` is off. It therefore never reads
 `.zshrc`, and `.zshenv`, `.zprofile` and `.zlogin` do not exist on this machine.
 
-**The aliases arrive anyway, from Claude Code's own shell snapshot**,
+The aliases arrive anyway, from Claude Code's own shell snapshot,
 `~/.claude/shell-snapshots/snapshot-zsh-*.sh`, which replays them:
 
     3: unalias -a 2>/dev/null || true

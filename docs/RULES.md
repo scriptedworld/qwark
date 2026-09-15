@@ -6,7 +6,7 @@ For the shapes a rule can be written in and which one fits a given intent, read
 
 ## A rule
 
-An id, an action, a reason and clauses. **All clauses must hold** for the rule to
+An id, an action, a reason and clauses. All clauses must hold for the rule to
 apply. There is no `or` inside a rule, so alternatives are separate rules and
 each can be checked by reading it alone.
 
@@ -25,9 +25,9 @@ That clause names no command. It holds wherever the declaration table says some
 option means `no-verify`, so one rule covers every command that has such an
 option.
 
-**The reason is not a comment.** It is what a refused agent is shown, and it is
-the only thing standing between a denial and a session that does not understand
-why. Write it for the reader who has just hit it.
+The reason is what a refused agent is shown, so it does the work a comment never
+does: it is the only thing standing between a denial and a session that does not
+understand why. Write it for the reader who has just hit it.
 
 ## The four actions
 
@@ -41,8 +41,8 @@ legitimate often enough that refusing it outright would be wrong, but costly
 enough that nobody should run it without looking. Under an unattended agent an
 ask does not proceed on its own.
 
-An `allow` verdict replaces the normal permission flow rather than passing to
-it, so the prompt Claude Code would otherwise raise does not appear.
+An `allow` verdict replaces the normal permission flow instead of passing to it,
+so the prompt Claude Code would otherwise raise does not appear.
 
 `tag` is what lets the other three compose: a cheap structural rule annotates a
 command, and an expensive rule is written over the name instead of walking the
@@ -73,8 +73,9 @@ saying the option is absent. Where a selector covers several positions a plain
 clause holds if some satisfy it, so an inverted one holds when none do.
 
 **Inversion is satisfied by absence, including absence qwark caused by not
-understanding something.** That fails safe in a deny rule and is worth reading
-twice in an allow rule.
+understanding something.** That fails safe in a deny rule. In an allow rule it
+can hold only because qwark failed to understand something, so read that rule
+twice.
 
 The full vocabulary, with what each selector means and the values it takes,
 is in the header of `rules/01-structure.toml`, beside the rules that use it.
@@ -98,14 +99,14 @@ clause cover `-f`, `-rf`, `--force` and `--f` while not matching `tar -f`.
 `operands` says what the command's non-option words denote, which is what lets a
 path rule find the paths in `rm a b c` without knowing what `rm` is. A long
 option may be abbreviated to any unambiguous prefix, so `--f` resolves to
-`--force` here, and an abbreviation matching two declared names is refused
-rather than picked between.
+`--force` here. An abbreviation matching two declared names is refused, and qwark
+does not pick between them.
 
 A declaration grants understanding, not permission. Nothing runs because it was
 declared; deny is still the default and an allow rule still has to match.
 
-**It is still the eligibility surface, and that makes the declaration file the
-most dangerous one in a rule set.** An undeclared command is refused outright,
+It is still the eligibility surface, and that makes **the declaration file the
+most dangerous one in a rule set**. An undeclared command is refused outright,
 so adding a declaration moves a command from refused-because-unaccountable to
 eligible-and-now-decided-by-rules. `[command.sh]` is a complete bypass written
 as configuration.
@@ -124,11 +125,10 @@ needs both. The unit of work is a command plus its option set, and twenty
 commands is not twenty lines.
 
 Leaving an option out is not a gap. It is refused, so an allowance stays narrow
-by construction and forgetting a dangerous flag costs a refusal rather than a
-hole.
+by construction and forgetting a dangerous flag costs a refusal, not a hole.
 
-**A declaration is per command word, and git's options are per subcommand.**
-There is one `[command.git]` table consulted for every subcommand alike, so
+A declaration is per command word, and git's options are per subcommand. There
+is one `[command.git]` table consulted for every subcommand alike, so
 declaring an option for the sake of one declares it for all of them. `git diff
 -w` ignores whitespace and `git help -w` opens a browser. An option belongs in
 the table only when it means the same thing on every subcommand that can reach
@@ -141,15 +141,15 @@ not, is a list of exceptions nobody can read as a policy.
 
 ## The shipped set
 
-`rules/` holds seven files, layered by what a check costs rather than by
-precedence, since precedence is fixed by strictness. Run
+`rules/` holds seven files, layered by what a check costs. Precedence plays no
+part in the layering, since strictness fixes it. Run
 `qwark rules rules/` for the counts.
 
 `01-structure.toml` refuses by shape and needs no declarations to do it: command
 substitution, globs, redirections, pipes, logical concatenation, here-documents,
 sequences, backgrounding, subshells, loops and function definitions, `time`,
 coprocesses, arithmetic commands, and setting a variable name. Everything in it
-is about what a command line can be made to mean rather than what any particular
+is about what a command line can be made to mean, not what any particular
 command does.
 
 `05-declarations.toml` is the table: eighteen commands and their options, with
@@ -173,9 +173,9 @@ directories on `PATH`.
 
 `40-state.toml` is the worked example of the tag shape.
 
-**A deployment names which files it loads, and the shipped set is not obliged to
-be the loaded set.** The whole directory and the two structural files answer
-differently, which is the point of the split:
+A deployment names which files it loads, and the shipped set is not obliged to
+be the loaded set. The files are split so that the whole directory and the two
+structural files can answer differently:
 
     $ qwark judge rules -- python3 -c "import os"
     deny
@@ -185,7 +185,7 @@ differently, which is the point of the split:
     allow
       allow-a-single-plain-command       A command whose effect is fixed by its own text …
 
-Loading the structural pair alone is observation rather than containment. Any
+Loading the structural pair alone is observation, not containment. Any
 command word runs if its shape is clean, interpreters and task runners included,
 and what they go on to execute is invisible to every rule. It is a deliberate
 first phase: a rule set that refuses undeclared commands refused roughly two
@@ -204,7 +204,7 @@ Everything after the rules path may be the command being judged, and a gate that
 ate an argument out of the middle of a command would be judging something other
 than what was typed.
 
-`--agent` defaults to the empty agent, which is the main session rather than a
+`--agent` defaults to the empty agent. That means a main-session call, not a
 missing value: a main-session call carries no `agent_type`, so judging with no
 option already exercises the caller every session has.
 

@@ -190,7 +190,7 @@ func TestTheRadiusReportsItselfAsItWillBeCompared(t *testing.T) {
 	t.Parallel()
 
 	// A message about a refusal quotes the radius, and quoting the spelling
-	// the author typed rather than the one being compared would send them
+	// the author typed instead of the one being compared would send them
 	// looking for a mismatch that is not there.
 	root := t.TempDir()
 	actual := filepath.Join(root, "actual")
@@ -240,7 +240,7 @@ func TestARelativeRadiusOrBaseIsRefused(t *testing.T) {
 func TestARadiusOfTheWholeFilesystemContainsEverything(t *testing.T) {
 	t.Parallel()
 
-	// Degenerate, and worth pinning: the separator handling that stops
+	// Degenerate, and pinned anyway: the separator handling that stops
 	// `/home/x/project` matching `/home/x/proj` must not stop `/` containing
 	// anything at all.
 	radius := radiusAt(t, "/")

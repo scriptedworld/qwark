@@ -1,6 +1,6 @@
 # The shell is zsh, and the decision is to change the shell
 
-The tool is named Bash and runs **zsh 5.9**. `$0` is `/bin/zsh`, `BASH_VERSION`
+The tool is named Bash and runs zsh 5.9. `$0` is `/bin/zsh`, `BASH_VERSION`
 is unset, `ZSH_VERSION` is 5.9, and Claude Code names its snapshots
 `snapshot-zsh-*.sh`. qwark parsed with `LangBash` for a while on the strength of
 the tool's name.

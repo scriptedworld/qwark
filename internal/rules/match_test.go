@@ -58,9 +58,9 @@ func TestPartialIsTheBroadFormAndSaysSo(t *testing.T) {
 	t.Parallel()
 
 	// The predecessor blocked web.archive.org by matching the substring
-	// `.archive`. Partial still does exactly that, nothing here prevents it.
-	// What changed is that the author had to name the form, so a reader of the
-	// rule can see the breadth rather than deducing it from a regex.
+	// `.archive`. Partial still does exactly that; nothing here prevents it.
+	// The difference is that the author has to name the form, so a reader of
+	// the rule can see the breadth without deducing it from a regex.
 	match, err := rules.Partial(".archive")
 	if err != nil {
 		t.Fatalf("Partial = %v", err)
@@ -84,7 +84,7 @@ func TestAnEmptyPartialIsRefused(t *testing.T) {
 		t.Errorf("Partial(\"\") = %v, want %v", err, rules.ErrEmpty)
 	}
 
-	// An empty value is precise rather than universal, so it stands.
+	// An empty value is precise, not universal, so it stands.
 	if !rules.Value("").Matches("") {
 		t.Error(`Value("") did not match the empty string`)
 	}
@@ -241,7 +241,7 @@ func TestAMatchThatWasNeverStatedTestsNothing(t *testing.T) {
 	t.Parallel()
 
 	// A zero Match can only arise by bypassing Build. It must fail closed:
-	// matching nothing, rather than matching everything.
+	// matching nothing, never matching everything.
 	var unstated rules.Match
 
 	for _, value := range []string{"", "rm", "anything at all"} {

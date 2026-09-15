@@ -8,8 +8,8 @@ set, register the hook, and know how to get out again.
     go build -o bin/qwark ./cmd/qwark
 
 `just build` does the same with `CGO_ENABLED=0`, and `just install` puts the
-binary where the registration expects it, comparing bytes rather than timestamps
-so a second run reports it current instead of rewriting it.
+binary where the registration expects it. It compares bytes, not timestamps, so
+a second run reports it current instead of rewriting it.
 
 **Rewriting that binary changes what a live session may do**, immediately and
 with no restart, because it is the program every Bash call is already passing
@@ -21,8 +21,8 @@ through. Nothing warns you.
     install -m 0644 rules/*.toml ~/.config/qwark/rules/
 
 The rules directory is an argument to `qwark hook`, so it can live anywhere the
-registration can name and a machine can keep several. Copying the shipped set
-rather than pointing at this tree is deliberate: the live policy and the policy
+registration can name and a machine can keep several. Copying the shipped set,
+and not pointing at this tree, is deliberate: the live policy and the policy
 under development are then separate things, and changing one does not change the
 other by accident. Nothing compares the two for you.
 
@@ -30,8 +30,8 @@ A deployment names which files it loads, and the shipped set is not obliged to
 be the loaded set. `docs/RULES.md` says what each file holds, which is what you
 choose between.
 
-**The rule files must not be writable by the user the agent runs as, and neither
-may the directory holding them.** A writable directory permits unlink and
+The rule files must not be writable by the user the agent runs as, and neither
+may the directory holding them. A writable directory permits unlink and
 replace, which defeats an unwritable file.
 `docs/DECISIONS/rule-files-must-not-be-writable-by-the-agent.md` carries what
 that costs and when it is worth paying.
@@ -75,16 +75,16 @@ startup files, git hooks and config, and task definitions such as `Justfile`,
 
 Two things decide whether an entry works at all.
 
-**A bare path is relative to the settings file's root**, the project root for
+A bare path is relative to the settings file's root: the project root for
 project settings and `~/.claude` for user settings, while `//` is absolute and
 `~/` is home. That splits the list in two: the absolute and `~` entries belong
 in user settings, and the bare task-definition entries belong in project
 settings, where they resolve against the project root. In user settings a bare
 `Justfile` would mean `~/.claude/Justfile` and match nothing.
 
-**Resolve symlinks on the machine you install on.** Whether Claude Code resolves
-a symlink before matching is unverified, so list both spellings where the target
-is known, and derive them with `readlink -f` rather than copying somebody else's
+Resolve symlinks on the machine you install on. Whether Claude Code resolves a
+symlink before matching is unverified, so list both spellings where the target
+is known, and derive them with `readlink -f` instead of copying somebody else's
 paths. On the machine these were first written, three of four moved within a
 day.
 
@@ -100,7 +100,7 @@ compare the two, because a directory contributes every `.toml` file in it and
 nothing else, so a file that was never copied is not an error. The set loads
 cleanly and enforces less.
 
-Compare by walking the shipped set rather than the deployed one. A check that
+Compare by walking the shipped set, not the deployed one. A check that
 iterates the deployed directory never visits a file missing from it, so it
 reports nothing while the gap it was written to find goes unnamed.
 
@@ -124,7 +124,7 @@ command run.
 
 A rule set that will not load denies with the file named and points at the Edit
 tool, because the way out must not need the thing just taken away. A tool qwark
-does not model is refused rather than waved through, so a matcher wide enough to
+does not model is refused, not waved through, so a matcher wide enough to
 send Write here blocks loudly instead of judging nothing while looking
 installed.
 
@@ -138,15 +138,15 @@ back to `~/.local/state/qwark/decisions.jsonl`. One JSON object per line:
      "cwd":"/srv/project","session":"<id>"}
 
 `rule_set` is a digest of the rules that judged the call, which is what lets
-entries made under different policies be told apart rather than compared with
-each other. A field that could be absent is omitted rather than written null, so
+entries made under different policies be told apart instead of compared with
+each other. A field that could be absent is omitted, never written null, so
 `agent` missing means no agent type reached the hook.
 
 The file is opened for append and never truncated. A log with earlier entries
 missing reads as a clean history and answers "what happened" confidently and
 wrongly.
 
-**A failure to record does not change a verdict.** The decision is made before it
+A failure to record does not change a verdict. The decision is made before it
 reaches the log, and refusing when the log is unwritable would turn a full disk
 into a way of stopping every command. That is the permissive direction, chosen
 deliberately: somebody who can fill the disk can stop the recording without

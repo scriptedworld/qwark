@@ -47,9 +47,8 @@ func (sub *subject) satisfies(rule Rule) (string, bool) {
 // holds reports whether one clause holds.
 //
 // An inverted clause holds when what it names is not there. Where a selector
-// covers several positions a plain clause holds if SOME satisfy it, so an
-// inverted one holds when NONE do: one definition rather than two rules to
-// remember.
+// covers several positions a plain clause holds if some satisfy it, so an
+// inverted one holds when none do: one definition, not two rules to remember.
 func (sub *subject) holds(clause Clause) (bool, string) {
 	matched, text := sub.evaluate(clause)
 	if clause.Absent {
@@ -90,7 +89,7 @@ func (sub *subject) evaluate(clause Clause) (bool, string) {
 }
 
 // anyPresent reports whether any of the names is present, and quotes the source
-// it was found in rather than the name itself.
+// it was found in instead of the name itself.
 func (sub *subject) anyPresent(
 	names []string, present func(string) (string, bool),
 ) (bool, string) {
@@ -106,8 +105,8 @@ func (sub *subject) anyPresent(
 // value: an agent type is a name the dispatcher assigned, not a path or a
 // prefix, so there is nothing for a partial match to be right about.
 //
-// **The empty name is the main session**, which carries no agent type at all.
-// That is a value here rather than a missing one, and it is what lets a single
+// The empty name is a main-session call, which carries no agent type at all.
+// That is a value here and not a missing one, and it is what lets a single
 // rule set carry every role's policy: the caller with no identity is still a
 // caller a rule can name, so nothing outside the file has to vary.
 //
@@ -127,21 +126,21 @@ func (sub *subject) agentIs(name string) (bool, string) {
 // cwdWithin reports whether the call was made from this directory or from
 // somewhere inside it.
 //
-// **The comparison is `internal/reach`'s, not a string prefix.** As text
+// The comparison is `internal/reach`'s, not a string prefix. As text
 // `/home/x/proj` is a prefix of `/home/x/project` while neither directory
 // contains the other, and a scoping clause that got this wrong would hand one
 // repository's policy to its neighbour on the strength of a shared spelling.
 // Symlinks are resolved on both sides for the same reason they are everywhere
 // else here: two spellings of one directory must reach one answer.
 //
-// Both failure modes decline rather than match. A rule naming a relative
+// Both failure modes decline to match. A rule naming a relative
 // directory cannot be placed, and a request carrying no cwd cannot be located,
 // and in neither case does qwark know the call was made where the rule says.
 // Validation refuses a relative value at load, so reaching that branch means a
 // rule file changed under a running process.
 //
-// The cause quotes the directory the RULE named rather than the one the call
-// came from. The rule's own text is what a reader is holding when they ask why
+// The cause quotes the directory the rule named, not the one the call came
+// from. The rule's own text is what a reader is holding when they ask why
 // it fired, and the cwd is in the log entry beside the verdict.
 func (sub *subject) cwdWithin(dir string) (bool, string) {
 	if sub.cwd == "" {
@@ -168,8 +167,8 @@ func (sub *subject) factHolds(name string) (bool, string) {
 	return true, found.Text
 }
 
-// optionHolds tests the options the command was given, by their DECLARED
-// meaning rather than their spelling, so `-f`, `-rf`, `--force` and `--f` all
+// optionHolds tests the options the command was given, by their declared
+// meaning and not their spelling, so `-f`, `-rf`, `--force` and `--f` all
 // satisfy a clause about forcing, and `tar -f` does not.
 func (sub *subject) optionHolds(clause Clause) (bool, string) {
 	for _, given := range sub.options.Given {
@@ -199,7 +198,7 @@ func (sub *subject) kindHolds(clause Clause) (bool, string) {
 
 // wordsHold tests the words at the ordinals the clause names.
 //
-// **An absent index means the arguments**, so a test written without one asks
+// An absent index means the arguments, so a test written without one asks
 // about what the command was given. Ordinal 0 is the command and is reached
 // only by naming it.
 func (sub *subject) wordsHold(clause Clause) (bool, string) {

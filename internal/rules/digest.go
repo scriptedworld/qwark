@@ -19,7 +19,7 @@ const digestLength = 16
 
 // digestOf identifies a rule set by what it contains.
 //
-// **Content only, never paths.** The same rules installed at
+// Content only, never paths. The same rules installed at
 // ~/.config/qwark/rules and sitting in the repository's own rules/ must produce
 // the same digest, because the question anybody asks is whether the two are the
 // same policy, and a digest that included the path could never answer it. That
@@ -31,8 +31,8 @@ const digestLength = 16
 // digest is stable across runs and changes when any file's content changes.
 //
 // The length of each file goes into the hash before its bytes. Without it, two
-// files could be concatenated differently and reach the same digest, which is a
-// silly way to lose a property that costs one line to keep.
+// files could be concatenated differently and reach the same digest, and
+// keeping that property costs one line.
 func digestOf(files []string) (string, error) {
 	sum := sha256.New()
 

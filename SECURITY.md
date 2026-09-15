@@ -3,7 +3,7 @@
 ## Reporting a vulnerability
 
 Report it privately, through GitHub's private vulnerability reporting on this
-repository, rather than by opening an issue. A bypass is worth more to an
+repository, and not by opening an issue. A bypass is worth more to an
 attacker than to anyone else while it is public.
 
 Include the command line, the rule set you were running, and the verdict you
@@ -73,8 +73,8 @@ The hook command ends in `|| exit 2`. Without it, a qwark that crashes lets the
 command through.
 
 The shell qwark parses for is the shell that will run the command. The mismatch
-is silent rather than loud: of ten zsh constructs the bash parser rejects only
-two, while four parse cleanly and mean something else. `[shell]` declares which
-grammar the parser assumes and `qwark rules` prints it, which is a statement of
-intent rather than a check: nothing compares that declaration against the shell
+is silent: of ten zsh constructs the bash parser rejects only two, while four
+parse cleanly and mean something else. `[shell]` declares which grammar the
+parser assumes and `qwark rules` prints it. That declaration states intent and
+checks nothing: nothing compares that declaration against the shell
 the agent's tool actually spawns.

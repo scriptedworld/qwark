@@ -17,7 +17,7 @@ type Fact string
 
 // The plumbing and composition facts. These are what tier-one rules name.
 //
-// Their shared purpose is narrow and worth stating: each one is a way for a
+// Their shared purpose is narrow: each one is a way for a
 // command's effect to stop being determined by its own text. A command carrying
 // none of them does exactly what it appears to do, which is the precondition
 // every later tier depends on: reasoning about which paths a command reaches
@@ -88,7 +88,7 @@ type Facts struct {
 	// The parser's own vocabularies, counted in the same walk: which node
 	// types appeared, which operators, and which statement flags were set.
 	// Keyed by name, holding the source text of the first occurrence, so a
-	// message can quote what set a rule off rather than naming the category
+	// message can quote what set a rule off instead of naming the category
 	// it fell into. "caused by: $HOME" is checkable; "caused by: ParamExp"
 	// asks the reader to go and find it.
 	nodes map[string]string
@@ -162,7 +162,7 @@ func (p *Parsed) Facts() *Facts {
 	return f
 }
 
-// recordNode is split three ways by what the facts mean rather than by size:
+// recordNode is split three ways by what the facts mean, not by size:
 // how the command is plumbed together, where its words come from, and what it
 // declares. A rule reaches for one of those three, rarely for a mixture.
 func (p *Parsed) recordNode(f *Facts, node syntax.Node) {
@@ -192,7 +192,7 @@ func (p *Parsed) recordCommandForm(f *Facts, node syntax.Node) {
 		f.record(p, n, FactCoproc)
 	case *syntax.DeclClause:
 		// export, declare, readonly, local, typeset. Written as a keyword
-		// rather than a call, so `export` is never a command word and a rule
+		// and not a call, so `export` is never a command word and a rule
 		// naming it would never fire, while `export PATH=…` decides which
 		// binary every later command resolves to.
 		f.record(p, n, FactDeclaration)
@@ -265,7 +265,7 @@ func (p *Parsed) recordExpansion(f *Facts, node syntax.Node) bool {
 }
 
 // recordDeclaration covers what a command introduces: names, functions, and the
-// control structures that make it a program rather than an invocation.
+// control structures that make it a program and not an invocation.
 func (p *Parsed) recordDeclaration(f *Facts, node syntax.Node) bool {
 	switch n := node.(type) {
 	case *syntax.Assign:

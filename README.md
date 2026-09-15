@@ -18,9 +18,9 @@ the agent can read.
                                          caused by: -f
 
 Every rule that objected is listed, each with the word that set it off. The
-reasons are elided above and printed in full: a reason is not a comment, it is
-what a refused agent is shown, and it is the only thing between a denial and a
-session that does not understand why.
+reasons are elided above and printed in full. A reason is what a refused agent
+is shown, and it is the only thing between a denial and a session that does not
+understand why.
 
 It runs as a `PreToolUse` hook for Claude Code, which hands it the tool call on
 stdin before the command executes and lets its answer decide whether it does.
@@ -34,7 +34,7 @@ working against the person who ran it.
 So when qwark cannot account for something, it refuses. An unparseable command
 is denied. A rule file that will not load means no Bash at all. An undeclared
 command is denied, and so is an option the declaration does not name. A word
-whose value is not fixed by its own text is refused rather than guessed at. A
+whose value is not fixed by its own text is refused, not guessed at. A
 gate that degrades to permissive whenever it is confused is a gate whose
 confusion is the way through it.
 
@@ -49,13 +49,13 @@ Deny is the default. A command is refused unless an allow rule matched it, so a
 rule set containing no allow rules permits nothing, which is the correct reading
 of an empty policy.
 
-A rule is an id, an action, a reason and clauses, and **all of its clauses must
-hold** for it to apply. There is no `or` inside a rule, so alternatives are
+A rule is an id, an action, a reason and clauses, and all of its clauses must
+hold for it to apply. There is no `or` inside a rule, so alternatives are
 separate rules and each one can be checked by reading it alone.
 
 When several rules match, the strictest action wins: deny beats ask beats allow.
 Order never changes a verdict and no rule is weakened by which file it arrived
-in, so the files can be split by what a check costs rather than by precedence.
+in, so the files can be split by what a check costs instead of by precedence.
 There is no overridable deny. An exception is written inside the rule it
 modifies, where a reader of that rule sees it.
 
@@ -97,7 +97,7 @@ merge `install/settings-fragment.json` into `settings.json`.
     install -d ~/.config/qwark/rules
     install -m 0644 rules/*.toml ~/.config/qwark/rules/
 
-Copying the shipped rules rather than pointing at this tree is deliberate: the
+Copying the shipped rules, and not pointing at this tree, is deliberate: the
 live policy and the policy under development are then separate things. Nothing
 compares the two for you.
 
@@ -113,7 +113,7 @@ needs no shell and no root.
 
 ## What it does not do
 
-**qwark gates Bash and nothing else.** The Write and Edit tools reach every path
+qwark gates Bash and nothing else. The Write and Edit tools reach every path
 a rule protects, which is what the `permissions.deny` list exists for. That list
 enumerates paths across a space of paths that is effectively infinite, so it is
 wrong wherever it is incomplete, and keeping it in step with the rules is
@@ -128,13 +128,13 @@ problem without solving it.
 `docs/DECISIONS/what-qwark-does-not-cover.md` is the full statement of the
 limits.
 
-qwark never answers `defer`, because deciding nothing is the outcome this design
-exists to prevent, and it never rewrites the call it was asked about: a gate that
+qwark never answers `defer`, because a gate that decides nothing has failed at
+its one job, and it never rewrites the call it was asked about: a gate that
 edits what it judges can no longer be said to have judged it.
 
 The registration is fixed for a session. A subagent spawned inside a running
 session inherits its parent's command line, so varying policy by role is the
-engine's job through the `agent` clause rather than the launcher's.
+engine's job, through the `agent` clause, and not the launcher's.
 
 ## What is not finished
 
@@ -143,8 +143,8 @@ rule schema is still moving.
 
 Rules can name the agent a request came from, and no shipped rule does, because
 which agent types exist is not qwark's to invent. `tag` and the state it implies
-are deferred: `rules/40-state.toml` is a worked example rather than a loaded
-file, and nothing writes tag state today.
+are deferred: `rules/40-state.toml` is a worked example and not a loaded file,
+and nothing writes tag state today.
 
 This is the first of a planned three layers, and it is the outermost one. A
 sandbox and a per-task manifest of writable files are what close the gap this

@@ -170,7 +170,7 @@ func TestJudgeRefusesWhatNothingAllows(t *testing.T) {
 
 	// The repository's own rules carry no allow rules and no declarations, so
 	// every command is refused. That is the correct reading of a policy that
-	// is all denials, and seeing it is the point of the command.
+	// is all denials, and showing it is what the command is for.
 	out, errOut, status := invoke(t, "", "judge", "../../rules", "--", "rm", "-rf", "/")
 
 	if status != statusOK {
@@ -267,7 +267,7 @@ func TestHelpIsAskedForRatherThanStumbledInto(t *testing.T) {
 }
 
 // failingReader stands in for a stdin that cannot be read. It is a real
-// implementation of io.Reader rather than a mock: there is nothing to assert
+// implementation of io.Reader, not a mock: there is nothing to assert
 // about how it was called, only what the code does with what it returns.
 type failingReader struct{}
 

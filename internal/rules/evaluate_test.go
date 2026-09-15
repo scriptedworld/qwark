@@ -40,7 +40,7 @@ func judgeWith(t *testing.T, files map[string]string, src string) rules.Outcome 
 }
 
 // judgeAs judges one command as a given agent type. The empty type is the main
-// session rather than an absent value, so it is a case worth passing on purpose.
+// session, not an absent value, so it is a case to pass on purpose.
 func judgeAs(t *testing.T, files map[string]string, agent, src string) rules.Outcome {
 	t.Helper()
 
@@ -51,10 +51,10 @@ func judgeAs(t *testing.T, files map[string]string, agent, src string) rules.Out
 	return set.Evaluate(parseFor(t, src), rules.Context{Agent: agent})
 }
 
-// duties is one rule set carrying two roles, which is the whole point of the
-// agent clause: the policy for every caller is in one file, named once where
-// the hook is registered, rather than spread across files a launcher has to
-// select between.
+// duties is one rule set carrying two roles, which is what the agent clause is
+// for: the policy for every caller is in one file, named once where the hook
+// is registered, instead of spread across files a launcher has to select
+// between.
 const duties = `
 [[rule]]
 id = "runner-may-read"
@@ -129,7 +129,7 @@ func TestAnAgentAllowanceReachesOnlyTheCommandItsRuleNames(t *testing.T) {
 	// clauses must hold, so the runner's allowance stops at git and does not
 	// become a general permission attached to the role.
 	//
-	// This is the direction worth testing, because getting it wrong turns a
+	// This is the direction to test, because getting it wrong turns a
 	// per-command allowance into a per-agent one, which is how a role quietly
 	// accumulates everything anybody ever granted it.
 	outcome := judgeAs(t, ruleSet(duties), "gate-runner", `rm x`)
@@ -144,15 +144,14 @@ func TestAnAgentAllowanceReachesOnlyTheCommandItsRuleNames(t *testing.T) {
 func TestTheMainSessionIsNamedByHavingNoAgentType(t *testing.T) {
 	t.Parallel()
 
-	// **agent_id and agent_type appear only for a subagent**, so a
-	// main-session call carries neither. That is what makes absence
-	// dependable rather than a gap: the main session is the one caller reliably
-	// without an agent type, so `agent = ""` names it exactly and one rule set
-	// covers every caller.
+	// agent_id and agent_type appear only for a subagent, so a main-session
+	// call carries neither. That makes absence dependable: a main-session call
+	// is the one caller reliably without an agent type, so `agent = ""` names it
+	// exactly and one rule set covers every caller.
 	//
 	// Without this the main session would be the one role no clause could
-	// address, and a launcher would have to vary what it passes, which is the
-	// symlink and environment-variable management this exists to avoid.
+	// address, and a launcher would have to vary what it passes, which means
+	// managing symlinks and environment variables.
 	files := ruleSet(duties)
 
 	if outcome := judgeAs(t, files, "", `git status`); outcome.Denied() {
@@ -160,7 +159,7 @@ func TestTheMainSessionIsNamedByHavingNoAgentType(t *testing.T) {
 			outcome.Action)
 	}
 
-	// And it is a role rather than a wildcard: a subagent the rule set says
+	// And it is a role, not a wildcard: a subagent the rule set says
 	// nothing about is not covered by the main session's allowance.
 	if outcome := judgeAs(t, files, "unnamed-agent", `git status`); !outcome.Denied() {
 		t.Errorf("Action = %q, want deny: `agent = \"\"` names the main session, "+
@@ -274,7 +273,7 @@ func TestACwdClauseDeclinesWhenTheCallNamesNoDirectory(t *testing.T) {
 	t.Parallel()
 
 	// Every real call carries a cwd, so this is the shape of a request qwark
-	// could not read rather than a caller it will meet. It declines, on the
+	// could not read, not a caller it will meet. It declines, on the
 	// same reading every other unanswerable clause gets: an allow rule must not
 	// match on the strength of qwark not knowing where the call came from.
 	if outcome := judgeFrom(t, ruleSet(scoped), ""); !outcome.Denied() {
@@ -287,7 +286,7 @@ func TestACwdClauseDeclinesWhenTheCallNamesNoDirectory(t *testing.T) {
 func TestARelativeCwdIsRefusedAtLoad(t *testing.T) {
 	t.Parallel()
 
-	// Refused at load rather than declining at every command. A relative
+	// Refused at load instead of declining at every command. A relative
 	// directory would be resolved against whichever process asked, which has
 	// nothing to do with where the agent was started, and a scoping clause that
 	// never holds reads exactly like one that is working.
@@ -331,9 +330,9 @@ func ruleSet(extra string) map[string]string {
 func TestNothingIsPermittedByDefault(t *testing.T) {
 	t.Parallel()
 
-	// Being in the allowed list MEANS an allow rule matched. A rule set with
+	// Being in the allowed list means an allow rule matched. A rule set with
 	// no allow rules permits nothing, which is the correct reading of an empty
-	// policy rather than a gap in one.
+	// policy and not a gap in one.
 	outcome := judgeWith(t, ruleSet(""), `rm x`)
 
 	if !outcome.Denied() {
@@ -652,13 +651,13 @@ reason = "Only when forcing, which git does not declare."
 func TestAnUndeclaredCommandStillGetsItsStructuralReasons(t *testing.T) {
 	t.Parallel()
 
-	// The declaration check used to run first and return, so a refusal said
+	// If the declaration check ran first and returned, a refusal would say
 	// only "this is undescribed" about a command that had also redirected.
 	// Most rules need no declaration to answer: a clause naming node types,
 	// operators, flags or a fact needs no table at all, and silently not
-	// asking them made the refusal name one problem out of two.
+	// asking them names one problem out of two.
 	//
-	// The verdict was never wrong. What was wrong was what the reader was told.
+	// The verdict is the same either way; this pins what the reader is told.
 	outcome := judgeWith(t, ruleSet(`
 [[rule]]
 id = "no-redirection"
@@ -694,9 +693,9 @@ reason = "Redirections are not permitted."
 func TestAnUndeclaredOptionIsRefused(t *testing.T) {
 	t.Parallel()
 
-	// Decomposition recorded this from the beginning and the verdict did not
-	// consult it, so `rm -Z x` was permitted by the allow rule below while the
-	// fault sat unread beside it. An option nobody declared is the same
+	// Decomposition records this fault, and a verdict that did not consult it
+	// would let the allow rule below permit `rm -Z x` while the fault sat
+	// unread beside it. An option nobody declared is the same
 	// ignorance that refuses an undeclared command one level up: qwark does not
 	// know what the command was told to do.
 	outcome := judgeWith(t, ruleSet(`

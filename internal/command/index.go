@@ -23,7 +23,7 @@ var (
 	ErrUnbounded = errors.New("a range with neither end is the same as no index; remove the index")
 )
 
-// rangeSeparator is spelled `..` rather than `-` because an endpoint may be
+// rangeSeparator is spelled `..` and not `-` because an endpoint may be
 // negative, and `-3--1` cannot be read at a glance. The separator that works in
 // both directions is the one that is used in both directions.
 const rangeSeparator = ".."
@@ -38,7 +38,7 @@ const rangeSeparator = ".."
 // runs from the first argument. Leaving off both is a configuration error:
 // `..` names every argument, and so does stating no index at all.
 //
-// **An open end never reaches the command.** An omitted start is 1, because
+// An open end never reaches the command. An omitted start is 1, because
 // arguments do not start at 0: the command does. Ordinal 0 is reachable only
 // by naming it. A test written without an index asks about what the command was
 // given, and matching the command's own name too would make `value = "rm"` true
@@ -118,11 +118,11 @@ func parseTerm(field string) (term, error) {
 
 // The ordinals an open end of a range stands for.
 //
-// **An omitted start is 1, not 0.** Arguments do not start at 0; the command
+// An omitted start is 1, not 0. Arguments do not start at 0; the command
 // does. So `..2` is the first two arguments, and an open end never reaches the
 // command at all.
 //
-// Ordinal 0 is therefore reachable only by naming it. That is the whole point:
+// Ordinal 0 is therefore reachable only by naming it. That is deliberate:
 // a range is about what the command was given, and the command is not one of
 // the things it was given.
 //
@@ -157,7 +157,7 @@ func (i Index) String() string { return i.spec }
 // Select resolves the index against a command whose highest ordinal is last,
 // returning the ordinals it names in ascending order, without duplicates.
 //
-// An ordinal outside the command selects nothing rather than failing: a rule
+// An ordinal outside the command selects nothing and does not fail: a rule
 // about the third argument simply does not apply to a command with one. A range
 // whose endpoints resolve backwards likewise names nothing.
 func (i Index) Select(last int) []int {

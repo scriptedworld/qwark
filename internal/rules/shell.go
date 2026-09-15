@@ -9,7 +9,7 @@ import (
 	"github.com/scriptedworld/qwark/internal/reach"
 )
 
-// Reasons the shell cannot be accepted. Each denies every command rather than
+// Reasons the shell cannot be accepted. Each denies every command, not just
 // one, because the parser's grammar is a precondition of every verdict: if the
 // language is wrong, no answer qwark gives about any command means anything.
 var (
@@ -24,21 +24,21 @@ var (
 //	[shell]
 //	allow = ["/bin/bash", "/usr/bin/bash"]
 //
-// It is a declaration rather than a rule because it does not depend on the
+// It is a declaration and not a rule because it does not depend on the
 // command. Written as a clause it would be evaluated once per command to
-// produce the same answer, and (the reason that actually matters) a rule
-// file that simply omitted it would disable the check silently. Omission is the
-// failure this whole design keeps closing, so absence is a refusal here too.
+// produce the same answer, and, more importantly, a rule file that simply
+// omitted it would disable the check silently. So absence is a refusal here,
+// as it is everywhere else in the rule set.
 //
 // # Whole paths, not names
 //
 // Entries are absolute paths and are compared exactly. Comparing basenames
 // would be friendlier to a machine that installs the shell somewhere unusual,
-// and it would accept **any file named bash anywhere**, including one written
+// and it would accept any file named bash anywhere, including one written
 // into a directory the agent can reach. For a gate whose subject can create
 // files, "it is called bash" is not a property worth checking.
 //
-// **On the machine this was written for:** `/bin` is a symlink
+// On the machine this was written for, `/bin` is a symlink
 // to `usr/bin`, so `/bin/bash` and `/usr/bin/bash` are the same file, both
 // resolving to `/usr/bin/bash` and both root-owned with mode 755. Listing both
 // is therefore belt and braces: either spelling resolves to the same binary.
@@ -51,9 +51,9 @@ type ShellPolicy struct {
 // # Why this exists
 //
 // qwark's parser is fixed to one shell's grammar, and reading a command in the
-// wrong grammar does not fail loudly. **Of ten zsh constructs put through the
+// wrong grammar does not fail loudly. Of ten zsh constructs put through the
 // bash parser, only two were rejected while four parsed cleanly and meant
-// something else**: `**/`, `*(.)`, `$foo[2]`, and the `noglob`
+// something else: `**/`, `*(.)`, `$foo[2]`, and the `noglob`
 // precommand modifier. Worse, `rm *(e:'rm -rf /':)` carries no substitution,
 // pipe, redirection or logical concatenation, so it satisfies every tier-one
 // rule, and zsh executes the quoted code as a glob qualifier.
@@ -63,9 +63,9 @@ type ShellPolicy struct {
 //
 // # What this is not
 //
-// **This is a consistency check on the best available signal, not proof.**
-// qwark runs as a child process of the tool that will spawn the shell, so it
-// cannot observe that shell directly: `type` answers only from inside it, and
+// This is a consistency check on the best available signal, not proof, and a
+// passing check is not a guarantee. qwark runs as a child process of the tool
+// that will spawn the shell, so it cannot observe that shell directly: `type` answers only from inside it, and
 // a child sees the un-aliased view. The signal is what the environment reports,
 // and it is trustworthy only to the extent that the environment is: whatever
 // names it must be unwritable, exactly as the rule files must be.
@@ -73,8 +73,6 @@ type ShellPolicy struct {
 // Both sides are resolved through their symbolic links first, so two spellings
 // of one file reach one answer and a replaced link does not slip past on the
 // strength of its name.
-//
-// It is stated this way so that nobody reads a passing check as a guarantee.
 func (p ShellPolicy) Verify(reported string) error {
 	if len(p.Allow) == 0 {
 		return ErrShellUndeclared
@@ -91,7 +89,7 @@ func (p ShellPolicy) Verify(reported string) error {
 	}
 
 	// Both sides are resolved through their symbolic links before comparing.
-	// **`/bin` is a symlink to `usr/bin` here**, so `/bin/bash`
+	// `/bin` is a symlink to `usr/bin` here, so `/bin/bash`
 	// and `/usr/bin/bash` are one file under two names, and comparing the names
 	// would make a rule about a shell a rule about one way of spelling it.
 	//

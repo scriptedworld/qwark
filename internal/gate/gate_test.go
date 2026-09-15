@@ -15,7 +15,7 @@ import (
 // setFrom loads a rule set from one file written for the test.
 //
 // Whether that file could be rewritten by this user is not asked here, and that
-// is the point of the split: ownership is a question about the machine qwark
+// is why the split exists: ownership is a question about the machine qwark
 // was deployed onto, settled once before a Decider is built. Asking it here
 // would mean these tests could only ever reach the refusal.
 func setFrom(t *testing.T, body string) *rules.Set {
@@ -86,8 +86,8 @@ func TestADecisionNamesItsRuleAndQuotesTheCause(t *testing.T) {
 
 	// A decision nobody can check is one nobody can correct. The reply is the
 	// only place the reader sees any of this, so naming the rule and quoting
-	// what set it off has to survive into the message rather than stopping at
-	// the Outcome.
+	// what set it off has to survive into the message and not stop at the
+	// Outcome.
 	decision, reason := gate.Decider(setFrom(t, permissive))(
 		request(t, "", "echo hello"))
 
@@ -108,7 +108,7 @@ func TestEveryReasonReachesTheReply(t *testing.T) {
 
 	// A refusal naming one problem out of two sends its reader round twice. The
 	// evaluator gathers every reason precisely so it does not have to, and that
-	// is worth nothing unless the reply carries them all.
+	// buys nothing unless the reply carries them all.
 	//
 	// Only the DENY reasons, which is the requirement's own wording and is
 	// deliberate: `may-echo` also matched this command, and reporting that a
@@ -135,8 +135,8 @@ func TestACommandThatWillNotParseIsRefused(t *testing.T) {
 	t.Parallel()
 
 	// A command qwark cannot parse is one it cannot judge, and that is a
-	// verdict rather than an absence of findings. The parser's own message goes
-	// back because it carries the line and column.
+	// verdict in its own right, not an absence of findings. The parser's own
+	// message goes back because it carries the line and column.
 	decision, reason := gate.Decider(setFrom(t, permissive))(
 		request(t, "", "echo a )"))
 
@@ -153,8 +153,8 @@ func TestACallForAToolQwarkDoesNotModelIsRefused(t *testing.T) {
 	t.Parallel()
 
 	// Finding no command to check is not the same as finding nothing to check.
-	// A matcher wide enough to send Write here blocks loudly, which is the
-	// failure worth having: the alternative is a gate that judges nothing while
+	// A matcher wide enough to send Write here blocks loudly. That is the
+	// better failure, since the alternative is a gate that judges nothing while
 	// looking installed.
 	asked := request(t, "", "")
 	asked.ToolName = "Write"
@@ -197,7 +197,7 @@ func TestTheAgentTypeFromThePayloadReachesTheRules(t *testing.T) {
 
 	// The agent clause is a mechanism nothing feeds unless the payload's
 	// agent_type arrives here. This is the wiring that makes separation of
-	// duties real rather than merely expressible.
+	// duties real and not merely expressible.
 	const perAgent = `
 [command.echo]
 operands = "text"
@@ -229,7 +229,7 @@ func TestAnAskReachesTheReplyAsAnAsk(t *testing.T) {
 	t.Parallel()
 
 	// Ask is the refusal a person can lift, and it is a different answer from
-	// deny rather than a softer wording of it. Collapsing the two here would
+	// deny, not a softer wording of it. Collapsing the two here would
 	// turn every confirmable command into a refused one.
 	const asking = `
 [command.echo]

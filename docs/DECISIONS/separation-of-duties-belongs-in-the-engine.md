@@ -7,17 +7,17 @@ agent allowed to run them**:
 > The point of the rules is using the engine to support that separation of
 > duties.
 
-And the reason it has to be the engine rather than the launcher:
+And the reason it has to be the engine and not the launcher:
 
 > The base session doesn't get an "agent type" … so we can't as easily manage
 > those rules without ACTIVELY managing symlinks or something else … so at the
 > moment the concern is EITHER something wired into subagents, or some form of
 > ENV VAR that will have to be actively managed … which feels rickety.
 
-That settles a contradiction already in the requirements. **FR-10.6** says
+That settles a contradiction already in the requirements. FR-10.6 says
 `agent_type` arriving in the payload "is what makes per-agent scoping
 implementable from the payload, rather than through an environment variable the
-agent might itself reach". **FR-10.6a** then put the scoping outside qwark, on the
+agent might itself reach". FR-10.6a then put the scoping outside qwark, on the
 grounds that an external process picks the files. Both cannot stand: the external
 route is precisely the env-var and symlink management called rickety above, and
 the subject cannot set its own `agent_type` while it can reach an environment
@@ -41,8 +41,8 @@ is how a clause says "this is not there".
     agent  = ""
     absent = true
 
-**One rule set, named once in `settings.json`, carrying every role's policy inside
-it.** No symlink swapping between launches, no environment variable to manage, and
+One rule set, named once in `settings.json`, carries every role's policy inside
+it. No symlink swapping between launches, no environment variable to manage, and
 nothing to keep in step outside the file being read. The policy in force stays
 readable where qwark is invoked, which is what FR-4.15 was for.
 
@@ -57,7 +57,7 @@ override another.
 top-level launches, they carry no agent type and no clause can tell them apart, so
 the launcher must still give them different rule files. Engine-side scoping solves
 the subagent case completely and the main-session case not at all. Take it as an
-argument for the specialised agents being subagents instead of separate launches.
+argument for the specialised agents being subagents, not separate launches.
 
 **A partition does not stop a chain.** Writer writes the `justfile`, runner runs
 it: two agents, neither breaking its own rules, and the effect composes into the

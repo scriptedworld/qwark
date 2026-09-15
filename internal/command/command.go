@@ -35,7 +35,7 @@ type Word struct {
 	Determined bool
 
 	// Escaped reports whether the word carried a backslash escape outside of
-	// quotes. It matters in its own right rather than as a detail of parsing:
+	// quotes. It matters in its own right, not as a detail of parsing:
 	// a leading escape is what suppresses alias expansion, so `ls` and `\ls`
 	// name the same file and run different programs.
 	Escaped bool
@@ -44,7 +44,7 @@ type Word struct {
 // A Simple is one simple command: a command name and its arguments, in order.
 //
 // Only simple commands have this shape. A pipeline, a subshell or a loop is a
-// structure containing them, and is described by facts rather than ordinals.
+// structure containing them, and is described by facts instead of ordinals.
 type Simple struct {
 	Words []Word
 	Line  uint
@@ -118,9 +118,9 @@ func simpleOf(parsed *shell.Parsed, call *syntax.CallExpr) Simple {
 // literal reports the value a word will carry, and whether the text alone fixes
 // it.
 //
-// This is deliberately hand-written rather than delegating to expand.Literal.
-// Measured: that function resolves `$HOME` to the empty
-// string and returns no error, so a caller cannot tell a fixed word from one it
+// This is deliberately hand-written instead of delegating to expand.Literal.
+// That function resolves `$HOME` to the empty string and returns no error, so
+// a caller cannot tell a fixed word from one it
 // silently guessed at. It refuses command substitution properly, but the silent
 // case is the dangerous one: deciding about `rm -rf /x` when the shell will act
 // on `rm -rf /home/user/x` is exactly the mistake a parser was adopted to
@@ -153,7 +153,7 @@ func literal(word *syntax.Word) (value string, escaped, determined bool) {
 }
 
 // writeQuoted appends a double-quoted run, refusing it if anything inside is
-// expanded rather than literal.
+// expanded and not literal.
 func writeQuoted(built *strings.Builder, quoted *syntax.DblQuoted) bool {
 	for _, part := range quoted.Parts {
 		lit, ok := part.(*syntax.Lit)
@@ -173,9 +173,9 @@ const quotedEscapes = "$`\"\\\n"
 // unescape resolves the backslash escapes of an unquoted word, and reports
 // whether there were any.
 //
-// The parser keeps escapes in a literal's value: **`a\ b` arrives as `a\ b`
-// while bash passes `a b`**, so a gate comparing that value
-// against a path is comparing a string the shell will never produce. Written as
+// The parser keeps escapes in a literal's value: `a\ b` arrives as `a\ b`
+// while bash passes `a b`, so a gate comparing that value against a path is
+// comparing a string the shell will never produce. Written as
 // `rm /home/user/.cl\aude/x`, the shell reaches `.claude` and an unresolved
 // comparison does not.
 func unescape(raw string) (string, bool) {
@@ -204,8 +204,8 @@ func unescape(raw string) (string, bool) {
 
 // unescapeQuoted resolves the escapes a double-quoted run permits.
 //
-// **From bash:** `"a\$b"` yields `a$b` but `"a\qb"` yields
-// `a\qb`: the backslash survives before anything not in quotedEscapes. The
+// In bash, `"a\$b"` yields `a$b` but `"a\qb"` yields `a\qb`: the backslash
+// survives before anything not in quotedEscapes. The
 // unquoted rule is not the quoted rule, and applying it here would drop
 // backslashes the shell keeps.
 func unescapeQuoted(raw string) string {

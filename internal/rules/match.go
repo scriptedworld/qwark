@@ -32,7 +32,7 @@ const (
 	// FormPartial matches anywhere within the value. `partial = ".claude"`
 	// matches any path containing it.
 	//
-	// This is the form that must be chosen rather than fallen into. The
+	// This is the form that must be chosen, never fallen into. The
 	// predecessor of this project matched the substring `.archive` and thereby
 	// blocked `web.archive.org`, costing a legitimate research route. Nothing
 	// here prevents that; naming the form is what makes it a decision the
@@ -75,7 +75,7 @@ func Partial(text string) (Match, error) {
 // Pattern builds a match from a regular expression, anchored to the whole
 // value.
 func Pattern(expr string) (Match, error) {
-	// Wrapped in a group rather than concatenated: `\Arm|force\z` anchors only
+	// Wrapped in a group, not concatenated: `\Arm|force\z` anchors only
 	// its first branch, so `enforcement` would match.
 	compiled, err := regexp.Compile(`\A(?:` + expr + `)\z`)
 	if err != nil {
@@ -121,8 +121,8 @@ type Spec struct {
 
 // Build turns a declared match into one that can be evaluated.
 //
-// Stating none is an error rather than a clause that matches everything, and
-// stating two is an error rather than a precedence rule nobody would remember.
+// Stating none is an error, not a clause that matches everything, and stating
+// two is an error, not a precedence rule nobody would remember.
 func (s Spec) Build() (Match, error) {
 	var built Match
 	var err error

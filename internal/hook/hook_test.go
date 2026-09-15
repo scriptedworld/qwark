@@ -168,7 +168,7 @@ func TestTheDecisionsAreTheOnesClaudeCodeAccepts(t *testing.T) {
 	t.Parallel()
 
 	// Four, not three. `defer` is named here so that its absence from qwark's
-	// answers is a decision on the record rather than an oversight.
+	// answers is a decision on the record and not an oversight.
 	for _, decision := range []hook.Decision{
 		hook.DecisionAllow, hook.DecisionDeny, hook.DecisionAsk, hook.DecisionDefer,
 	} {
@@ -217,9 +217,8 @@ func TestQwarkNeverAnswersDefer(t *testing.T) {
 	t.Parallel()
 
 	// `defer` means the hook declines to decide and the dispatcher continues
-	// past it. Deciding nothing is the one outcome this design exists to
-	// prevent, so it must never be what Answer produces by default or by
-	// accident.
+	// past it. qwark is designed never to decide nothing, so `defer` must
+	// never be what Answer produces by default or by accident.
 	for _, decision := range []hook.Decision{
 		hook.DecisionAllow, hook.DecisionDeny, hook.DecisionAsk,
 	} {
@@ -237,20 +236,19 @@ func TestQwarkNeverAnswersDefer(t *testing.T) {
 func TestAMainSessionCallCarriesNoAgentAndIsStillRead(t *testing.T) {
 	t.Parallel()
 
-	// **agent_id and agent_type appear only for a subagent.** A main-session
+	// agent_id and agent_type appear only for a subagent. A main-session
 	// call carries neither, so anything requiring them would work for
 	// subagents and quietly not for the session they run inside.
 	//
-	// REVISED 2026-08-20: this used to add that qwark need not care, because
-	// which rule files apply is chosen outside. That was wrong: the
-	// registration is fixed for a session, so a subagent inherits its parent's
-	// command line and a per-agent partition chosen by the launcher collapses.
+	// qwark cannot leave this to whatever chooses the rule files outside it.
+	// The registration is fixed for a session, so a subagent inherits its
+	// parent's command line and a per-agent partition chosen by the launcher
+	// collapses.
 	//
-	// What the emptiness asserted below is really worth is the opposite of a
-	// gap. **The main session is the one caller reliably carrying no agent
-	// type**, so absence identifies it exactly, and a rule can name that case
-	// the way it names any other role (FR-7.13). This test is what makes that
-	// dependable rather than assumed.
+	// The emptiness asserted below is not a gap. A main-session call is the one
+	// caller reliably carrying no agent type, so absence identifies it
+	// exactly, and a rule can name that case the way it names any other role
+	// (FR-7.13). This test is what makes that dependable instead of assumed.
 	const mainSession = `{
 	  "session_id": "s-1",
 	  "cwd": "/home/user/.projects/qwark",

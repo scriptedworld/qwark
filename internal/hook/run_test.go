@@ -95,7 +95,7 @@ func TestAPanicExitsTwoRatherThanLettingTheCommandThrough(t *testing.T) {
 var errCannotWrite = errors.New("stdout is gone")
 
 // failingWriter stands in for a stdout that cannot be written to. A real
-// implementation rather than a mock: there is nothing to assert about how it
+// implementation, not a mock: there is nothing to assert about how it
 // was called, only what the code does with what it returns.
 type failingWriter struct{}
 

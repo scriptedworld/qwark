@@ -14,9 +14,9 @@ further thing qwark becomes.
 
 A gate and an audit are opposite in almost every respect that matters:
 
-    a gate     synchronous, per call, must decide, FAILS CLOSED
+    a gate     synchronous, per call, must decide, fails closed
     an audit   after the fact, across calls, must not lose a record,
-               and blocking nothing is the point
+               and must block nothing
 
 A gate that breaks must refuse, which is why exit 2 exists and why every path here
 ends in a decision. An audit that breaks must not refuse, because an audit that
@@ -27,9 +27,9 @@ An audit also sees what no gate can: a pattern across calls that no single call
 would trip. That is the argument tags were built on, arriving from the other end,
 and it is why the log earns its place even where a store does not.
 
-**This is also where an intention note would land.** The proxy collects the stated
+This is also where an intention note would land. The proxy collects the stated
 reason; mode two is where it is compared against what the call actually did.
-Neither half is worth much alone: the note is unverified prose, and the record of
+Neither half does much alone: the note is unverified prose, and the record of
 effects does not say what was meant.
 
 ---
@@ -38,7 +38,7 @@ The proxy is a layer and not a mode. The engine does not care what it is judging
 A rule is clauses that must all hold; whether a clause selects a word of a command
 line or a field of a tool call is an adapter question and not a design one.
 
-**It turns denying into enumerating.** qwark denies by default across the infinite
+It turns denying into enumerating. qwark denies by default across the infinite
 space of things somebody might type. A proxy exposes a finite set of operations,
 so what exists is what was written down. Every hard problem in mode one follows
 from that space being infinite and the text ambiguous: quoting, escapes, aliases,
@@ -51,25 +51,25 @@ operation with no `expire`. "Refused unless" becomes a required argument. An
 operation that cannot be named cannot be attempted, and a refusal never has to be
 understood.
 
-The whole of the engine carries over, none of it being about shells. **That is
-what makes FR-7.12 and FR-7.13 foundational rather than interim**: "these kinds of
-rules for the various tools per agent type" *is* the agent clause.
+The whole of the engine carries over, none of it being about shells. So FR-7.12
+and FR-7.13 are foundational and not interim: "these kinds of rules for the
+various tools per agent type" *is* the agent clause.
 
-**A proxy per agent type is the stronger form**, raised as an alternative or an
+A proxy per agent type is the stronger form, raised as an alternative or an
 addition: *"if we encode a PROXY for each of the agent types … which would
 likewise limit everything"*. An unexposed tool cannot be called at all, while a
 rule refuses a call that was already formed.
 
-Its cost is the question already open under **where this is heading**. N proxies
+Its cost is the question already open under *where this is heading*. N proxies
 are N surfaces to keep in step with each other and with the agent prompts. One
 proxy with agent-scoped rules keeps the policy in one readable file; a proxy per
 agent type puts it in the wiring, unless the surfaces are generated from a single
 source, and the rule files are the obvious candidate: this is the branch named in
 *"those end up referencing these rule files"*. The agent clause then becomes a
-check on the wiring rather than the wiring itself, plus the policy for whatever
+check on the wiring instead of the wiring itself, plus the policy for whatever
 Bash surface remains.
 
-**What the proxy does not dissolve** is the residue everything else left. If the
+What the proxy does not dissolve is the residue everything else left. If the
 proxy exposes an operation that runs `just checks`, the `justfile` still decides
 what that does, because the call is typed and its meaning is still in a file in
 the tree. The proxy has to own the recipe, or the recipe has to sit outside what

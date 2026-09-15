@@ -1,8 +1,8 @@
 # The policy file has to load first
 
 `[declarations] required = false` turns off FR-4.16, the refusal of an
-undeclared command. It only works if the file carrying it is loaded **before**
-the rules it governs. Nothing said so, nothing detected it, and the live rule
+undeclared command. It only works if the file carrying it is loaded before the
+rules it governs. Nothing said so, nothing detected it, and the live rule
 set denied 100% of real commands for eleven days because of it.
 
 ## Measured
@@ -32,9 +32,9 @@ shape decides anything"*, so a structural-only set *"refuses every command
 rather than judging the ones it understands"*.
 
 That reads as though only declarations can fix it. Swapping two filenames fixes
-it entirely. The comment describes a real measurement from 2026-08-28 and draws
-a conclusion the measurement does not support, which is why it survived: it was
-right about what happened and wrong about why.
+it entirely. The comment describes a real measurement and draws a conclusion the
+measurement does not support, which is why it survived: it was right about what
+happened and wrong about why.
 
 ## What was done
 
@@ -43,7 +43,7 @@ The files are renumbered so the policy sorts first, in both copies:
     00-allow.toml       was 06-allow.toml, carries [declarations]
     01-structure.toml   was 00-structure.toml
 
-A rename rather than a code change, deliberately. It is correct under a glob,
+It is a rename and not a code change, deliberately. It is correct under a glob,
 which an explicit argument order in the hook registration would not be: anyone
 running `qwark judge ~/.config/qwark/rules/*.toml` gets the right answer.
 

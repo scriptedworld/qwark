@@ -21,7 +21,7 @@ type Parsed struct {
 
 // ParseError reports a command that is not valid Bash. A command qwark cannot
 // parse is a command qwark cannot judge, which callers must treat as a verdict
-// in its own right rather than as an absence of findings.
+// in its own right and not as an absence of findings.
 type ParseError struct {
 	Src  string
 	Err  error
@@ -30,7 +30,7 @@ type ParseError struct {
 	// Incomplete is true when the command is well-formed so far but ends
 	// mid-construct: an unclosed quote, a dangling `|`, a `for` with no
 	// `done`. Claude Code hands us whole commands, so this indicates
-	// truncation rather than a syntax mistake.
+	// truncation, not a syntax mistake.
 	Incomplete bool
 }
 
@@ -42,17 +42,16 @@ func (e *ParseError) Unwrap() error { return e.Err }
 
 // Parse reads one command string as Bash.
 //
-// **The shell has to be established, not inferred from the tool's name.**
-// Claude Code's Bash tool runs zsh 5.9 on the machine this was written on,
-// where `$0` is `/bin/zsh` and `BASH_VERSION` is unset. The decision is to
-// force that shell to bash rather than to teach qwark zsh, and it is recorded
-// in docs/LESSONS/the-shell-is-zsh-and-the-decision-is-to-change-it.md.
+// The shell has to be established, not inferred from the tool's name. Claude
+// Code's Bash tool runs zsh 5.9 on the machine this was written on, where `$0`
+// is `/bin/zsh` and `BASH_VERSION` is unset. The decision is to force that
+// shell to bash instead of teaching qwark zsh, and it is recorded in
+// docs/LESSONS/the-shell-is-zsh-and-the-decision-is-to-change-it.md.
 //
 // That decision is what makes this variant correct, so it is a precondition and
-// not a default. Reading zsh as bash fails silently rather than loudly: of ten
-// zsh constructs measured, two were rejected and four parsed cleanly while
-// meaning something else. A gate reading the wrong language does not error, it
-// answers wrongly.
+// not a default. Reading zsh as bash fails silently: of ten zsh constructs
+// tried, two were rejected and four parsed cleanly while meaning something
+// else. A gate reading the wrong language does not error; it answers wrongly.
 func Parse(src string) (*Parsed, error) {
 	parser := syntax.NewParser(
 		syntax.Variant(syntax.LangBash),

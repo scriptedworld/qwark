@@ -3,8 +3,8 @@
 //
 // # Why this reads files instead of running git
 //
-// **Demonstrated.** An alias written into a repository's own
-// `.git/config` executes on a plain git invocation:
+// An alias written into a repository's own `.git/config` executes on a plain
+// git invocation:
 //
 //	[alias]
 //	  innocent = "!printf EXECUTED_FROM_REPO_CONFIG\n"
@@ -31,7 +31,7 @@ import (
 )
 
 // What a repository lookup can fail to establish. Each is a fact about the
-// world rather than a malfunction, so a caller decides what it means: a gate
+// world, not a malfunction, so a caller decides what it means: a gate
 // that denies on "no branch" is making a policy choice, not handling an error.
 var (
 	ErrNoRepository = errors.New("no repository at or above this directory")
@@ -79,8 +79,8 @@ func Branch(dir string) (string, error) {
 }
 
 // locate walks upwards for a `.git`, resolving the file form used by worktrees
-// and submodules. The walk stops at the filesystem root rather than running
-// forever on a path that has none.
+// and submodules. The walk stops at the filesystem root, so a path with no
+// `.git` above it does not run forever.
 func locate(dir string) (string, error) {
 	current, err := filepath.Abs(dir)
 	if err != nil {
@@ -130,8 +130,8 @@ func redirected(dir, marker string) (string, error) {
 // readTrimmed reads a bounded amount of a small state file.
 //
 // The path is cleaned before opening. It is assembled from a located `.git`
-// rather than taken from a command, but a path built by joining components is
-// worth normalising on its own account, and it is what lets this read stand
+// and not taken from a command, but a path built by joining components needs
+// normalising on its own account, and it is what lets this read stand
 // without a suppression.
 func readTrimmed(path string) (string, error) {
 	file, err := os.Open(filepath.Clean(path))

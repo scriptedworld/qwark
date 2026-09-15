@@ -3,7 +3,7 @@
 //
 // # Where this shape comes from
 //
-// **Read out of the installed binary**, Claude Code 2.1.233, a single-file
+// Read out of the installed binary, Claude Code 2.1.233, a single-file
 // executable with its JavaScript bundled in. The request is assembled there as:
 //
 //	{ session_id, transcript_path, cwd, prompt_id, permission_mode,
@@ -16,10 +16,10 @@
 //
 // Two of those matter:
 //
-//   - **`agent_id` and `agent_type` are present.** Per-agent rule sets are
-//     therefore implementable from the payload, rather than needing the mode to
+//   - `agent_id` and `agent_type` are present. Per-agent rule sets are
+//     therefore implementable from the payload, without the mode having to
 //     be smuggled in through an environment variable the agent might reach.
-//   - **`permissionDecision` has four values, not three.** Alongside allow, deny
+//   - `permissionDecision` has four values, not three. Alongside allow, deny
 //     and ask there is `defer`, which the dispatcher treats as "this hook
 //     declines to decide" and continues past. It is the *no opinion* verdict,
 //     precisely the one qwark never returns.
@@ -75,8 +75,9 @@ type BashCall struct {
 
 	// Description is the caller's own account of what the command does.
 	//
-	// **Deliberately unconsulted.** 2026-08-20: asking each tool usage
-	// to state its intention is the proxy's job, not this gate's. It is read
+	// Deliberately unconsulted. Asking each tool usage to state its intention
+	// is the proxy's job, not this gate's; see
+	// docs/DECISIONS/intention-notes-belong-to-the-proxy.md. It is read
 	// because reading the payload faithfully is the contract (FR-10.1), and it
 	// is not a rule input that somebody forgot to wire up.
 	//
@@ -118,8 +119,8 @@ type Decision string
 // The decisions Claude Code accepts.
 //
 // DecisionDefer is listed for completeness and is never returned: it means the
-// hook declines to decide, and qwark deciding nothing is the one outcome its
-// whole design exists to prevent.
+// hook declines to decide, and qwark is designed above all never to decide
+// nothing.
 const (
 	DecisionAllow Decision = "allow"
 	DecisionDeny  Decision = "deny"
@@ -131,7 +132,7 @@ const (
 type Reply struct {
 	Specific Specific `json:"hookSpecificOutput"`
 
-	// SystemMessage is shown to the person rather than to the agent, so a
+	// SystemMessage is shown to the person and not to the agent, so a
 	// refusal can be visible without being something to argue with.
 	SystemMessage string `json:"systemMessage,omitempty"`
 }

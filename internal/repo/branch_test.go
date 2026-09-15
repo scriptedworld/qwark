@@ -10,7 +10,7 @@ import (
 )
 
 // plant builds a repository whose HEAD holds the given content, and returns its
-// working directory. Written by hand rather than by running `git init`, because
+// working directory. Written by hand instead of by running `git init`, because
 // the package under test exists precisely so that git is never run.
 func plant(t *testing.T, head string) string {
 	t.Helper()
@@ -86,7 +86,7 @@ func TestTheRepositoryIsFoundFromASubdirectory(t *testing.T) {
 func TestADetachedHeadHasNoBranch(t *testing.T) {
 	t.Parallel()
 
-	// A commit id rather than a symbolic ref. Reporting it as a branch named
+	// A commit id, not a symbolic ref. Reporting it as a branch named
 	// after the hash would let a rule about `main` silently stop applying.
 	for _, head := range []string{
 		"4b825dc642cb6eb9a060e54bf8d69288fbee4904\n",
@@ -107,7 +107,7 @@ func TestADetachedHeadHasNoBranch(t *testing.T) {
 func TestSomewhereWithNoRepositoryReportsSo(t *testing.T) {
 	t.Parallel()
 
-	// The walk stops at the filesystem root rather than running forever.
+	// The walk stops at the filesystem root and does not run forever.
 	if _, err := repo.Branch(t.TempDir()); !errors.Is(err, repo.ErrNoRepository) {
 		t.Errorf("Branch = %v, want %v", err, repo.ErrNoRepository)
 	}

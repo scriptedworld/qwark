@@ -12,7 +12,7 @@
 //
 // # What a log write must never do
 //
-// **A failure to record does not change a verdict.** The decision is already
+// A failure to record does not change a verdict. The decision is already
 // made by the time it reaches here, and turning a full disk into a refusal
 // would make the audit trail a way to stop the machine. The write failure is
 // reported on stderr, where the hook contract sends it back, and the verdict
@@ -22,8 +22,8 @@
 // project's usual instinct. It is also a real hole: somebody who can fill the
 // disk can stop the recording without stopping the commands. The honest fix is
 // the one FR-8.7 and the leaking-bucket note already describe for tag state,
-// which is a writer the subject is not, and that arrives with the proxy rather
-// than here. Recorded as an open question rather than solved quietly.
+// which is a writer the subject is not, and that arrives with the proxy, not
+// here. It stays an open question until then; it is not solved quietly.
 package audit
 
 import (
@@ -56,7 +56,7 @@ type Entry struct {
 
 // A Var is one environment variable as recorded.
 //
-// **A withheld value is recorded as withheld, never omitted** (FR-4.9). A
+// A withheld value is recorded as withheld, never omitted (FR-4.9). A
 // reader must be able to tell that a variable was present and its value kept
 // back from the variable not being there at all, because those are different
 // facts and only one of them is about secrecy.
@@ -74,7 +74,7 @@ type Recorder struct {
 
 // DefaultPath is where the log lives when nothing says otherwise.
 //
-// Under XDG state rather than beside the rules, because the rules are policy
+// Under XDG state and not beside the rules, because the rules are policy
 // and this is history: one is read to decide and the other is written to
 // remember, and mixing them means an install overwrites a record. It matches
 // where the rest of this machine keeps per-tool state.
@@ -87,7 +87,7 @@ func DefaultPath() string {
 
 // The log is the record of what a gate decided, so it is readable by the user
 // qwark runs as and by nobody else. The directory is walked to reach the file
-// and holds nothing else, hence execute rather than read on the owner.
+// and holds nothing else, hence execute and not read on the owner.
 const (
 	logDirMode  = 0o700
 	logFileMode = 0o600
@@ -95,11 +95,11 @@ const (
 
 // To opens a recorder writing to a file, creating the directory if needed.
 //
-// **It does not truncate.** The file is opened for append, so a restart adds to
-// the record rather than replacing it: a log with earlier entries missing reads
+// It does not truncate. The file is opened for append, so a restart adds to
+// the record instead of replacing it: a log with earlier entries missing reads
 // as a clean history, which is worse than no log.
 func To(path string) (*Recorder, error) {
-	// Cleaned before it is used rather than after it is opened. The path comes
+	// Cleaned before it is used, not after it is opened. The path comes
 	// from a flag or from DefaultPath, so it is not the subject's to choose,
 	// but a traversal reaching this far would be opened for append with the
 	// record's own permissions, and the log is the one file whose contents are
@@ -126,7 +126,7 @@ func Writing(out io.Writer) *Recorder {
 // Record appends one entry.
 //
 // One JSON object per line. The format is chosen so that a partly written final
-// line is one unreadable record rather than a file that will not parse, which
+// line is one unreadable record and not a file that will not parse, which
 // is what a single JSON array would give after a kill.
 func (r *Recorder) Record(entry Entry) error {
 	if r == nil || r.out == nil {

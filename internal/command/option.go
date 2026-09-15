@@ -189,7 +189,7 @@ func (o Options) Has(means string) bool {
 // Decompose splits a command's arguments into the options it was given and the
 // operands it was given them about.
 //
-// It reports faults rather than stopping at the first, so a denial can name
+// It reports every fault instead of stopping at the first, so a denial can name
 // everything wrong with a command instead of sending its author round again.
 func Decompose(simple Simple, table Table) (Options, error) {
 	name := simple.Name()
@@ -338,7 +338,7 @@ func (o *Options) takeValue(simple Simple, ordinal int, spelling string) (string
 //
 // GNU accepts any unambiguous abbreviation, so `rm --f`,
 // `--fo` and `--forc` all force. Matching the text `--force` misses every one
-// of them, which is why this resolves rather than compares. An exact name wins
+// of them, which is why this resolves instead of comparing. An exact name wins
 // outright, as it does in getopt_long, so declaring both `--force` and
 // `--force-all` leaves `--force` meaning itself.
 func resolveLong(declared map[string]Option, written string) (string, Option, error) {

@@ -3,8 +3,8 @@ bin/
 coverage.out
 
 # bolt writes here; a run's artifacts belong to the run, not the repo. One
-# directory per run, stamped with when it started, so `.bolt*` rather than a
-# single name.
+# directory per run, stamped with when it started, so the pattern is `.bolt*`
+# and not a single name.
 .bolt*/
 
 # Working files for this project.
@@ -14,14 +14,14 @@ coverage.out
 START_HERE.md
 
 # Parse trees of real commands, one directory each, rendered from the decisions
-# log at ~/.local/state/qwark/decisions.jsonl. Generated rather than authored,
-# and half a megabyte of SVG, so it is regenerated rather than stored:
+# log at ~/.local/state/qwark/decisions.jsonl. They are generated, not authored,
+# and come to half a megabyte of SVG, so they are regenerated instead of stored:
 #     ~/.projects/wrench/.ephemera/make-ast-gallery.sh example_graphs
 example_graphs/
 
 # This machine's hook registration. It names absolute paths that exist here and
 # nowhere else (/etc/qwark/rules, and qwark on PATH), so it is a local
-# arrangement rather than something to hand to whoever clones this.
+# arrangement, not something to hand to whoever clones this.
 # install/settings-fragment.json is the tracked account of what it should say.
 .claude/settings.local.json
 
@@ -31,17 +31,16 @@ example_graphs/
 # thing. A tracked symlink also stores its target path as content, which would
 # encode where ../toolbox happens to sit.
 #
-# MATCHED BY SHAPE. The objection recorded here was to `bolt.*.yaml`, which would
-# also swallow `bolt.go-std-quality.definitions.yaml` — this project's own values
-# for the shared jig's placeholders, which IS tracked and is the one part a
-# shared definition must never carry. `bolt.*-quality.yaml` is the narrower form
-# and cannot match a `*.definitions.yaml`, so the objection was to the wrong glob
-# rather than to globbing at all.
+# They are matched by shape. `bolt.*.yaml` would be wrong, because it also
+# swallows `bolt.go-std-quality.definitions.yaml`: this project's own values for
+# the shared jig's placeholders, which is tracked and is the one part a shared
+# definition must never carry. `bolt.*-quality.yaml` is the narrower form and
+# cannot match a `*.definitions.yaml`, so the problem is that one glob, not
+# globbing at all.
 #
-# A pattern covers a set that grows and a list does not. bolt adopted toolbox's
-# `rust` set on 2026-09-03 and left two links untracked, because adopting a set
-# and editing five .gitignore files are different acts and only the first is
-# forced.
+# A pattern covers a set that grows and a list does not. When bolt adopted
+# toolbox's `rust` set it left two links untracked, because adopting a set and
+# editing five .gitignore files are different acts and only the first is forced.
 bolt.*-quality.yaml
 bolt.secrets.yaml
 adapters/

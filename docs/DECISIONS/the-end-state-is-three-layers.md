@@ -17,13 +17,13 @@ So the destination is not a longer deny list. It is:
     3. the manifest      which files may be read and which written, named
                          by the task management process        (FR-9.7)
 
-That changes what the path groups in 20-paths.toml are FOR. **Four of the six sit
-outside a project-rooted sandbox and are absorbed by layer one**: qwark's own
+That changes what the path groups in 20-paths.toml are for. Four of the six sit
+outside a project-rooted sandbox and are absorbed by layer one: qwark's own
 rules, Claude Code's configuration and snapshot, the shell startup files, and the
 PATH directories. Under a sandbox they guard against something that cannot happen,
 and survive only as the un-sandboxed case and as defence in depth.
 
-**Two of the six sit INSIDE it, and no sandbox removes them.**
+**Two of the six sit inside it, and no sandbox removes them.**
 
     repository-hooks    .git/hooks/, .git/config, .githooks/
     task-definition     justfile, Makefile, Taskfile.yml, pyproject.toml,
@@ -34,11 +34,11 @@ to write. Layer two does not help either: the blast radius says a write must lan
 inside the project, and every one of these already is.
 
 So the residue after the sandbox is `just checks` and `bolt run`, fixed command
-lines whose meaning lives in a file the agent may legitimately write. **The layer
-that closes it is the manifest**, because the manifest is the only one of the
-three that discriminates between files inside the blast radius. Not "the project
-is writable" but "these files are writable, and a task definition is not one of
-them".
+lines whose meaning lives in a file the agent may legitimately write. The layer
+that closes it is the manifest, because the manifest is the only one of the
+three that discriminates between files inside the blast radius. It says "these
+files are writable, and a task definition is not one of them", where the sandbox
+can only say "the project is writable".
 
 That puts the priority somewhere other than where it looks. FR-9.6 and FR-9.7 are
 both `[?]` and unbuilt, and between them they are the whole of layer three.

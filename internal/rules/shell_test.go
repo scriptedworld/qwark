@@ -12,7 +12,7 @@ import (
 
 // permitted is the declaration these tests verify against.
 // /bin is a symlink to usr/bin on the machine this was written for, so these
-// are two spellings of one root-owned binary rather than two binaries.
+// are two spellings of one root-owned binary, not two binaries.
 func permitted() rules.ShellPolicy {
 	return rules.ShellPolicy{Allow: []string{"/bin/bash", "/usr/bin/bash"}}
 }
@@ -39,16 +39,15 @@ func TestAnotherShellIsRefused(t *testing.T) {
 	// zsh is the case this was written for: the tool named Bash was running
 	// zsh 5.9 on the machine where qwark was written.
 	//
-	// `/bin/sh` IS NOT IN THIS LIST AND MUST NOT BE. It was, until 2026-09-04,
-	// and it failed on Arch, where `/bin/sh` is a symlink to `bash`. Verify
-	// resolves both sides before comparing — deliberately, so that a rule about
-	// a shell is not a rule about one way of spelling it — so `/bin/sh` there
-	// resolves to a permitted shell and is accepted. The code was right and this
-	// list contradicted the design it was testing.
+	// `/bin/sh` must not be in this list. On Arch `/bin/sh` is a symlink to
+	// `bash`, and Verify resolves both sides before comparing (deliberately, so
+	// that a rule about a shell is not a rule about one way of spelling it), so
+	// there `/bin/sh` resolves to a permitted shell and is accepted. Listing it
+	// here makes the test contradict the design it is testing.
 	//
 	// Which shell `/bin/sh` is varies by distribution: dash on Debian and
 	// Ubuntu, bash on Arch and Fedora. So it belongs in neither list, because
-	// the answer depends on the machine rather than on the rule.
+	// the answer depends on the machine and not on the rule.
 	for _, reported := range []string{"/bin/zsh", "/bin/dash", "/usr/bin/fish"} {
 		t.Run(reported, func(t *testing.T) {
 			t.Parallel()
@@ -150,8 +149,7 @@ func TestOmittingTheDeclarationIsARefusal(t *testing.T) {
 	t.Parallel()
 
 	// A rule file that simply left this out would otherwise disable the check
-	// silently, which is the failure this design keeps closing. Absence is not
-	// permission.
+	// silently. Absence is not permission.
 	var undeclared rules.ShellPolicy
 
 	if err := undeclared.Verify("/bin/bash"); !errors.Is(err, rules.ErrShellUndeclared) {
@@ -167,8 +165,8 @@ func TestARelativeEntryIsAConfigurationError(t *testing.T) {
 	t.Parallel()
 
 	// Declaring `bash` would quietly restore name matching, which is the
-	// weakness absolute paths exist to remove. It is refused in the file
-	// rather than tolerated at comparison time.
+	// weakness absolute paths remove. It is refused in the file instead of
+	// being tolerated at comparison time.
 	for _, entry := range []string{"bash", "./bash", "usr/bin/bash", ""} {
 		t.Run(entry, func(t *testing.T) {
 			t.Parallel()

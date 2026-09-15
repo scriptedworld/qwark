@@ -74,7 +74,7 @@ func TestTheTwoReadingsOfAWordDiffer(t *testing.T) {
 func TestAClauseOnTheValueSeesThroughAnEscapedPath(t *testing.T) {
 	t.Parallel()
 
-	// This is the bypass the default exists to close. The pattern protects
+	// The default closes this bypass. The pattern protects
 	// .claude; the command hides it with an escape the shell removes.
 	guard, err := rules.Pattern(`\.claude`)
 	if err != nil {
@@ -101,8 +101,8 @@ func TestAValueThatDoesNotExistDoesNotMatch(t *testing.T) {
 	t.Parallel()
 
 	// Nothing is expanded, so `$HOME` has no value. A clause on the value must
-	// find nothing to test rather than testing the empty string, which would
-	// match a pattern like `.*`.
+	// find nothing to test. Testing the empty string would match a pattern
+	// like `.*`.
 	word := wordAt(t, `rm $HOME`, 1)
 
 	if _, ok := rules.ReadingInterpreted.Of(word); ok {

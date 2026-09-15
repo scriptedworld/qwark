@@ -202,19 +202,19 @@ const (
 
 // contextOf takes the agent and the working directory off the front of the
 // arguments, so a rule set can be tried as the caller that will be judged by it
-// rather than only as the session running the command.
+// and not only as the session running the command.
 //
-// **The default agent is the empty agent, and that is the main session rather
-// than a missing value**: a main-session call carries no agent type, so `judge`
-// with no option already exercises the caller every session has. There is no
-// spelling for "any agent", deliberately: a rule set is judged as somebody,
-// because at runtime it always is.
+// The default agent is the empty agent, meaning a main-session call and not a
+// missing value: a main-session call carries no agent type, so `judge` with no
+// option already exercises the caller every session has. There is no spelling
+// for "any agent", deliberately: a rule set is judged as somebody, because at
+// runtime it always is.
 //
-// **The default cwd is empty, and that is a missing value rather than a
-// directory.** The two differ because the payload differs: a main-session call
-// really does carry no agent type, while every call carries a cwd. So judging
-// without `--cwd` exercises a caller the hook will never see, and a cwd clause
-// declines rather than matching. That is the safe direction and it is still a
+// The default cwd is empty, and that is a missing value, not a directory. The
+// two differ because the payload differs: a main-session call really does
+// carry no agent type, while every call carries a cwd. So judging without
+// `--cwd` exercises a caller the hook will never see, and a cwd clause
+// declines instead of matching. That is the safe direction and it is still a
 // trap: a rule tried without `--cwd` looks inert. Nothing defaults it to the
 // process's own directory, because a gate answering about where it happens to
 // be standing is answering a question nobody asked.

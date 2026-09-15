@@ -14,8 +14,8 @@ import (
 //
 // A clause that selects nothing would match nothing, so a rule carrying one
 // never applies. That reads exactly like a rule that is working, which is the
-// most dangerous way for a gate to be broken, so it is refused at load rather
-// than tolerated at evaluation.
+// most dangerous way for a gate to be broken, so it is refused at load and not
+// tolerated at evaluation.
 func (s *Set) validate() error {
 	seen := make(map[string]bool, len(s.Rules))
 
@@ -78,8 +78,8 @@ func (s *Set) validateClause(id string, position int, clause Clause) error {
 	}
 
 	// A clause may carry an inline test or a group, never both, and a pattern
-	// that will not compile is refused here rather than at the first command
-	// it silently fails to match.
+	// that will not compile is refused here, not at the first command it
+	// silently fails to match.
 	if clause.statesTest() && clause.Group == "" {
 		if _, err := clause.spec().Build(); err != nil {
 			return fmt.Errorf("rule %s, clause %d: %w", id, position, err)
@@ -96,7 +96,7 @@ func (s *Set) validateClause(id string, position int, clause Clause) error {
 		}
 	}
 
-	// A relative directory is refused at load rather than declining at every
+	// A relative directory is refused at load instead of declining at every
 	// command. A clause that can never hold reads exactly like one that is
 	// working, and this one would be scoping a policy, so the failure would be
 	// a rule silently applying nowhere or everywhere.
@@ -113,7 +113,7 @@ func (s *Set) validateClause(id string, position int, clause Clause) error {
 // This is what keeps naming the parser's own vocabulary safe. A clause naming a
 // node type that does not exist would otherwise match nothing for ever, which
 // reads exactly like a rule that is working, and if the library ever renames
-// one, this fails loudly at load rather than quietly at every command.
+// one, this fails loudly at load and not quietly at every command.
 func (s *Set) validateVocabulary(id string, position int, clause Clause) error {
 	for _, name := range clause.Nodes {
 		if !shell.KnownNode(name) {
@@ -134,8 +134,8 @@ func (s *Set) validateVocabulary(id string, position int, clause Clause) error {
 // nothing is refused: it would match nothing, and a rule that never applies
 // looks identical to one that is working.
 //
-// A test with no selector is not empty. **An absent `index` means any
-// position**, so `value = "rm"` is a complete clause meaning "some word of this
+// A test with no selector is not empty. An absent `index` means any
+// position, so `value = "rm"` is a complete clause meaning "some word of this
 // command is rm". The index narrows a clause; it is not what makes it one.
 func (c Clause) statesAnything() bool {
 	return c.selectsSomething() || c.statesTest()

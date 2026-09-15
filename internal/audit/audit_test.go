@@ -13,7 +13,7 @@ import (
 )
 
 // decode reads one entry back out of a recorded line, which is the only way to
-// assert on what was written rather than on what was passed in.
+// assert on what was written and not on what was passed in.
 func decode(t *testing.T, line string) audit.Entry {
 	t.Helper()
 
@@ -69,7 +69,7 @@ func TestEachEntryIsOneLine(t *testing.T) {
 	t.Parallel()
 
 	// One object per line, not one array. A kill part way through leaves the
-	// final record unreadable rather than the whole file unparseable, and a
+	// final record unreadable, not the whole file unparseable, and a
 	// reader can consume it a line at a time without holding all of it.
 	var out strings.Builder
 	log := audit.Writing(&out)
@@ -188,7 +188,7 @@ func TestARecorderWithNowhereToWriteIsNotAnError(t *testing.T) {
 }
 
 // errNoSpace stands in for a full disk. Static, so the assertion below compares
-// identity rather than message text.
+// identity, not message text.
 var errNoSpace = errors.New("no space left on device")
 
 // refusingWriter fails every write, standing in for a full disk.
@@ -202,7 +202,7 @@ func TestAFailedWriteIsReportedAndNamesTheLog(t *testing.T) {
 
 	// The caller decides what a failed write means, and it decides to carry on
 	// (FR-4.8). That choice is only available if Record says the write failed
-	// rather than swallowing it, so a full disk has to come back as an error
+	// instead of swallowing it, so a full disk has to come back as an error
 	// even though nothing will refuse because of it.
 	//
 	// The path is in the message because the operator reading it needs to know
@@ -226,7 +226,7 @@ func TestClosingAWriterThatIsNotAFileIsNotAnError(t *testing.T) {
 
 	// Writing() hands back a recorder over an arbitrary writer, which is what
 	// a test uses. Most are not Closers, and Close has to succeed at doing
-	// nothing rather than assert its way out.
+	// nothing, not assert its way out.
 	var sink strings.Builder
 
 	if err := audit.Writing(&sink).Close(); err != nil {

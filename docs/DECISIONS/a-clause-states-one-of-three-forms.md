@@ -7,18 +7,18 @@ reading of the word it tests.
     partial = ".claude"     anywhere within the word
     pattern = "rm|rmdir"    a regular expression over the whole word
 
-**Naming `partial` is the point of having three forms and not two.** An earlier
-draft had only exact-and-pattern, with "contains" written `.*\.claude.*`. That
-works, and it hides the breadth of the rule inside a regex the reader has to
-parse. A form named `partial` announces itself in the key.
+There are three forms and not two so that `partial` has a name. With only exact
+and pattern, "contains" is written `.*\.claude.*`. That works, and it hides the
+breadth of the rule inside a regex the reader has to parse. A form named
+`partial` announces itself in the key.
 
 `pattern` is anchored to the whole value, because otherwise every pattern is
 quietly a partial and the broad reading becomes the one obtained by accident.
 That is the predecessor's mistake exactly: `archive-guard.sh` matched the
 substring `.archive`, blocked `web.archive.org`, and cost a legitimate research
 route. Nothing here prevents an author choosing that breadth, since
-`partial = ".archive"` does the same thing; choosing it is now a visible act
-instead of a default.
+`partial = ".archive"` does the same thing; choosing it is a visible act and
+not a default.
 
 Exactly one form per clause. Stating none is an error and not a clause matching
 everything; stating several is an error and not a precedence order nobody would

@@ -9,7 +9,7 @@ import "github.com/scriptedworld/qwark/internal/command"
 // cannot be made by looking at one file.
 type File struct {
 	// Shell is the set of shells this rule set permits. It is a declaration
-	// rather than a rule because it does not depend on the command.
+	// and not a rule because it does not depend on the command.
 	Shell *ShellPolicy `toml:"shell"`
 
 	// Declarations says whether a command must be described before it may run.
@@ -87,8 +87,8 @@ func (a Action) Decides() bool {
 	return a == ActionAllow || a == ActionAsk || a == ActionDeny
 }
 
-// How the deciding actions order against each other. Named rather than written
-// as numbers at the point of return, so that "deny outranks ask" is stated once
+// How the deciding actions order against each other. Named, not written as
+// numbers at the point of return, so that "deny outranks ask" is stated once
 // and cannot be disagreed with by a second comparison written elsewhere.
 const (
 	strictnessNone  = 0
@@ -115,7 +115,7 @@ func (a Action) Strictness() int {
 }
 
 // known reports whether this is an action at all. A rule file naming something
-// else is refused rather than treated as one of these.
+// else is refused, never treated as one of these.
 func (a Action) known() bool {
 	switch a {
 	case ActionAllow, ActionAsk, ActionDeny, ActionTag, ActionUntag:
@@ -131,9 +131,9 @@ func (a Action) known() bool {
 // A clause names at most one selector and at most one test. The selectors that
 // need no test (nodes, flags, ops, fact, tag) are satisfied by presence.
 type Clause struct {
-	// Selectors over the tree. These name the parser's own vocabulary rather
-	// than a summary of it, which is what keeps them from falling behind: a
-	// maintained mapping can be silently incomplete, and was.
+	// Selectors over the tree. These name the parser's own vocabulary, not a
+	// summary of it, which is what keeps them from falling behind: a
+	// maintained mapping can be silently incomplete.
 	Nodes []string `toml:"nodes"`
 	Flags []string `toml:"flags"`
 	Ops   []string `toml:"ops"`
@@ -141,8 +141,8 @@ type Clause struct {
 
 	// Selectors over the command's words.
 	//
-	// **An absent Index means any argument.** It narrows a clause rather than
-	// making it one, so `value = "rm"` on its own asks whether some argument
+	// An absent Index means any argument. It narrows a clause; it does not
+	// make one, so `value = "rm"` on its own asks whether some argument
 	// is `rm`. Writing `..` for the same thing is refused: one meaning with
 	// two spellings is a thing to remove.
 	//
@@ -165,9 +165,9 @@ type Clause struct {
 	// environment variable: the subject can reach one of those and cannot set
 	// its own agent type.
 	//
-	// **`agent = ""` names the main session**, which is why this is a pointer.
-	// A main-session call reliably carries no agent type, so absence is not a
-	// gap but the one identity that is always available, and telling
+	// `agent = ""` names a main-session call, which is why this is a pointer.
+	// A main-session call reliably carries no agent type, so absence is the
+	// one identity that is always available, and telling
 	// "not stated" from "stated as empty" is the whole difference between a
 	// clause that ignores the agent and a clause that requires there to be
 	// none.
@@ -176,8 +176,8 @@ type Clause struct {
 	// Cwd names a directory, and the clause holds while the call was made from
 	// it or from anywhere inside it.
 	//
-	// **Containment, not comparison.** A session works in subdirectories of the
-	// tree it was started in, so an exact test would hold in the root and fail
+	// The test is containment, not comparison. A session works in
+	// subdirectories of the tree it was started in, so an exact test would hold in the root and fail
 	// one level down, which is not a policy anybody means. It is compared by
 	// path components with symlinks resolved, by the same machinery and for the
 	// same reason as the blast radius: as text, `/home/x/proj` contains
@@ -205,19 +205,19 @@ type Clause struct {
 	Partial *string `toml:"partial"`
 	Pattern *string `toml:"pattern"`
 
-	// Absent inverts the clause: it holds when what it names is NOT there.
+	// Absent inverts the clause: it holds when what it names is not there.
 	//
 	// This is how a conditional refusal is written: "git commit is forbidden
 	// unless it is signed" is one deny rule with a clause saying the signing
 	// option is absent. The exception therefore lives inside the rule it
-	// modifies, where a reader of that rule sees it, rather than in a second
-	// rule that outranks the first. That distinction is the whole reason there
-	// is no overridable deny: an exception stated here is visible, and one
-	// stated by precedence between files is not.
+	// modifies, where a reader of that rule sees it, and not in a second rule
+	// that outranks the first. That is why there is no overridable deny: an
+	// exception stated here is visible, and one stated by precedence between
+	// files is not.
 	//
-	// Where a selector names several positions, a plain clause holds if SOME
-	// of them satisfy it, so an inverted clause holds when NONE do. That falls
-	// out of one definition rather than being a second rule to remember.
+	// Where a selector names several positions, a plain clause holds if some
+	// of them satisfy it, so an inverted clause holds when none do. That falls
+	// out of one definition instead of being a second rule to remember.
 	//
 	// Inversion is satisfied by absence, including absence that qwark caused
 	// by not understanding something, so in a deny rule it fails safe, and

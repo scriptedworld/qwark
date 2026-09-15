@@ -6,10 +6,10 @@ deleted, so what follows is the only surviving record of the failure its own
 header described.
 
 > `bin/repos status` in the dotfiles repo walked from a configured root,
-> reached the tree and enumerated it, and never contained the literal string -
+> reached the tree and enumerated it, and never contained the literal string —
 > so this hook passed it.
 
-That is not a bug in the regex, and no regex fixes it. The hook was asked what
+The regex had no bug, and no regex fixes it. The hook was asked what
 the command would *do* and answered what the command *said*. Those are the same
 question only for a command whose effect is fixed by its own text, and shell
 syntax exists largely to break that correspondence.
@@ -18,32 +18,31 @@ So the gate works on structure. `mvdan.cc/sh/v3/syntax` gives a typed tree, need
 no cgo, and round-trips; tree-sitter-bash was the alternative and loses on both
 counts.
 
-> **Both of those grounds are spent, and the parser changed 2026-09-09.**
-> Round-tripping is not a property this gate uses: it judges a command and never
-> writes one back out. No-cgo was an argument for a pure-Go parser inside a Go
-> program, and qwark is being rewritten in Rust, where tree-sitter is an
-> ordinary crate. The ruling is in
-> `silo/docs/DECISIONS/what-language-each-component-is-written-in.md`.
->
-> **Everything above and below this note stands**, because it is about parsing
-> versus matching and not about which parser. The predecessor's failure, the
-> glob hybrid, and the limit that a tool-layer gate cannot see a path named at
-> runtime are all parser-independent.
->
-> The sentence this note interrupts is also the only comparison of the two
-> parsers on record anywhere in the estate, and it says tree-sitter loses. The
-> case for the swap is that it builds a better and more specific tree, and that
-> claim is written down nowhere. Measuring it is queued at
-> `clank/tasks/qwark/rewrite/10-agree-the-format.questions`.
+Both of those grounds are spent, and the parser is changing. Round-tripping is
+not a property this gate uses: it judges a command and never writes one back
+out. No-cgo was an argument for a pure-Go parser inside a Go program, and qwark
+is being rewritten in Rust, where tree-sitter is an ordinary crate. The ruling
+is in `silo/docs/DECISIONS/what-language-each-component-is-written-in.md`.
 
-## One tier-one rule is not a tree question, and it is a hybrid rather than text
+The rest of this record stands, because it is about parsing versus matching and
+not about which parser. The predecessor's failure, the glob hybrid, and the
+limit that a tool-layer gate cannot see a path named at runtime are all
+parser-independent.
 
-`no-glob` selects `fact = "glob"` rather than a node type, because a wildcard
-has no node of its own. That is true of `mvdan.cc/sh` and of tree-sitter-bash
-alike: `cat rules/*.toml` carries one word whose text happens to contain a
+The sentence naming tree-sitter-bash as the alternative is also the only
+comparison of the two parsers on record anywhere in the estate, and it says
+tree-sitter loses. The case for the swap is that it builds a better and more
+specific tree, and that claim is written down nowhere. Measuring it is queued at
+`clank/tasks/qwark/rewrite/10-agree-the-format.questions`.
+
+## One tier-one rule is not a tree question, and it is a hybrid, not text
+
+`no-glob` selects `fact = "glob"` and no node type, because a wildcard has no
+node of its own. That is true of `mvdan.cc/sh` and of tree-sitter-bash alike:
+`cat rules/*.toml` carries one word whose text happens to contain a
 metacharacter.
 
-**The tree still does the half that matters.** `recordGlob` walks a `Word`'s own
+The tree still does the half that matters. `recordGlob` walks a `Word`'s own
 parts and tests only the literal ones, so quoting decides the answer:
 
     grep *.toml        glob
@@ -58,7 +57,7 @@ the path and filename rules take.
 The decision log exercises this constantly. Commands like
 `find internal -name '*_test.go'` and `grep -oE 'FR-[0-9]+\.[0-9]+[a-z]?' …`
 carry a metacharacter inside quotes and establish no glob fact, so the
-distinction is load-bearing on ordinary traffic rather than on a constructed
+distinction is load-bearing on ordinary traffic and not only on a constructed
 case. A replay against an independent implementation that also tests only the
 literal parts reproduced every verdict in the log, which is agreement on a
 corpus that does separate a whole-word predicate from a parts-aware one.

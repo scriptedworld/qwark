@@ -26,7 +26,7 @@ func judged(t *testing.T, body, command string) rules.Outcome {
 }
 
 // permits is a rule set that allows any command carrying a name, so that what
-// is being measured is the engine's own refusals rather than the absence of an
+// is being measured is the engine's own refusals and not the absence of an
 // allow rule.
 const permits = "[shell]\nallow=[\"/bin/bash\"]\n" +
 	"\n[[rule]]\nid=\"allow-anything\"\naction=\"allow\"\nreason=\"testing\"\n" +
@@ -70,7 +70,7 @@ func TestARuleSetMaySayDeclarationsAreNotRequired(t *testing.T) {
 
 	// This is what makes a structural-only phase possible. FR-4.16 arrives
 	// before shape decides anything, so requiring it means refusing every
-	// command rather than judging the ones the structural rules understand.
+	// command instead of judging the ones the structural rules understand.
 	outcome := judged(t,
 		permits+"\n[declarations]\nrequired = false\n",
 		"somethingnobodydeclared --wild")
@@ -90,7 +90,7 @@ func TestAnUndeclaredOptionIsRefusedByDefault(t *testing.T) {
 
 	// `rm` is declared and carries only `-f`, so `-r` is an option qwark cannot
 	// account for. Refusing it is what makes the declaration table fail closed:
-	// leaving an option out costs a refusal rather than a hole.
+	// leaving an option out costs a refusal, not a hole.
 	outcome := judged(t, declaring, "rm -r somewhere")
 
 	if outcome.Action != rules.ActionDeny {
@@ -106,8 +106,8 @@ func TestAnUndeclaredOptionIsRefusedByDefault(t *testing.T) {
 func TestARuleSetMaySayOptionsNeedNotBeAccounted(t *testing.T) {
 	t.Parallel()
 
-	// The second switch, and it is separate from the first for a reason worth
-	// pinning: the two refusals sit at different levels.
+	// The second switch is separate from the first because the two refusals
+	// sit at different levels.
 	outcome := judged(t,
 		declaring+"\n[declarations]\naccounted = false\n",
 		"rm -r somewhere")
@@ -128,8 +128,8 @@ func TestTurningOffTheCommandCheckDoesNotTurnOffTheOptionCheck(t *testing.T) {
 	// The trap this pins: with `required = false` and nothing declared, no
 	// option is ever examined, so `accounted` looks unnecessary. Declare one
 	// command and every option it carries starts being refused again. A phase
-	// that wants neither has to say so twice, and this is what makes that
-	// checkable rather than remembered.
+	// that wants neither has to say so twice, and this test makes that
+	// checkable instead of something to remember.
 	outcome := judged(t,
 		declaring+"\n[declarations]\nrequired = false\n",
 		"rm -r somewhere")

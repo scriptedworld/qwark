@@ -26,8 +26,8 @@ const (
 	ReadingInterpreted Reading = "interpreted"
 
 	// ReadingWritten is the source as written, quoting and escapes intact. It
-	// is for rules about *how* something was spelled rather than what it means
-	//, which is a real thing to want, and a dangerous default.
+	// is for rules about *how* something was spelled, not what it means, which
+	// is a real thing to want and a dangerous default.
 	ReadingWritten Reading = "written"
 )
 
@@ -50,8 +50,8 @@ func ParseReading(name string) (Reading, error) {
 //
 // The interpreted value of a word containing a substitution does not exist:
 // nothing is expanded, so there is no answer, and a clause testing it does
-// not match rather than matching an empty string, which a partial or a `.*`
-// pattern otherwise would. A clause reading what was written always has
+// not match. Matching an empty string instead is what a partial or a `.*`
+// pattern would otherwise do. A clause reading what was written always has
 // something to read.
 func (r Reading) Of(word command.Word) (string, bool) {
 	if r == ReadingWritten {

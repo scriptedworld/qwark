@@ -13,7 +13,7 @@ The exact command line, as typed.
 
 ## What qwark answered, and what you expected
 
-Paste the verdict. If it came from the hook rather than from `judge`, say so.
+Paste the verdict. If it came from the hook and not from `judge`, say so.
 
     qwark judge <your rules> -- <the command>
 
@@ -23,7 +23,7 @@ Which files were loaded, and the output of:
 
     qwark rules <your rules>
 
-If the rules are your own rather than the shipped set, the rule you believe
+If the rules are your own and not the shipped set, the rule you believe
 should have fired, or the one that fired and should not have.
 
 ## How qwark read the command

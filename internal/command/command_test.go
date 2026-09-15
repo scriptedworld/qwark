@@ -177,8 +177,8 @@ func TestQuotingIsResolvedWithoutExpandingAnything(t *testing.T) {
 func TestEscapesResolveTheWayTheShellResolvesThem(t *testing.T) {
 	t.Parallel()
 
-	// Every expectation here was read off bash on 2026-08-19 rather than
-	// recalled: `bash -c "printf '[%s]' <word>"`. The quoted rule is not the
+	// Every expectation here was read off bash, not recalled:
+	// `bash -c "printf '[%s]' <word>"`. The quoted rule is not the
 	// unquoted rule, and only measuring says which is which.
 	cases := []struct {
 		name string

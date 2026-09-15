@@ -64,8 +64,7 @@ func TestChangingARuleChangesTheDigest(t *testing.T) {
 	t.Parallel()
 
 	// A digest that survived an edit would let entries from two policies be
-	// compared as though they came from one, which is the whole thing this
-	// exists to stop.
+	// compared as though they came from one.
 	before, err := rules.Load([]string{plantedSet(t, minimal)})
 	if err != nil {
 		t.Fatalf("Load = %v", err)

@@ -1,10 +1,10 @@
 # The mechanicals, the shapes a rule can be written in
 
-Asked what a "library of useful mechanicals" should be, the answer was a catalogue
-of shapes and not a file of rules. None of it is new mechanism; every shape is the
-existing schema pointed a particular way.
+A "library of useful mechanicals" is a catalogue of shapes, not a file of
+rules. None of it is new mechanism; every shape is the existing schema pointed a
+particular way.
 
-**Every shape below is a conjunction of clauses.** What varies is which selectors
+Every shape below is a conjunction of clauses. What varies is which selectors
 the clauses use, and where they point.
 
 ### 1. Refused by class
@@ -23,8 +23,8 @@ of it.
     index = "1"
     group = "git-network"
 
-Adding a member is a one-line edit that leaves the rule alone. **Classes are
-expected to overlap.** `push` runs hooks and it reaches the network; FR-4.25
+Adding a member is a one-line edit that leaves the rule alone. Classes are
+expected to overlap. `push` runs hooks and it reaches the network; FR-4.25
 collects both reasons, so a command in three classes is refused with all three
 stated. Put a command in a class whenever the class's reason is true of it, and
 not only when no other class has claimed it.
@@ -47,7 +47,7 @@ The word stays available and the destructive form does not.
 The worked example is `no-git-destroying-the-reflog`, and it exists because
 denying the whole word broke something. 40-state.toml tells a reader to look at
 `git reflog` before deleting after a rebase, and it clears the tag when they do.
-**A denied command has no effect of any kind (FR-4.24)**, so denying the word left
+A denied command has no effect of any kind (FR-4.24), so denying the word left
 the instruction impossible to follow and the tag impossible to clear. Watch for a
 denial whose own message names a refused command; that is the smell this shape
 fixes.
@@ -69,15 +69,15 @@ the absence caused by qwark not understanding the option.**
 not there" true. The verdict fails safe. The *message* does not, and tells
 somebody who signed that they must sign.
 
-So a "refused unless" rule is only honest when **the option it excepts is
-declared**. Write one without declaring the option and you get a rule that reads
+So a "refused unless" rule is only honest when the option it excepts is
+declared. Write one without declaring the option and you get a rule that reads
 as conditional and behaves as unconditional.
 
 ### 4. Refused because it cannot be accounted for
 
 Nobody writes this shape. It is what happens when they write nothing at all. An
 undeclared command is refused (FR-4.16), and so is an option the declaration does
-not name (FR-6.7), so **omission is a denial** and the safe state is the default
+not name (FR-6.7), so omission is a denial and the safe state is the default
 one.
 
 It is what actually holds the read-only git allowance narrow. `git help -w` opens
@@ -100,7 +100,7 @@ of it.
 
 ### 6. Refused everywhere except where it belongs
 
-The scoping shape, and it is written **inside the deny rule**, never as an allow
+The scoping shape, and it is written inside the deny rule, never as an allow
 beside it:
 
     [[rule]]
@@ -119,24 +119,24 @@ beside it:
       cwd    = "/home/user/.projects/qwark"
       absent = true
 
-**The reflex is to write a scoped allow, and it does not work.** There is no
+The reflex is to write a scoped allow, and it does not work. There is no
 overridable deny in this engine: the strictest action wins, so an allow naming a
 directory cannot lift a deny that already fired. Adding one leaves both rules
 live and the command refused, which reads as the clause being broken.
 
 So the exception goes where shape 3 puts every exception, in the rule it
 modifies, and for the same reason: a reader of the deny rule sees the whole of
-it. Measured 2026-08-28, judging a probe under `.ephemera/` with the scoped
-rules alongside the originals; the originals fired and the scope looked inert.
+it. Judging a probe under `.ephemera/` with the scoped rules alongside the
+originals, the originals fired and the scope looked inert.
 
 The same holds for the agent clause, which shares the shape. What differs is
 what the two are good for: `agent` names a role a dispatcher assigned, and `cwd`
 names a tree, so a policy that varies by repository has only one of them to be
 written with.
 
-**An inverted clause in a deny rule is the safe direction, and it is worth
-saying why.** Inversion is satisfied by absence, including absence qwark caused
-by not understanding something. Here that means a request whose directory could
+An inverted clause in a deny rule is the safe direction, because inversion is
+satisfied by absence, including absence qwark caused by not understanding
+something. Here that means a request whose directory could
 not be established does not satisfy `cwd`, so `absent = true` holds, so the
 denial stands. The rule fails closed on ignorance, which is what a deny rule
 must do and what the same clause in an allow rule would not.

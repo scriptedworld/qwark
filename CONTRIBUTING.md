@@ -11,10 +11,9 @@ build or to run the suite.
 `just build` and `just test` are the same two commands. `just --list` prints the
 whole interface.
 
-**`just checks` needs more than a clone provides.** It runs the project's
-quality gate through `bolt`, and the jig definitions, adapters and checker
-scripts arrive as symlinks into a sibling checkout rather than as files in this
-tree. They are gitignored, because committing a copy would make a second
+`just checks` needs more than a clone provides. It runs the project's quality
+gate through `bolt`, and the jig definitions, adapters and checker scripts
+arrive as symlinks into a sibling checkout, not as files in this tree. They are gitignored, because committing a copy would make a second
 statement of one thing that is free to drift. Neither `bolt` nor those
 definitions is published yet, so `go test ./...` is the gate an outside
 contributor can run, and a change is reviewed against the rest.
@@ -36,9 +35,9 @@ requirement `REQUIREMENTS.md` does not define, so renaming a requirement means
 fixing every test that cites it.
 
 A requirement marked `[?]` is an open question. It carries no test and is
-reported as context rather than as a failure.
+reported as context, not as a failure.
 
-**A requirement can be retired or superseded, and its ID is never reused.**
+A requirement can be retired or superseded, and **its ID is never reused**.
 Reuse silently rewrites what every existing reference to that ID means, and
 nothing about the new row looks wrong. A `## Retired` section records where each
 one went. Retiring a requirement leaves its `COVERS:` marks pointing at nothing,
@@ -69,18 +68,18 @@ available here.
 The rules are policy, not code, and they are read by whoever has just been
 refused. Three things follow from that.
 
-**Try a rule before trusting it.** `qwark judge` takes the same rule paths and
+Try a rule before trusting it. `qwark judge` takes the same rule paths and
 request fields the hook does, so a rule can be exercised as the caller that will
 meet it. A rule set that has never judged anything is a policy nobody has run.
 
     qwark judge rules -- git push --force origin main
     qwark judge --agent=test-runner rules -- go test ./...
 
-**Write the reason for the reader who has just hit it.** It is what a refused
-agent is shown, and a denial nobody can act on gets routed around rather than
+Write the reason for the reader who has just hit it. It is what a refused agent
+is shown, and a denial nobody can act on gets routed around instead of
 understood.
 
-**Adding a declaration is a wider change than adding a rule.** An undeclared
+Adding a declaration is a wider change than adding a rule. An undeclared
 command is refused outright, so `05-declarations.toml` is the surface that
 decides what is eligible to be judged at all. Read its header before adding to
 it: an option belongs there only if it means the same thing on every subcommand

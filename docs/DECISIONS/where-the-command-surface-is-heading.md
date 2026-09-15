@@ -12,16 +12,16 @@ none, and the reason resets the target:
 
 Three things follow.
 
-**The allowed surface is per agent, not per machine.** That is already the
+The allowed surface is per agent, not per machine. That is already the
 mechanism: rule files are named on the command line (FR-4.15), and an external
 process chooses which files a given agent gets (FR-10.6a). Narrowing by
 specialisation needs no new machinery, only more files.
 
-**The read-only git allowance is a waypoint.** It stands because it was ruled on,
+The read-only git allowance is a waypoint. It stands because it was ruled on,
 and the direction above says the eventual answer is narrower. It is the first
 thing to remove once the specific surfaces exist.
 
-**The duplication was the open question, and the proxy settles it.** An agent's
+The duplication was the open question, and the proxy settles it. An agent's
 prompt saying what it may run and a rule file deciding what it may run are two
 statements of one fact, and two statements of one fact drift. Generating the
 prompt from the rules and having the prompt reference them were both on the table,
@@ -36,7 +36,7 @@ of what an agent may do and the thing that enforces it.** A capability list that
 is documentation somewhere and configuration somewhere else has a wrong version; a
 tool that is simply not exposed has no second version to be wrong.
 
-**How much it settles depends on how narrow the tools are**, and that is knowable
+How much it settles depends on how narrow the tools are, and that is knowable
 in advance. A proxy exposing `run_command(cmd)` is Bash with extra steps and moves
 nothing. A proxy exposing `git_log(ref)` still needs something to say which `ref`,
 because a surface says *which operations* and not *with what values*. So the

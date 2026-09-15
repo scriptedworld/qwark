@@ -8,21 +8,21 @@ do about it, and what is waiting on an answer.
 ## Built, committed, and passing the gate
 
 Both jigs pass, every file above the 80% per-file floor including `main()`,
-which is measured rather than exempted. **132** requirement rows, three of them
-retired, so **129 live**; 17 have no test and every one of those is an open
+which is measured, not exempted. There are 132 requirement rows, three of them
+retired, so 129 live; 17 have no test and every one of those is an open
 question. The traceability task reports 109 of 109 for the settled ones.
 
     bolt --definitions go-std-quality go-std-quality .
     bolt common-quality .
 
-Re-measured 2026-08-28. The earlier figures here were taken under
-`bolt -c a -c b`, a CLI that no longer exists.
+Those two commands produce the figures above. The older `bolt -c a -c b` form
+no longer exists.
 
 Count the requirements independently with
 `grep -oE 'FR-[0-9]+\.[0-9]+[a-z]?' REQUIREMENTS.md | sort -u | wc -l`. bolt's
 traceability task reports the same number from its own reading.
 
-**The Justfile pack is here, and it puts a task definition inside the tree.**
+The Justfile pack is here, and it puts a task definition inside the tree.
 `Justfile` and `just/base.just` are the shared pack, byte-identical across
 projects; `just/lang.just` is this project's own. That is the same file qwark
 refuses to let an agent write: `/Justfile` is in the `task-definition` group of
@@ -51,34 +51,33 @@ The jigs and their supporting files belong to `../toolbox`; qwark and bolt shoul
 both be symlinks of them, and `link-jigs` is being built to do the symlinking.
 bolt still holds a copy from before that fixing started.
 
-- **The definition has been split in toolbox, and bolt's copy predates the
-  split.** `bolt.common-quality.yaml` carries `traceability`, `suppressions` and
+- The definition has been split in toolbox, and bolt's copy predates the split.
+  `bolt.common-quality.yaml` carries `traceability`, `suppressions` and
   `complexity`; `bolt.go-std-quality.yaml` carries `format`, `tidy`, `build`,
   `vet`, `lint`, `tests`, `coverage` and `vuln`. Eleven between them. Bolt's
   single file still has all twelve in one, `entrypoint` included.
-- **qwark passes the newer, stricter traceability today**, run directly against
-  it: `108 of 108` requirements held to coverage are covered, and the 19 with no
+- qwark passes the newer, stricter traceability today, run directly against it:
+  `108 of 108` requirements held to coverage are covered, and the 19 with no
   test are all `[?]`, open and exempt. bolt was not failing on uncovered
   requirements because it runs the older checker, which reported them as context.
 
 Adopting turned up two things, and the first is settled:
 
-1. **`entrypoint` is a placeholder, not a task to define.** It was going to need
-   defining in full, since *"a shared definition carries the rule and never the
+1. `entrypoint` is a placeholder, not a task to define. Defining it in full
+   looked necessary, since *"a shared definition carries the rule and never the
    subject"* and a task naming `./cmd/bolt` fails for every adopter in a way that
-   looks like the adopter's fault. The shared jig answered it differently and
-   better: the task stays shared, and what varies is one substituted value,
-   defaulting to `true` so a project with no binary is unaffected. qwark supplies
+   looks like the adopter's fault. The shared jig answers it better: the task
+   stays shared, and what varies is one substituted value, defaulting to `true`
+   so a project with no binary is unaffected. qwark supplies
    `scripts/cover-entrypoint.sh` through
-   `bolt.go-std-quality.definitions.yaml`, and the overlay that used to carry
-   the task is retired.
-2. **The `.gitignore` carries the linked set**: `bin/`, covering both
-   `bin/qwark` and the two linked checker scripts, alongside
-   `bolt.common-quality.yaml`, `bolt.go-std-quality.yaml`, `bolt.secrets.yaml`,
-   `adapters/`, `config/`, `coverage.out` and `.bolt*/`.
-   **`bolt.go-std-quality.definitions.yaml` stays tracked**, because the
-   placeholder values are this project's own content and are exactly the
-   part a shared definition must not carry.
+   `bolt.go-std-quality.definitions.yaml`, and the overlay that carried the task
+   is retired.
+2. The `.gitignore` carries the linked set: `bin/`, covering both `bin/qwark` and
+   the two linked checker scripts, alongside `bolt.common-quality.yaml`,
+   `bolt.go-std-quality.yaml`, `bolt.secrets.yaml`, `adapters/`, `config/`,
+   `coverage.out` and `.bolt*/`. `bolt.go-std-quality.definitions.yaml` stays
+   tracked, because the placeholder values are this project's own content and
+   are exactly the part a shared definition must not carry.
 
    A tracked symlink stores its target path as content, which encodes where
    `../toolbox` sits, and committing the jig at all is vendoring. Adoption is a
@@ -87,24 +86,24 @@ Adopting turned up two things, and the first is settled:
    images, so there they arrive from the layer beneath and a copy committed here
    would be a third statement of the same thing.
 
-**The Justfile pack is copied rather than linked, and whether it should be
-linked is open.** `Justfile` and `just/base.just` are byte-identical across
-adopters and drift the moment one improves, which is how this tree ran a stale
-pack until a checker found it. Linking them into toolbox is the same arrangement
-the jigs already have, for the same reason. `just/lang.just` stays a real file
-either way, being this project's own.
+The Justfile pack is copied, not linked, and whether it should be linked is
+open. `Justfile` and `just/base.just` are byte-identical across adopters and
+drift the moment one improves, which is how this tree ran a stale pack until a
+checker found it. Linking them into toolbox is the same arrangement the jigs
+already have, for the same reason. `just/lang.just` stays a real file either
+way, being this project's own.
 
 The argument against, which is not an objection to the direction: a copy reaches
 a tree when its owner re-takes it, and a link reaches every tree the instant the
 source changes. `_verdict` going variadic was safe that way. A change to `clean`
 would not have been, and `clean` is the recipe that has already taken this estate
-down once. So the question is not copy against link, it is whether the shared
-files need a review gate that a symlink removes.
+down once. So the open question is whether the shared files need a review gate,
+which a symlink removes.
 
 ## git, classified
 
-**git is classified across all 64 porcelain commands**, checked mechanically
-against `git --list-cmds`. Nine groups, each carrying its own reason; overlaps are
+git is classified across all 64 porcelain commands, checked mechanically against
+`git --list-cmds`. Nine groups, each carrying its own reason; overlaps are
 intended and every reason is collected. Read-only is allowed by my ruling, and
 that allowance is narrow because `05-declarations.toml` omits the dangerous
 options, not because a rule names them.
@@ -120,25 +119,25 @@ This resets the target instead of extending it:
 > commands in the agent text or supporting files, or those end up referencing
 > these rule files.
 
-- **The mechanism does not already exist.** Choosing rule files per agent from an
+- The mechanism does not already exist. Choosing rule files per agent from an
   external process (FR-10.6a) holds only when every specialised agent is its own
-  session. **The registration is fixed for a session, so a subagent inherits its
-  parent's command line**, and a partition chosen by the launcher collapses.
-  FR-10.6a is revised; see below.
-- **The read-only git allowance is a waypoint.** It stands because it was ruled
-  on, and it is the first thing to remove once the specific surfaces exist.
-- **The duplication is settled.** The proxies hold the details of what they
-  expose, so the exposed surface is both the statement of what an agent may do and
-  the thing that enforces it: one artifact, with nothing to keep in step. A
-  surface says *which operations* and not *with what values*, so whatever
-  argument-level constraint remains is what rules are still for.
+  session. The registration is fixed for a session, so a subagent inherits its
+  parent's command line, and a partition chosen by the launcher collapses.
+  FR-10.6a states this, and the next section has the answer.
+- The read-only git allowance is a waypoint. It stands because I ruled on it,
+  and it is the first thing to remove once the specific surfaces exist.
+- The duplication is settled. The proxies hold the details of what they expose,
+  so the exposed surface is both the statement of what an agent may do and the
+  thing that enforces it: one artifact, with nothing to keep in step. A surface
+  says *which operations* and not *with what values*, so whatever argument-level
+  constraint remains is what rules are still for.
 
 ### The engine carries the separation, and it is buildable now
 
 *"The point of the rules is using the engine to support that separation of
-duties."* The answer to an agent writing a `justfile` and then running `just` is
-not an unwritable file. It is that **the agent that can write those files is not
-the agent allowed to run them.**
+duties."* An agent writing a `justfile` and then running `just` is not answered
+by an unwritable file. It is answered by making the agent that can write those
+files a different agent from the one allowed to run them.
 
 Doing it in the plumbing was ruled out. The base session has no `agent_type`, so a
 launcher-side partition means *"actively managing symlinks or something else …
@@ -147,17 +146,17 @@ rickety"*. FR-10.6 had already chosen the payload over an environment variable,
 because the subject can reach an environment variable and cannot set its own
 `agent_type`.
 
-Two requirements state the shape, and both now carry tests:
+Two requirements state the shape, and both carry tests:
 
-- **FR-7.12.** A clause may name the agent the request came from, compared whole.
+- FR-7.12. A clause may name the agent the request came from, compared whole.
   `agent = "gate-runner"`.
-- **FR-7.13. Absence is a role.** A main-session call reliably carries no agent
+- FR-7.13. Absence is a role. A main-session call reliably carries no agent
   type, so `agent = ""` names it exactly, while stating no `agent` at all remains
   the distinct case that covers every caller. The clause records whether the key
   was stated, not only what it said, so the two cannot collapse.
 
-FR-7.13 is what removes the ricketiness: **one rule set, named once in
-`settings.json`, carrying every role's policy inside it.** No symlink swapping, no
+FR-7.13 is what removes the ricketiness: one rule set, named once in
+`settings.json`, carrying every role's policy inside it. No symlink swapping, no
 environment variable, nothing to keep in step outside the file being read.
 
 Try it:
@@ -169,7 +168,7 @@ stay conjunctions, strictest still wins, and a role cannot grant itself anything
 because deny outranks allow. An agent allowance also reaches only the command its
 rule names.
 
-**Still to do.** `rules/` carries no agent-scoped rule, because which agent types
+Still to do: `rules/` carries no agent-scoped rule, because which agent types
 exist is not qwark's to invent. The vocabulary in `01-structure.toml` documents
 the clause, and the policy waits on the roles being named.
 
@@ -178,8 +177,8 @@ the clause, and the policy waits on the roles being named.
 *"Mode One is the most useful here & now because I don't have the rest of the
 system built, so that development needs further quality controls."*
 
-`qwark hook RULES...` reads one call from stdin, judges it, and answers on stdout:
-the subcommand `install/settings-fragment.json` has been naming all along.
+`qwark hook RULES...` reads one call from stdin, judges it, and answers on stdout.
+It is the subcommand `install/settings-fragment.json` names.
 
     printf '{"hook_event_name":"PreToolUse","tool_name":"Bash",
              "tool_input":{"command":"git status"}}' | ./bin/qwark hook rules/
@@ -188,15 +187,15 @@ The payload's `agent_type` reaches `rules.Context`, so the agent clause is fed a
 not merely expressible.
 
 A decision exits 0 with the verdict in the JSON; a truncated payload exits 2;
-**so does invoking it with no rules path**, which reads oddly for a usage error
-and is the only correct answer, since every other non-zero status is a
+so does invoking it with no rules path. That reads oddly for a usage error and
+is the only correct answer, since every other non-zero status is a
 `non_blocking_error` that lets the command run. A rule set that will not load
 denies with the file named and points at the Edit tool, because the way out must
-not need the thing just taken away. A tool qwark does not model is refused rather
-than waved through, so a matcher wide enough to send Write here blocks loudly
-instead of judging nothing while looking installed.
+not need the thing just taken away. A tool qwark does not model is refused
+outright, so a matcher wide enough to send Write here blocks loudly instead of
+judging nothing while looking installed.
 
-**Installed, and gating this tree now.** `.claude/settings.local.json` registers
+Installed, and gating this tree now. `.claude/settings.local.json` registers
 `bin/qwark hook ~/.config/qwark/rules || exit 2` on `PreToolUse` for Bash, both
 paths absolute. The live set is two files, `01-structure.toml` and
 `00-allow.toml`, so what is refused is shape: compound calls, pipes,
@@ -204,15 +203,15 @@ redirections, globs, substitutions, here-documents, backgrounding and prefix
 assignments. Everything else runs, which is why a session can still build,
 commit and run the gate.
 
-An earlier arming with declarations required refused `ls`, `cat`, `grep`, `go`
-and both mandated commit forms, most of them at `declared commands only`. That
-is a half-declared table rather than a verdict on the design.
+Arming it with declarations required refused `ls`, `cat`, `grep`, `go` and both
+mandated commit forms, most of them at `declared commands only`. That reflects a
+half-declared table and is no verdict on the design.
 
 **`/usr/local/bin/qwark` is root-owned and stale.** It still contains the
 ownership check retired in `fa9c9cd`. `bin/qwark` is user-owned and current, and
 the no-root direction is why the registration names that instead.
 
-**Two limits to know before relying on it.** Two *main sessions* are
+There are two limits to know before relying on it. Two *main sessions* are
 indistinguishable: if writer and runner are both top-level launches, no clause
 tells them apart and the launcher must still differ. And a partition does not stop
 a chain, since writer writes, runner runs, and neither breaks its own rules. The
@@ -238,30 +237,30 @@ mechanicals to be allowed: *"then the situation gets much more simple … once w
 have the proxy, then we can have these kinds of rules for the various tools per
 agent type."*
 
-`REQUIREMENTS.md` already says **the *first* mode gates the Bash tool**, so this
-is the second and not a replacement. It matters for what to invest in now:
+`REQUIREMENTS.md` already says the *first* mode gates the Bash tool, so this is
+the second and not a replacement. It matters for what to invest in now:
 
-- **The engine carries over.** Conjunctions, strictest-wins, deny-by-default,
+- The engine carries over. Conjunctions, strictest-wins, deny-by-default,
   declarations, groups, reasons that explain themselves: none of that is about
   shells.
-- **The shell half is mode-one adapter.** Tier one exists because a command line
+- The shell half is mode-one adapter. Tier one exists because a command line
   can hide its own effect; a typed tool call cannot, so quoting, aliases,
   functions, `PATH`, wrappers and globs stop being problems instead of being
   solved.
-- **FR-7.12 and FR-7.13 are foundational, not interim.** "Rules for the various
+- FR-7.12 and FR-7.13 are foundational, not interim. "Rules for the various
   tools per agent type" is the agent clause. Build them.
-- **The mechanicals become API design.** Allowed-as-a-word-refused-in-a-shape
+- The mechanicals become API design. Allowed-as-a-word-refused-in-a-shape
   becomes a parameter that is not offered.
-- **The residue survives.** A proxy operation that runs `just checks` still has
+- The residue survives. A proxy operation that runs `just checks` still has
   its meaning in the `justfile`. Either the proxy owns the recipe, or the manifest
   keeps it out of the agent's write surface.
 
 ## Three contradictions inside the rule set
 
-1. **`commit-must-be-signed` fires on a signed commit.** `--gpg-sign` is not
+1. `commit-must-be-signed` fires on a signed commit. `--gpg-sign` is not
    declared, so the `absent = true` clause holds and the rule tells somebody who
-   signed that they must sign. The verdict fails safe; the message does not. **A
-   "refused unless" rule is only honest when the option it excepts is declared**,
+   signed that they must sign. The verdict fails safe; the message does not. A
+   "refused unless" rule is only honest when the option it excepts is declared,
    written up as shape 3 in
    `docs/PATTERNS/the-mechanicals-the-shapes-a-rule-can-be-written-in.md`. Moot
    while `git commit` is denied by class, and live the moment it is not.
@@ -272,15 +271,15 @@ is the second and not a replacement. It matters for what to invest in now:
    saying only that a word was unaccounted for. Both spellings deny, so the
    verdict did not move.
 
-   Four remain and each is deliberate or moot rather than drift.
+   Four remain, and each is deliberate or moot; none is drift.
    `no-option-supplied-program` names `execute`, and `find -exec` is left
    undeclared on purpose with that tradeoff written into the declarations file.
    `ask-before-hard-reset` and `ask-before-pruning` sit behind class denials of
    `git reset` and `git remote`. `no-preserve-root` names an option nothing
    declares, and the accounting default refuses `rm --no-preserve-root` without
-   ever reaching the reason, which is the same defect as this one and worth the
+   ever reaching the reason, which is the same defect as this one and takes the
    same one-line fix. `40-state.toml`'s `delete` is illustrative and unloaded.
-2. **The post-rebase tag machinery cannot fire.** `git rebase` is denied, and a
+2. The post-rebase tag machinery cannot fire. `git rebase` is denied, and a
    denied command has no effect of any kind (FR-4.24), so `note-rebase` never sets
    the tag and everything in 40-state.toml that depends on it is unreachable. That
    file is illustrative and tags are deferred, so this is not a fault, but it does
@@ -290,13 +289,13 @@ is the second and not a replacement. It matters for what to invest in now:
    history-rewriting, which made `no-deleting-after-a-rebase`'s own instruction
    impossible to follow. The word is allowed, and `expire`, `delete` and `drop`
    are denied at ordinal 2.
-3. **`no-touching-qwark` guards two paths that hold nothing, and neither of the
-   two that hold everything.** `group.qwark-control` names `/etc/qwark/` and
+3. `no-touching-qwark` guards two paths that hold nothing, and neither of the
+   two that hold everything. `group.qwark-control` names `/etc/qwark/` and
    `/var/lib/qwark/`. The first is abandoned and the second does not exist. The
    live rule set is at `~/.config/qwark/rules` and the decision log at
    `~/.local/state/qwark/`, and `match = "partial"` compares fragments, so
    nothing covered them. Judged against `rules/` before the fix, `cp` over
-   `01-structure.toml` and `rm` of `decisions.jsonl` were both **allow**, while
+   `01-structure.toml` and `rm` of `decisions.jsonl` were both allow, while
    `ls /etc/qwark/rules` was refused.
 
    The group was written when `/etc/qwark/rules` was the install target;
@@ -305,11 +304,10 @@ is the second and not a replacement. It matters for what to invest in now:
    retirement leaned on, after the `permissions.deny` twin, that was assumed to
    hold and did not.
 
-   **Fixed in source at `7eacb72`**, agreed in words first per hard rule 4a, with
+   Fixed in source at `7eacb72`, agreed in words first per hard rule 4a, with
    FR-10.11 and two tests. Both commands above now deny. **The live set is
-   unchanged**, this phase being structural-only, so it is the deployment that is
-   still open rather than the rule. Measurement and repro in
-   the task tracker.
+   unchanged**, this phase being structural-only, so the open item is the
+   deployment, not the rule. Measurement and repro are in the task tracker.
 
    It stays listed here because the other two contradictions are open and this
    one names the shape they share: a guard that outlives the address of its
@@ -318,8 +316,8 @@ is the second and not a replacement. It matters for what to invest in now:
 ## What installing the source set costs, measured
 
 The structural-only phase is being validated in live sessions now. The question
-for the phase after it is whether a session can still do the work, and it is
-answered rather than predicted.
+for the phase after it is whether a session can still do the work, and the
+answer here comes from measurement, not prediction.
 
 84 unique commands, judged against both sets with `bin/qwark` built from
 `18e4f8a`: every command in the live decision log, plus a floor of what this
@@ -327,8 +325,8 @@ repository cannot be worked in without. Live allows 79 of 84, source allows 70.
 `.ephemera/can-work-continue.py` regenerates it; the results are kept in
 the task tracker.
 
-**Nine commands are allowed today and refused by the source set. Four of them
-are how qwark gets built and gated:**
+Nine commands are allowed today and refused by the source set. Four of them
+are how qwark gets built and gated:
 
     go test ./...                no-go-execution   compiles and runs this tree
     bolt common-quality .        no-executors      runs a recipe from the tree
@@ -337,101 +335,100 @@ are how qwark gets built and gated:**
 
 Each denial is correct about the general case and each stops the project
 developing itself. `78e0410` built the declaration table, and it does not help:
-these are deny rules, which fire whatever is declared. So the gap is not
-declaration coverage, and no amount of it closes this.
+these are deny rules, which fire whatever is declared. More declaration coverage
+cannot close this gap.
 
 The remaining five are wanted, or nearly. `rm -rf` and reaching a PATH directory
 are deliberate. `ls` on the rules directory is the guard in contradiction 3,
 firing on the dead path, and `CLAUDE.md` rule 4a explicitly permits reading
 either copy, so refusing a read is over-broad even once the group is corrected.
 
-**The mechanism is built.** `a85b1b9` adds a clause selecting on `cwd`, which
+The mechanism is built. `a85b1b9` adds a clause selecting on `cwd`, which
 arrives in the payload on the same footing as `agent_type` and which the subject
 cannot set. `go test` and `bolt` can stay refused everywhere and run inside this
 tree. Measured against a probe: allow at the root, allow in a subdirectory, deny
 from another repository, deny from a neighbour whose name shares a prefix, and
 deny when the request carries no directory at all.
 
-**Writing the scope is not what the reflex suggests.** There is no overridable
+Writing the scope is not what the reflex suggests. There is no overridable
 deny, so a scoped allow beside the existing deny leaves both live and the
 command refused. The scope goes inside the deny rule as an inverted `cwd`
 clause, which also fails closed. Shape 6 in
 `docs/PATTERNS/the-mechanicals-the-shapes-a-rule-can-be-written-in.md`.
 
-**What is left is the policy, and it is a rules change.** Which denials become
+What is left is the policy, and it is a rules change. Which denials become
 tree-scoped, and to which trees, wants an answer in words before anything is
 written. The four that block this repository are the obvious first set:
 `no-go-execution`, `no-executors`, and `no-interpreters` for `python3` and for
-`sed`. The last is worth separating: `sed -n 1,40p FILE` reads a file and is
+`sed`. The last one needs separating: `sed -n 1,40p FILE` reads a file and is
 caught by a rule about running code supplied as an argument.
 
 ## Waiting on an answer
 
-1. **How tag state survives between calls.** The shape is settled and the
+1. How tag state survives between calls. The shape is settled and the
    foundation is in place, but there will be no store until there are concrete
-   scenarios worth limiting this way. Nine requirements sit behind it (FR-4.7,
+   scenarios to limit this way. Nine requirements sit behind it (FR-4.7,
    4.13, and section 8).
 
-   **The blocker is not the shape, it is the writer.** `40-state.toml` requires
-   that tag state not be writable by the user qwark runs as, and qwark runs as the
+   The shape is not the blocker; the writer is. `40-state.toml` requires that
+   tag state not be writable by the user qwark runs as, and qwark runs as the
    agent's user, so any file it maintains the agent can rewrite with the Write
    tool. The leading candidate, an appended file trimmed each run, is precisely
    the option that fails that. Mode two's log inherits the problem, and worse: a
-   log with entries removed reads as a clean history. **The proxy is the way
-   out**, because a long-lived process the agent reaches only by typed call is a
-   writer the subject is not. See **The leaking bucket has no honest home in mode
-   one**.
-2. **The observability log:** where it lives, whether it rotates, and the list of
+   log with entries removed reads as a clean history. The proxy is the way out,
+   because a long-lived process the agent reaches only by typed call is a writer
+   the subject is not. See *The leaking bucket has no honest home in mode one*.
+2. The observability log: where it lives, whether it rotates, and the list of
    environment variables whose values are withheld. Three requirements (FR-4.8,
    4.9, 4.9a). The withhold model is a denylist by deliberate choice, with pattern
    matching added because naming secrets one at a time fails open.
-3. **Which commands write.** FR-9.6 says any path given to a writing command must
+3. Which commands write. FR-9.6 says any path given to a writing command must
    stay in the blast radius, and nothing yet says which commands write. That is a
    declaration question: a `writes` flag per command, or per option.
-4. **The manifest** (FR-9.7), created by the task management process, read at
+4. The manifest (FR-9.7), created by the task management process, read at
    runtime, saying which files may be read and which written.
 
 **3 and 4 are the priority.** The end state is three layers: a sandbox, the blast
 radius, then the manifest. The sandbox absorbs four of the six path groups in
-`20-paths.toml`, because those files are simply not in it. **Two are inside the
-sandbox and no sandbox removes them**: `repository-hooks` and `task-definition`.
+`20-paths.toml`, because those files are simply not in it. Two are inside the
+sandbox and no sandbox removes them: `repository-hooks` and `task-definition`.
 The blast radius does not help there either, since a `justfile` is already inside
 the project, which is the one place the agent must be able to write.
 
 So the manifest is the only layer of the three that discriminates between files
 inside the blast radius, and it is therefore the layer that answers "if they can
 write a new file, they can get the agent to approve anything". Both of its
-requirements are `[?]` and unbuilt. See the design note **The end state is three
-layers**.
+requirements are `[?]` and unbuilt. See the design note *The end state is three
+layers*.
 
 ## Known limits, written down so they are not rediscovered
 
-- **A NAMED DIRECTORY IS A THIRD EXPANSION AND NOTHING SEES IT.** zsh's
+- A named directory is a third expansion, and nothing sees it. zsh's
   `hash -d proj=/somewhere` makes `~proj/x` expand to `/somewhere/x`. qwark
   reads `~proj/x` as an ordinary literal word, so a protected-path rule reasons
   about the text while the shell acts on the directory. Measured: against the
   live rules, `rm ~proj/x` is allowed.
 
-  This is the failure `nothing-is-expanded` exists to prevent, reached by a
-  route it does not cover. That decision enumerated command substitution,
-  arithmetic and `$HOME`; a named directory is a fourth case and the
-  enumeration was of what somebody thought of.
+  This is the failure `nothing-is-expanded` guards against, reached by a route
+  it does not cover. That decision enumerated command substitution, arithmetic
+  and `$HOME`; a named directory is a fourth case and the enumeration was of what
+  somebody thought of.
 
-  **It is a rule decision rather than a code change.** The available answers
-  are to deny a word beginning `~` followed by anything but `/`, which is
-  cheap and refuses a legitimate form, or to report such a word as undetermined
-  so a clause on its value cannot hold, which matches how `$HOME` is already
-  treated. Neither is taken. **`~/` alone is unambiguous and is resolved for
-  rule-file members only, which is FR-4.29 and a different thing.**
-- **THE RULE SYNTAX IS WHAT MOST WANTS REVISION**, and two gaps in it account
-  for most of the bulk. `rules/` is 2,196 lines, 779 in `10-commands.toml`
-  alone, and duplication is why.
+  It is a rule decision, not a code change. The available answers are to deny a
+  word beginning `~` followed by anything but `/`, which is cheap and refuses a
+  legitimate form, or to report such a word as undetermined so a clause on its
+  value cannot hold, which matches how `$HOME` is already treated. Neither is
+  taken. `~/` alone is unambiguous and is resolved for rule-file members only,
+  which is FR-4.29 and a different thing.
+- The rule syntax is what most wants revision, and two gaps in it account for
+  most of the bulk. `rules/` is 2,196 lines, 779 in `10-commands.toml` alone,
+  and duplication is why.
 
-  **A clause cannot say OR.** An argument pattern matches one shape, so a
-  command acceptable in three forms takes three rules differing in one field.
-  A later edit has to find all three and nothing reports that one was missed.
+  A clause cannot say OR. An argument pattern matches one shape, so a command
+  acceptable in three forms takes three rules differing in one field. A later
+  edit has to find all three and nothing reports that one was missed.
 
-  **A command cannot be denied with exceptions carved out of it.** The worked
+  A command cannot be denied with exceptions carved out of it. The worked
   case:
 
       git branch -D                  refuse
@@ -445,12 +442,12 @@ layers**.
   policy as the failure to avoid; this is that failure reached from the other
   side.
 
-  Both are syntax rather than engine. Neither is scheduled, and the rule set
-  should not be grown further on the current spelling.
-- **FR-4.18 has a live instance, and it was found by being bitten.** That
-  requirement says using a name the shell may resolve to something other than
-  the intended program is refused, and notes that a backslash suppresses alias
-  expansion but not a shell function. Measured 2026-08-28 on this machine:
+  Both are syntax, not engine. Neither is scheduled, and the rule set should not
+  be grown further on the current spelling.
+- FR-4.18 has a live instance, found by being bitten. That requirement says
+  using a name the shell may resolve to something other than the intended
+  program is refused, and notes that a backslash suppresses alias expansion but
+  not a shell function. On this machine:
 
       \grep -n   "THE GATE IS ARMED" qwark/START_HERE.md   ->  line 8
       \grep -rln "THE GATE IS ARMED" qwark/                 ->  no match
@@ -461,86 +458,83 @@ layers**.
   produced a false clean on a real check: a recursive search reported no dead
   clank SHAs in this repository while `START_HERE.md` held three.
 
-  FR-4.18 is `[?]` and carries no test. This is the evidence that it is worth
-  building rather than deferring, and it is also a caution about qwark's own
+  FR-4.18 is `[?]` and carries no test. This is the evidence for building it now
+  instead of deferring it, and it is also a caution about qwark's own
   measurements: any finding here derived from a recursive `grep` has a blind
   spot the size of the gitignore.
-- **The `[shell]` policy is parsed and never consulted.** `ShellPolicy.Verify`
+- The `[shell]` policy is parsed and never consulted. `ShellPolicy.Verify`
   is defined at `internal/rules/shell.go:78` and called from nothing but
   `shell_test.go`, and no code reads `SHELL` from the environment. So FR-1.5,
   FR-1.7, FR-1.8, FR-1.9 and FR-1.10 describe a check with no caller, while
   `01-structure.toml` declares `allow = ["/bin/bash", "/usr/bin/bash"]` and
-  reads as though bash were enforced. Confirmed 2026-08-28. Filed at
-  the task tracker, which also
-  measures that the Bash tool's shell is zsh carrying the user's aliases.
-- **The observation phase is running.** It was blocked on FR-4.16: the engine
+  reads as though bash were enforced. The task tracker holds the filing, along
+  with the measurement that the Bash tool's shell is zsh carrying my aliases.
+- The observation phase is running. It was blocked on FR-4.16: the engine
   denied an undeclared command unconditionally, so a rule set omitting
-  declarations denied everything rather than judging by shape. `f39b70b` settled
+  declarations denied everything instead of judging by shape. `f39b70b` settled
   that the enforcement stays and gave it a switch, and the live `00-allow.toml`
-  sets `required = false`. Measured 2026-08-28: against the live set `ls -la`,
-  `cat`, `grep`, `go build` and `git commit -F` all run, and only shape is
-  refused.
-- **qwark gates Bash only.** The Write and Edit tools reach the rule files, the
+  sets `required = false`. Against the live set, `ls -la`, `cat`, `grep`,
+  `go build` and `git commit -F` all run, and only shape is refused.
+- qwark gates Bash only. The Write and Edit tools reach the rule files, the
   shell snapshot, `.git/hooks` and `settings.json` without passing through it.
-  Every class-three rule needs a `permissions.deny` twin. **A twin naming
-  `settings.local.json` itself removes the escape hatch from the session**, so
+  Every class-three rule needs a `permissions.deny` twin. A twin naming
+  `settings.local.json` itself removes the escape hatch from the session, so
   the documented way out, deleting the `hooks` key with the Edit tool, stops
-  being available to anyone but a person. Measured 2026-08-28.
+  being available to anyone but a person.
 
-  **The twin is written and does not hold.** `.claude/settings.local.json`
-  carries four `deny` entries covering `Write` and `Edit` on the live rules and
-  on the registration itself. Measured 2026-08-28: `rm` through Bash and `Write`
-  through the tool both reached `~/.config/qwark/rules` past them. So the
-  property FR-4.17 dropped is carried by neither the twin nor, until
-  contradiction 3 is fixed, by qwark's own path group. **Nothing mechanical
-  protects the live rules today**, and hard rule 4a, an instruction to an agent,
-  is the whole of it.
+  The twin is written and does not hold. `.claude/settings.local.json` carries
+  four `deny` entries covering `Write` and `Edit` on the live rules and on the
+  registration itself. `rm` through Bash and `Write` through the tool both
+  reached `~/.config/qwark/rules` past them. So the property FR-4.17 dropped is
+  carried by neither the twin nor, until contradiction 3 is fixed, by qwark's
+  own path group. **Nothing mechanical protects the live rules today**, and hard
+  rule 4a, an instruction to an agent, is the whole of it.
 
-  **The twin's replacement has a name, and it is not qwark.** `grim`, in
+  The twin's replacement has a name, and it is not qwark. `grim`, in
   `repos.live.toml`: *"The mandatory tool proxy. Supplies the file tools and
   gates each call against the manifest, where qwark judges Bash against the same
   one. Neither is the other's backend, and both must read it or it binds
   nothing."*
 
   That last clause is the whole of why the twin fails and grim would not. A twin
-  is a **second list**, kept in step by hand, and this repository has now watched
-  three such lists drift off their subjects in a day. One manifest read by two
-  gates has no second list to keep in step. qwark's own decision file talks about
-  "the proxy" generically and never names grim or states the shared-manifest
-  property; it is stronger than what that file records, and the file should say
-  so.
+  is a second list, kept in step by hand, and three such lists in this
+  repository drifted off their subjects within a single day. One manifest read by
+  two gates has no second list to keep in step. qwark's own decision file talks
+  about "the proxy" generically and never names grim or states the
+  shared-manifest property; that property is stronger than what the file records,
+  and the file should say so.
 
-- **No drift check runs.** The live set and the source set are two copies with
+- No drift check runs. The live set and the source set are two copies with
   nothing comparing them, and the figure in `CLAUDE.md` describing them has gone
   stale twice. There is no `qwark verify` subcommand; `qwark --help` lists `ast`,
   `facts`, `rules`, `judge` and `hook`. A gate that cannot check its own
   deployment is the candidate this wants, and the earlier objection that `diff`
   and `sha256sum` were themselves refused no longer applies: both run under the
   live set.
-- **The registration is project-scoped, so looking for it at user scope finds
-  nothing.** It lives in `qwark/.claude/settings.local.json` and gates sessions
+- The registration is project-scoped, so looking for it at user scope finds
+  nothing. It lives in `qwark/.claude/settings.local.json` and gates sessions
   in this tree only. `~/.claude/settings.json` symlinks into silo and holds
-  `SessionStart` and `SessionEnd` and no `PreToolUse`, which is correct rather
-  than a fault: no Bash command **outside this repository** is judged, and that
-  is the phase. An inbox entry filed 2026-08-28 read the user-scope file and
-  concluded qwark had never been registered anywhere. Check both scopes.
+  `SessionStart` and `SessionEnd` and no `PreToolUse`, which is correct: no Bash
+  command outside this repository is judged, and that is the phase. Reading only
+  the user-scope file has already produced an inbox entry concluding qwark had
+  never been registered anywhere. Check both scopes.
 
-- **A coding agent that can write files and run its tests has arbitrary
-  execution** regardless of qwark. `go test` runs code the agent just wrote. What
+- A coding agent that can write files and run its tests has arbitrary
+  execution regardless of qwark. `go test` runs code the agent just wrote. What
   qwark constrains is what is typed, not what the typed thing executes.
-- **The hook registration is fixed for a session.** An external process can choose
+- The hook registration is fixed for a session. An external process can choose
   rule files per session launch, but a subagent spawned inside a running session
   gets the same command line. Varying policy per subagent would need qwark reading
   `agent_type` after all.
-- **`SHELL` decides the Bash tool's shell at session start** and cannot be changed
+- `SHELL` decides the Bash tool's shell at session start and cannot be changed
   by a hook afterwards. Forcing bash means exporting it before launching Claude
   Code. This machine runs zsh 5.9 there.
 
 ## Deferred to a later version
 
-- **Tags** (section 8). The foundation is in place; there is no store and no
+- Tags (section 8). The foundation is in place; there is no store and no
   scenario yet.
-- **Cost ordering** (FR-4.2). It cannot change a verdict, only how much work
+- Cost ordering (FR-4.2). It cannot change a verdict, only how much work
   happens before the verdict is known. The seam is `order` in the evaluator, today
   the identity.
 
@@ -548,7 +542,7 @@ layers**.
 
 | Question | State |
 |---|---|
-| Does a *denied* command decrement a sticky tag's countdown? | **SETTLED.** FR-4.24: a denied command has no effect of any kind. The Redis shape makes it structural rather than remembered, since a denied command issues no update and so cannot tick. |
-| `substitution.parameter` bans `$HOME` and `$PWD` along with the rest. Intended? | **SETTLED, and intended.** `rules/01-structure.toml` says so outright: *"command, process, arithmetic and parameter alike, so $HOME and $PWD are included."* |
-| Verdict for a command qwark cannot parse. | **SETTLED.** FR-4.12: denied, with the parser's own message, which carries the line and column. |
-| Which environment variables may be logged by value; where the log lives; whether it rotates. | **STILL OPEN.** FR-4.8, FR-4.9, FR-4.9a, all `[?]`. This is mode two, the audit, and the same store question the leaking bucket runs into. |
+| Does a *denied* command decrement a sticky tag's countdown? | Settled. FR-4.24: a denied command has no effect of any kind. The Redis shape makes it structural rather than remembered, since a denied command issues no update and so cannot tick. |
+| `substitution.parameter` bans `$HOME` and `$PWD` along with the rest. Intended? | Settled, and intended. `rules/01-structure.toml` says so outright: *"command, process, arithmetic and parameter alike, so $HOME and $PWD are included."* |
+| Verdict for a command qwark cannot parse. | Settled. FR-4.12: denied, with the parser's own message, which carries the line and column. |
+| Which environment variables may be logged by value; where the log lives; whether it rotates. | Still open. FR-4.8, FR-4.9, FR-4.9a, all `[?]`. This is mode two, the audit, and the same store question the leaking bucket runs into. |

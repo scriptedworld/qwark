@@ -2,8 +2,8 @@
 
 Two kinds:
 
-- **Ephemeral.** Derived from this command's tree, and live for one evaluation.
-- **Sticky.** Written by a rule, persisted, and decaying over subsequent
+- Ephemeral tags are derived from this command's tree, and live for one evaluation.
+- Sticky tags are written by a rule, persisted, and decaying over subsequent
   commands. The worked example: after a rebase, deletion is denied for the next
   six commands.
 
@@ -22,7 +22,7 @@ Four things bear on the locking, none of them settling it:
 - A sideboard process holding the state, Redis being the one raised, with my
   own reservation that some would call it heavy, moves the problem out of the
   filesystem but adds a daemon that must be up. That interacts with the
-  fail-closed rule in **Configuration**: if an unparseable rule file makes Bash
+  fail-closed rule in *Configuration*: if an unparseable rule file makes Bash
   unusable, then by the same reasoning an unreachable state store does too, and a
   daemon outage becomes a Bash outage. A file has fewer ways to be absent.
 - If every command is already logged, "was there a rebase in the last six

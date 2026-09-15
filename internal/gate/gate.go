@@ -6,13 +6,12 @@
 // is the right home for the other, and putting the join in the command line
 // would make the thing that decides a detail of how qwark was invoked.
 //
-// **Whether the rule set may be trusted is deliberately not decided here.**
-// That is a question about the deployment rather than about the call in front
-// of it. Until 2026-08-28 it was answered by a permission check run before a
-// Decider was built; it is now answered outside qwark entirely, by the rule
-// that an agent does not edit these files without a person and by the
-// `permissions.deny` twin in the hook registration. FR-4.17, retired, records
-// what would bring the check back.
+// Whether the rule set may be trusted is deliberately not decided here. That is
+// a question about the deployment, not about the call in front of it, and it is
+// answered outside qwark entirely: by the rule that an agent does not edit
+// these files without a person, and by the
+// `permissions.deny` twin in the hook registration. FR-4.17, retired, was the
+// permission check that once answered it, and records what would bring it back.
 package gate
 
 import (
@@ -98,8 +97,8 @@ func Verdict(set *rules.Set, command, agent string) (hook.Decision, string) {
 	parsed, err := shell.Parse(command)
 	if err != nil {
 		// A command qwark cannot parse is one it cannot judge, and that is a
-		// verdict rather than an absence of findings. The parser's own message
-		// is what goes back, because it carries the line and column.
+		// verdict in its own right, not an absence of findings. The parser's own
+		// message is what goes back, because it carries the line and column.
 		return hook.DecisionDeny, fmt.Sprintf(
 			"qwark could not parse this command, so it cannot judge it:\n  %v", err)
 	}
@@ -111,7 +110,7 @@ func Verdict(set *rules.Set, command, agent string) (hook.Decision, string) {
 // decisionOf maps a verdict onto what Claude Code accepts.
 //
 // The tagging actions decide nothing and are settled out before this, but they
-// are named rather than left to a default: an action that reached here without
+// are named instead of left to a default: an action that reached here without
 // being a decision must refuse, since permitting on the strength of an
 // unrecognised verdict is the one direction that cannot be taken back.
 func decisionOf(action rules.Action) hook.Decision {
@@ -129,7 +128,7 @@ func decisionOf(action rules.Action) hook.Decision {
 
 // explain renders every reason behind a verdict.
 //
-// **Every reason, not the first.** A refusal that names one problem out of
+// Every reason, not the first. A refusal that names one problem out of
 // three sends its reader round three times, and the evaluator gathers them all
 // precisely so that it does not have to.
 func explain(outcome rules.Outcome) string {
@@ -161,19 +160,18 @@ func heading(action rules.Action) string {
 }
 
 // oneLine flattens a reason written as a paragraph onto a single line, since
-// what carries it is a JSON string a model reads rather than a terminal.
+// what carries it is a JSON string a model reads, not a terminal.
 func oneLine(reason string) string {
 	return strings.Join(strings.Fields(reason), " ")
 }
 
 // wrongTool is the reason for a call qwark was never registered to judge.
 //
-// It refuses rather than waving the call through, on the same reasoning as any
+// It refuses instead of waving the call through, on the same reasoning as any
 // command form qwark does not model: finding no command to check is not the
 // same as finding nothing to check. A matcher wide enough to send Write and
-// Edit here will therefore block loudly, which is the failure worth having:
-// the alternative is a gate that silently judges nothing while looking
-// installed.
+// Edit here will therefore block loudly. That is the better failure, since the
+// alternative is a gate that silently judges nothing while looking installed.
 func wrongTool(name string) string {
 	return fmt.Sprintf(
 		"qwark gates Bash and was asked to judge %q, which it does not model.\n"+

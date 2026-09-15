@@ -29,9 +29,9 @@ func inFiles(t *testing.T, files map[string]string) string {
 // mustFail loads a rule set that is expected to be refused, and returns the
 // refusal's message.
 //
-// The message rather than the error, because that is what the caller checks and
-// because a helper handing an error back up would be laundering one across a
-// package boundary without wrapping it.
+// It returns the message, not the error, because that is what the caller
+// checks and because a helper handing an error back up would be laundering one
+// across a package boundary without wrapping it.
 func mustFail(t *testing.T, files map[string]string, want error) string {
 	t.Helper()
 
@@ -142,8 +142,8 @@ func TestARuleThatCannotBeTrustedIsRefused(t *testing.T) {
 
 	// Each of these would otherwise produce a rule that never applies, which
 	// reads exactly like a rule that is working: the most dangerous way for
-	// a gate to be broken. They are refused at load rather than at the command
-	// they silently fail to catch.
+	// a gate to be broken. They are refused at load, not at the command they
+	// silently fail to catch.
 	cases := []struct {
 		name string
 		toml string
@@ -314,14 +314,13 @@ members = ["~/bin/", "/usr/bin/", "~name/not-a-home"]
 
 // COVERS: FR-4.29 | negative
 func TestAHomeThatWouldWidenAMemberRefusesToLoad(t *testing.T) {
-	// THE DANGEROUS CASE IS A HOME THAT IS PRESENT AND WRONG, not one that is
-	// missing. The first version of this refused only on absence, so `HOME=/`
-	// loaded and turned `~/scratch/` into `/scratch/`. For a deny group that
-	// widens in the safe direction; for an allow rule it hands out permission
-	// nobody granted.
+	// The dangerous case is a home that is present and wrong, not one that is
+	// missing. Refusing only on absence lets `HOME=/` load and turn
+	// `~/scratch/` into `/scratch/`. For a deny group that widens in the safe
+	// direction; for an allow rule it hands out permission nobody granted.
 	//
-	// A review found it by inverting the refusal into a silent guess and
-	// watching every test still pass. These are the tests that were missing.
+	// Without these cases, inverting the refusal into a silent guess leaves
+	// every other test passing.
 	dir := inFiles(t, map[string]string{
 		"00-groups.toml": `
 [group.paths]

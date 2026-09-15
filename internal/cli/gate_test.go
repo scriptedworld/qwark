@@ -49,9 +49,9 @@ func decisionIn(t *testing.T, out string) (string, string) {
 // ruleFile writes a rule file into a directory this user can write, which is
 // every directory a test can make.
 //
-// Until 2026-08-28 that was the one condition the hook refused outright, and
-// these tests existed to prove it. FR-4.17 is retired, so a writable rule set
-// now loads like any other and what remains here is the loading half. What the
+// FR-4.17, which made a writable rule set the one condition the hook refused
+// outright, is retired. A writable rule set loads like any other, and what
+// these tests cover is the loading half. What the
 // gate does once it has a rule set is `internal/gate`'s to prove, and it is a
 // separate package for that reason.
 func ruleFile(t *testing.T, body string) string {
@@ -73,9 +73,8 @@ func TestABrokenRuleSetPermitsNothingAndSaysWhere(t *testing.T) {
 	// every command until it is fixed, so the refusal has to name where, and
 	// the way out must not itself need Bash.
 	//
-	// This once asserted that BOTH faults were reported, the rule set being
-	// unparseable and rewritable at once. FR-4.17 is retired, so loading is the
-	// only fault preflight can now find and there is no second one to list.
+	// Loading is the only fault preflight can find, since FR-4.17 is retired,
+	// so there is no second fault to list alongside it.
 	broken := ruleFile(t, "[[rule]]\nid = \"unclosed\n")
 
 	out, _, status := invoke(t, payload(t, "git status"), "hook", broken)
@@ -101,7 +100,7 @@ func TestABrokenRuleSetPermitsNothingAndSaysWhere(t *testing.T) {
 func TestTheHookExitsTwoWhenItCannotDecide(t *testing.T) {
 	t.Parallel()
 
-	// **Exit 2 is the only status that blocks.** Exit 0 with
+	// Exit 2 is the only status that blocks. Exit 0 with
 	// no JSON is no decision and the call proceeds; every other non-zero status
 	// is a non_blocking_error and the call also proceeds. So a truncated
 	// payload has to exit 2, or a broken connection becomes an approval.

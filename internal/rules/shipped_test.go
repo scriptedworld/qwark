@@ -16,9 +16,9 @@ import (
 func TestTheRegistrationRefusesWhenQwarkDies(t *testing.T) {
 	t.Parallel()
 
-	// The `|| exit 2` is not belt and braces. **Exit 0 with no JSON is no
-	// decision and the command proceeds, and any non-zero exit other than 2
-	// is a non_blocking_error and the command also proceeds.** Only exit
+	// The `|| exit 2` is required. Exit 0 with no JSON is no decision and the
+	// command proceeds, and any non-zero exit other than 2 is a
+	// non_blocking_error and the command also proceeds. Only exit
 	// 2 blocks. A registration without the guard therefore lets the command
 	// through whenever qwark segfaults, is killed, or exits 1, and the shipped
 	// fragment is where somebody copies that from.
@@ -69,9 +69,9 @@ func TestTheRegistrationCarriesTheDenyListQwarkCannotEnforce(t *testing.T) {
 	// through it, so a path protected only by a rule in 20-paths.toml is
 	// protected against a shell and against nothing else.
 	//
-	// The fragment once explained at length that a permissions.deny twin was
-	// needed and carried none. A control that exists only in the paragraph
-	// describing it is what this test catches.
+	// A fragment can explain at length that a permissions.deny twin is needed
+	// and carry none. This test catches a control that exists only in the
+	// paragraph describing it.
 	body, err := os.ReadFile(filepath.Join("..", "..", "install", "settings-fragment.json"))
 	if err != nil {
 		t.Fatalf("reading the shipped registration: %v", err)
@@ -92,8 +92,8 @@ func TestTheRegistrationCarriesTheDenyListQwarkCannotEnforce(t *testing.T) {
 	}
 
 	// One representative of each class the rule files protect. Naming them
-	// individually means a class dropped from the list fails here rather than
-	// being noticed by whoever is attacked through it.
+	// individually means a class dropped from the list fails here, before
+	// whoever is attacked through it notices.
 	classes := map[string]string{
 		"qwark's own rules":    "/etc/qwark/",
 		"the shell snapshot":   "shell-snapshots",
@@ -116,9 +116,9 @@ func TestTheRegistrationCarriesTheDenyListQwarkCannotEnforce(t *testing.T) {
 func TestTheShippedRulesDenyWrappersByName(t *testing.T) {
 	t.Parallel()
 
-	// Wrappers are refused by an explicit rule rather than by being undeclared,
-	// so that the refusal states why, records that they were considered rather
-	// than forgotten, and survives someone later declaring one for a harmless
+	// Wrappers are refused by an explicit rule, not by being undeclared, so
+	// that the refusal states why, records that they were considered and not
+	// forgotten, and survives someone later declaring one for a harmless
 	// flag. An absence provides none of the three, and an absence is also
 	// what this test would be checking if it merely asserted they do not run.
 	set, err := rules.Load([]string{filepath.Join("..", "..", "rules")})
@@ -146,19 +146,20 @@ func TestTheShippedRulesDenyWrappersByName(t *testing.T) {
 func TestTheShippedRulesDenyTaskRunnersByName(t *testing.T) {
 	t.Parallel()
 
-	// 2026-08-20: `I worry about letting them run bolt ... running
+	// `I worry about letting them run bolt ... running
 	// ANYTHING that isn't one of our standard jigs ... same with JUST or POE
 	// etc ... if they can write a new file, then they can then get the agent to
 	// approve anything.`
 	//
-	// Measured: `just checks` was refused by `no-executors`, which names the
-	// threat. `bolt run` was refused by "(engine) deny by default", which
-	// names nothing, and bolt is this project's own gate.
+	// A runner missing from the group is still refused, but by "(engine) deny
+	// by default", which names nothing, where `just checks` gets
+	// `no-executors`, which names the threat. bolt, this project's own gate,
+	// was the runner found missing that way.
 	//
 	// The list is not what makes this safe: deny-by-default already refuses an
 	// unnamed command. What the list buys is a refusal that explains itself, so
 	// the same command is not retried in five spellings. That is FR-4.21, and
-	// it is why this test asserts the NAME is present rather than asserting the
+	// it is why this test asserts the name is present instead of asserting the
 	// command does not run.
 	set, err := rules.Load([]string{filepath.Join("..", "..", "rules")})
 	if err != nil {
@@ -186,15 +187,15 @@ func TestTheShippedRulesDenyTaskRunnersByName(t *testing.T) {
 func TestTheGuardCoversThePathsQwarkActuallyUses(t *testing.T) {
 	t.Parallel()
 
-	// The group named /etc/qwark/ and /var/lib/qwark/ long after the install
-	// target moved to ~/.config/qwark/rules and the log to ~/.local/state.
-	// Measured 2026-08-28: `cp` over the live 01-structure.toml and `rm` of
-	// decisions.jsonl were both ALLOW, while `ls /etc/qwark/rules` was refused.
-	// The guard was working perfectly against an address its subject had left.
+	// A group that names the paths qwark used to use protects nothing. With
+	// the group still naming /etc/qwark/ and /var/lib/qwark/ after the install
+	// target moved to ~/.config/qwark/rules and the log to ~/.local/state,
+	// `cp` over the live 01-structure.toml and `rm` of decisions.jsonl were
+	// both allowed while `ls /etc/qwark/rules` was refused.
 	//
-	// So this asserts the SUBJECT is covered, not that the rule is present.
-	// A test naming the rule would have passed throughout, which is how the
-	// defect survived a rule set that is otherwise heavily tested.
+	// So this asserts the subject is covered, not that the rule is present.
+	// A test naming the rule passes throughout that failure, even in a rule
+	// set that is otherwise heavily tested.
 	set, err := rules.Load([]string{filepath.Join("..", "..", "rules")})
 	if err != nil {
 		t.Fatalf("the repository's rule files do not load: %v", err)
@@ -204,14 +205,13 @@ func TestTheGuardCoversThePathsQwarkActuallyUses(t *testing.T) {
 		t.Fatal("no group names qwark's own control surfaces")
 	}
 
-	// Judged as commands rather than by matching the group's members here.
-	// Partial matching compares fragments and the members carry trailing
-	// slashes, so a helper written in this file is a second implementation of
-	// the evaluator, free to be wrong in exactly the way it is being asked to
-	// detect. The first draft of this test was, and passed the live paths as
-	// bare directories that no member matched.
+	// Judged as commands, not by matching the group's members here. Partial
+	// matching compares fragments and the members carry trailing slashes, so a
+	// helper written in this file is a second implementation of the evaluator,
+	// free to be wrong in exactly the way it is being asked to detect: passing
+	// the live paths as bare directories matches no member.
 	//
-	// Derived rather than written twice: moving the log moves the assertion.
+	// Derived, not written twice: moving the log moves the assertion.
 	logPath := audit.DefaultPath()
 	rulePath := filepath.Join(home(t), ".config", "qwark", "rules", "01-structure.toml")
 
@@ -380,7 +380,7 @@ func TestTheShippedRulesRefuseAHeredocWriteInItsOwnRight(t *testing.T) {
 	// separately because its reason is separate: such content was never a diff
 	// and leaves nothing to review. That separateness is only real if the
 	// separate reason actually reaches the reader, otherwise it is a comment
-	// in a file rather than something the gate says.
+	// in a file and not something the gate says.
 	outcome, fired := shippedVerdict(t, "cat > f.go <<EOF\npackage main\nEOF")
 
 	if !outcome.Denied() {
@@ -390,8 +390,8 @@ func TestTheShippedRulesRefuseAHeredocWriteInItsOwnRight(t *testing.T) {
 	if !contains(fired, "no-heredoc-write") {
 		t.Errorf("no-heredoc-write did not fire; rules that fired: %v", fired)
 	}
-	// And the redirection rule fires too, which is the point of listing every
-	// reason rather than the first.
+	// The redirection rule fires too, and every reason is listed, not only
+	// the first.
 	if !contains(fired, "no-redirection") {
 		t.Errorf("no-redirection did not fire; rules that fired: %v", fired)
 	}

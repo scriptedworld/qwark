@@ -16,7 +16,7 @@ nothing:
 The snapshot carries functions as well as aliases, so this is a live mechanism
 here and not a hypothetical one.
 
-**The set is not stable, and that matters more than its size.** One snapshot gave
+The set is not stable, and that matters more than its size. One snapshot gave
 64 aliases and 24 functions; a newer one, taken after the shell configuration was
 rebuilt, gave 13 aliases and 21 functions. Both readings were correct when taken.
 A rule written against "the aliases" is written against a moving target, which is
@@ -43,8 +43,8 @@ it defeats alias expansion and the PATH hijack demonstrated above, both of which
 are real and neither of which needs a function. It is defence in depth and must
 not be described as a guarantee.
 
-**The control that actually holds is the one that holds everywhere else in this
-design: the shell environment must not be writable by the agent.** The snapshot is
+The control that actually holds is the one that holds everywhere else in this
+design: the shell environment must not be writable by the agent. The snapshot is
 `-rw-rw-r--`, owned by the agent's user, and reachable by `Write` with no shell
 involved. It needs the treatment the rule files get.
 
