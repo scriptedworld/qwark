@@ -1,0 +1,5 @@
+# The live set: what ~/.config/qwark/rules holds, relative to this directory.
+../../00-allow.toml
+../../01-structure.toml
+../../02-inline-code.toml
+../../03-wrappers.toml

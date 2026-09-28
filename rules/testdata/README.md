@@ -1,20 +1,23 @@
 # What the shipped rules decide
 
-`internal/rules/cases_test.go` judges every file here and fails on a verdict
-that differs, on a rule that should have fired and did not, and on a shipped
-rule that no file exercises. A rule change shows up as a failing case before
-it is installed.
+`qwark cases rules/testdata` judges every file here and prints a result
+envelope. `just rules-suite` runs it as part of `just checks`. A run fails on a
+case that gets the wrong verdict, and on any rule a set includes that no case
+triggers, each named as a reason. So a rule added without a case fails the
+gate.
 
+    <set>/set.txt
     <set>/<verdict>/<name>.cmd
 
-- `<set>` is `live`, the four files installed today, or `full`, all of
-  `rules/`.
+- `<set>/set.txt` names the set's rule files, one per line, relative to the
+  set's directory. `live` is what `~/.config/qwark/rules` holds; `full` is all
+  of `rules/`.
 - `<verdict>` is `block`, `allow`, `ask` or `deny`, and every file in the
   directory has to get it.
 - The file holds one command, as a session would send it.
 - `<name>` up to any `--` is the rule that has to fire. For a tag rule it has
-  to set or clear its tag instead. A name starting `default` or `engine` says
-  no named rule decided it. What follows `--` tells cases apart.
+  to set or clear its tag instead. `engine` says the engine itself refuses it,
+  and `default` says no rule decided it. What follows `--` tells cases apart.
 
 Header lines before the command, each optional:
 

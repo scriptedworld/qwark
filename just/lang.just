@@ -10,6 +10,23 @@ checks:
     @just _verdict common-quality
     @just _verdict go-std-quality --definitions go-std-quality
     @just leak-scan
+    @just rules-suite
+
+# every shipped rule triggered by a case, every case given its verdict. Built
+# from source, so bin/qwark, which is the live gate, is never rebuilt by this.
+# The verdict is read out of the envelope, not the exit status.
+rules-suite:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    mkdir -p .ephemera
+    out=.ephemera/rules-suite.yaml
+    go run ./cmd/qwark cases rules/testdata > "$out"
+    if grep -q '"success": *true' "$out"; then
+        echo "pass  rules-suite  $out"
+    else
+        echo "FAIL  rules-suite  $out" >&2
+        exit 1
+    fi
 
 # the suite
 test:

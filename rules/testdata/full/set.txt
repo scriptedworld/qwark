@@ -1,0 +1,2 @@
+# The full set: every rule file in rules/, relative to this directory.
+../..

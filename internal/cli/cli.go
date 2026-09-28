@@ -27,6 +27,9 @@ usage:
                                   agent none is the main session
   qwark hook RULES...             run as the PreToolUse hook: read one call
                                   from stdin, judge it, answer on stdout
+  qwark cases DIR                 judge every case under DIR and print a
+                                  result envelope; fails on a wrong verdict
+                                  and on any rule no case triggers
   qwark help                      this text
 
 With no command argument, ast and facts read the command from stdin. --debug
@@ -69,6 +72,8 @@ func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		return judge(args[1:], stdout, stderr)
 	case "hook":
 		return runHook(args[1:], stdin, stdout, stderr)
+	case "cases":
+		return runCases(args[1:], stdout, stderr)
 	case "help", "-h", "--help":
 		_, _ = fmt.Fprint(stdout, Usage)
 		return statusOK
