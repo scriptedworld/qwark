@@ -79,12 +79,12 @@ members = [
 # These execute content from the working tree: recipes, test files, hooks, all
 # of which the agent can write with no shell involved.
 #
-# THIS IS THE GROUP TO DECIDE DELIBERATELY. Allowing any of them is allowing
+# This is the group to decide deliberately. Allowing any of them is allowing
 # arbitrary execution. `go test` running this project's own suite is the obvious
 # case, and if it is permitted it should be an explicit, reasoned exception with
 # that written beside it, never a quiet allow.
 # ############################################################################
-# READ THIS BEFORE ADDING A NAME. **The list is not what makes this safe.**
+# Read this before adding a name. **The list is not what makes this safe.**
 #
 # Deny-by-default is. A command absent from every group is refused anyway
 # (FR-4.16, FR-4.35), so adding a name here buys a REASON, not a refusal: it
@@ -139,14 +139,14 @@ members = ["test", "run", "generate", "tool"]
 # allowed, the rest denied by class, each class carrying its own reason. All 64
 # porcelain commands are classified, checked against `git --list-cmds`.
 #
-# THE CLASSES OVERLAP AND THAT IS THE POINT. `rebase` runs hooks and rewrites
+# The classes overlap, and that is the point. `rebase` runs hooks and rewrites
 # history; `push` runs hooks and reaches the network. Under FR-4.34 every
-# refusing reason is collected, so a command in three classes is refused with all three
-# stated. A command belongs in a class when the class's reason is true of it,
+# refusing reason is collected, so a command in three classes is refused with
+# all three stated. A command belongs in a class when the class's reason is true of it,
 # not when no other class claimed it first.
 #
 # ############################################################################
-# NO GIT SUBCOMMAND IS UNCONDITIONALLY SAFE. Read this before editing the
+# No git subcommand is unconditionally safe. Read this before editing the
 # read-only list below. All four measured against git 2.47.3:
 #
 #     git diff --output=<file>    writes a file
@@ -172,19 +172,18 @@ members = ["test", "run", "generate", "tool"]
 # runs the same filters a checkout does.
 #
 # ############################################################################
-# `commit` WAS HERE AND HAS BEEN REMOVED, 2026-08-28.
+# `commit` is not a member.
 #
-# The rule read oddly against this machine and then read wrongly. `git commit`
-# runs the `commit-msg` hook, and on this machine that hook IS the attribution
-# guarantee: `~/.git-hooks/no-ai-attribution` is the thing hard rule 1 depends
-# on. So the rule refused `git commit` precisely BECAUSE it runs the check that
-# has to run.
+# `git commit` runs the `commit-msg` hook, and on this machine that hook is the
+# attribution guarantee: `~/.git-hooks/no-ai-attribution` is the thing hard
+# rule 1 depends on. Listing `commit` here would refuse `git commit` precisely
+# because it runs the check that has to run.
 #
-# Measured 2026-08-28 against a live gate: `git commit <path> -F <msg>` was
+# Against a live gate with `commit` listed, `git commit <path> -F <msg>` was
 # refused by this rule, by `commit-must-be-signed`, and by `-F` being
 # undeclared, while hard rule 3 mandates exactly that command for every commit
-# here. 1,124 `git commit` invocations in the corpus. A gate that stops every
-# commit the instructions require is a gate that gets switched off.
+# here. The corpus holds 1,124 `git commit` invocations. A gate that stops
+# every commit the instructions require is a gate that gets switched off.
 #
 # The general reason still stands for the other sixteen members: a hook is a
 # file the agent can write, and running one is running that file. `commit` is
@@ -639,15 +638,14 @@ arbitrary execution."""
 # ============================================================================
 #
 # ############################################################################
-# NOTHING RUNS ON A DECLARATION ALONE. Deny is the engine's default (FR-4.35),
+# Nothing runs on a declaration alone. Deny is the engine's default (FR-4.35),
 # so a command that is described and unobjected-to is still refused until an
-# allow rule names it. A rule set with no allow rules permits nothing, which is
-# a state this project reached on 2026-08-28 and spent a session inside.
+# allow rule names it. A rule set with no allow rules permits nothing.
 #
 # Every block above outranks everything here (FR-4.33), so an allow can never
 # widen one and a command appearing in both lists is refused.
 #
-# WHAT KEEPS THESE NARROW IS NOT THIS SECTION. It is tier one in
+# What keeps these narrow is not this section. It is tier one in
 # 01-structure.toml and the option tables in 05-declarations.toml. `grep x .`
 # is permitted; `grep x *.md` is a glob, `grep x f | head` is a pipe, and
 # `grep -O prog f` is an undeclared option. None of those is mentioned here.

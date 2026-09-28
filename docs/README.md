@@ -11,7 +11,8 @@ what is not done and what is waiting on an answer.
 
 The reasoning that would otherwise survive only in a commit message.
 
-**The shape of a rule**
+### The shape of a rule
+
 `why-a-parser-rather-than-a-matcher` ·
 `the-decision-model` ·
 `a-rule-is-a-conjunction` ·
@@ -20,31 +21,36 @@ The reasoning that would otherwise survive only in a commit message.
 `addressing-a-command` ·
 `nothing-is-expanded`
 
-**What is refused, and why**
+### What is refused, and why
+
 `tier-one-the-command-must-say-what-it-does` ·
 `rules-are-layered-by-cost` ·
 `writing-files-through-a-here-document` ·
 `what-it-costs-to-detect-force` ·
 `what-qwark-does-not-cover`
 
-**Who may change the rules**
+### Who may change the rules
+
 `rule-files-are-named-on-the-command-line` ·
 `rule-files-must-not-be-writable-by-the-agent` ·
 `a-declaration-is-a-permission` ·
 `separation-of-duties-belongs-in-the-engine`
 
-**Where this is going**
+### Where this is going
+
 `the-end-state-is-three-layers` ·
 `the-proxy-is-a-layer-and-mode-two-is-the-audit` ·
 `intention-notes-belong-to-the-proxy` ·
 `where-the-command-surface-is-heading`
 
-**State, which is deferred**
+### State, which is deferred
+
 `tags-have-lifetimes` ·
 `the-leaking-bucket-has-no-honest-home-in-mode-one` ·
 `redis-with-lua-and-the-update-is-what-ticks`
 
-**Running it**
+### Running it
+
 `configuration-is-toml-and-fails-closed` ·
 `observability-and-withheld-environment-values`
 

@@ -1,7 +1,7 @@
 # qwark, what a command's words mean.
 #
 # ############################################################################
-# THIS FILE IS THE ELIGIBILITY SURFACE. Treat it as the most dangerous one here.
+# This file is the eligibility surface. Treat it as the most dangerous one here.
 #
 # A declaration grants understanding, not permission (FR-4.23): it says how a
 # command's options decompose so that rules can be written about them, and it
@@ -17,7 +17,7 @@
 # ############################################################################
 #
 # ----------------------------------------------------------------------------
-# THE RULE FOR ADDING AN OPTION
+# The rule for adding an option
 # ----------------------------------------------------------------------------
 #
 # **The declaration is per command WORD. git's options are per SUBCOMMAND.**
@@ -49,7 +49,7 @@
 # read-only allowance fails closed by construction: nobody had to enumerate the
 # dangerous flags, and forgetting one costs a refusal rather than a hole.
 #
-# DELIBERATELY NOT DECLARED, with the reason, so they are not added later by
+# Deliberately not declared, with the reason, so they are not added later by
 # somebody who assumes they were forgotten:
 #
 #   --exec-path=      changes where git finds its subcommands: arbitrary
@@ -124,7 +124,7 @@ operands = "text"
   short.N   = { means = "intent-to-add" }
   long.file = { means = "message-file", takes_value = true, kind = "path" }
 
-  # `-F` IS DECLARED AGAINST THIS FILE'S OWN RULE, and the reason is written
+  # `-F` is declared against this file's own rule, and the reason is written
   # here rather than left for somebody to discover.
   #
   # `git commit -F <file>` reads the message from a file. `git log -F` means
@@ -142,7 +142,7 @@ operands = "text"
   # The long form is declared beside it so `--file=` is available and unambiguous.
   short.F = { means = "message-file", takes_value = true, kind = "path" }
 
-  # Declared so it can be REFUSED BY NAME. `no-skipping-hooks` in
+  # Declared so it can be refused by name. `no-skipping-hooks` in
   # 30-options.toml carries the reason `--no-verify` is not available, and an
   # option no declaration mentions never reaches it: the accounted check refuses
   # the word one step earlier, saying only that it is unaccounted for. Both
@@ -234,9 +234,9 @@ operands = "path"
 # qwark itself
 # ============================================================================
 #
-# So a rule can be tried from inside the tree the gate protects. An armed qwark
-# denied `qwark`, which made `qwark judge` unavailable exactly where it was
-# needed: measured 2026-08-28.
+# So a rule can be tried from inside the tree the gate protects. Undeclared,
+# an armed qwark denies `qwark`, which makes `qwark judge` unavailable exactly
+# where it is needed.
 #
 # Safe to declare because nothing qwark does writes or executes. Its whole
 # command line is internal/cli/cli.go, importing fmt, io, strings and the
@@ -258,7 +258,7 @@ operands = "text"
 # ============================================================================
 #
 # ############################################################################
-# DECLARING THESE IS A DECISION AGAINST THE MEASUREMENT, taken deliberately.
+# Declaring these is a decision against the measurement, taken deliberately.
 #
 # The corpus says these are 32,462 occurrences, 36.1% of everything Bash was
 # asked to do here, and that Grep, Read and Glob already do all of it with no

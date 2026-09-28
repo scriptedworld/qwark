@@ -1,8 +1,8 @@
 # Separation of duties belongs in the engine, not in the plumbing
 
 The answer to an agent writing a `justfile` and then running `just` is not to make
-the file unwritable. It is that **the agent which can write those files is not the
-agent allowed to run them**:
+the file unwritable. It is that the agent which can write those files is not the
+agent allowed to run them:
 
 > The point of the rules is using the engine to support that separation of
 > duties.

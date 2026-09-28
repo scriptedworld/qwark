@@ -20,13 +20,13 @@
 # ---------------------------------------------------------------------------
 # SETTLED
 #
-#   - The count is ALLOWED OR APPROVED BASH COMMANDS. A denied command does not
+#   - The count is allowed or approved Bash commands. A denied command does not
 #     advance any TTL, and no other tool advances it either.
 #
 #   - Tags are SET or UNSET by a rule, never toggled. A rule states which it
 #     does, so its effect never depends on what the tag already was.
 #
-#   - TAGS DO NOT STACK. Setting one that is already set replaces it, TTL and
+#   - Tags do not stack. Setting one that is already set replaces it, TTL and
 #     all: six commands after the most recent rebase, not twelve after two.
 #     There is no count of how many rules set it and no order of unsetting.
 #
@@ -36,7 +36,7 @@
 #     tag would be indistinguishable from a command permanently changing
 #     policy, which is not a thing a command should be able to do.
 #
-# THE SECURITY CONSTRAINT, not yet built
+# The security constraint, not yet built
 #
 #   Tag state must not be writable by the user qwark runs as. A countdown the
 #   subject can reset is not a constraint on the subject. This is the rule-file

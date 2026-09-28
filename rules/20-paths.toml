@@ -18,7 +18,7 @@
 # Both are PROPOSED and need your ruling.
 #
 # ---------------------------------------------------------------------------
-# THE LIMIT OF THIS FILE:
+# The limit of this file:
 #
 # qwark gates Bash. **The Write and Edit tools reach every path below without
 # passing through it.** Each of these therefore needs its other half, a
@@ -31,7 +31,7 @@
 # ---------------------------------------------------------------------------
 #
 # ###########################################################################
-# WRITE THESE PATHS IN RESOLVED FORM. This is the footgun.
+# Write these paths in resolved form. This is the footgun.
 #
 # A command's path is resolved through its symbolic links before it is matched,
 # so a group member written as the LINK matches nothing at all, silently,

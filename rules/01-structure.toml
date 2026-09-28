@@ -1,7 +1,7 @@
 # qwark, structural denials.
 #
 # ============================================================================
-# THE SCHEMA THESE FILES ASSUME
+# The schema these files assume
 # ============================================================================
 #
 # A rule is an id, an action, a reason, and clauses. **All clauses must match**
@@ -40,15 +40,15 @@
 #                             rule set carries a different policy per role:
 #                             the agent that may WRITE a task definition is not
 #                             the agent that may RUN it.
-#   agent = ""                THE MAIN SESSION, which reliably carries no agent
+#   agent = ""                the main session, which reliably carries no agent
 #                             type. **Stating no `agent` at all is the
 #                             different case: it covers every caller.** The two
 #                             do not collapse: a rule meant for the main
 #                             session that silently became a rule for everybody
 #                             would hand out permission nobody granted.
 #
-#   cwd = "/srv/project"      the call was made from this directory OR FROM
-#                             ANYWHERE INSIDE IT. Containment by path
+#   cwd = "/srv/project"      the call was made from this directory or from
+#                             anywhere inside it. Containment by path
 #                             component with symlinks resolved, not a prefix
 #                             of the text: a session works below the root it
 #                             started in, and `/srv/proj` is a prefix of
@@ -64,7 +64,7 @@
 #   reading = "written"         the source, escapes and quotes intact
 #
 # ---------------------------------------------------------------------------
-# WHY `nodes`, `flags` AND `ops` RATHER THAN A FACT FOR EACH
+# Why `nodes`, `flags` and `ops` and not a fact for each
 #
 # A fact table is a mapping somebody maintains, and a mapping can be incomplete
 # without saying so. It was: `TimeClause`, `LetClause`, `ArithmCmd`,

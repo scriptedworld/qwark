@@ -73,12 +73,12 @@ session that does not understand why.
 `why` is why the rule exists and why not to weaken it. Today this is a
 comment, so it reaches a maintainer reading the file and nothing else.
 
-Making `why` data buys something the comment cannot. `10-commands.toml` carries
-a list headed DELIBERATELY NOT DECLARED: `--exec-path=`, `--git-dir=`,
-`--ext-diff`, `-O`, `-w` and the rest, each with the hazard written out. Every
-one of those is a comment, so the refusal an agent actually receives is *"not
-declared"*, and the reasoning sits in a file it never reads. As data they become deny nodes that
-name the hazard.
+Making `why` data buys something the comment cannot. `05-declarations.toml`
+carries a list headed "Deliberately not declared": `--exec-path=`,
+`--git-dir=`, `--ext-diff`, `-O`, `-w` and the rest, each with the hazard
+written out. Every one of those is a comment, so the refusal an agent actually
+receives is *"not declared"*, and the reasoning sits in a file it never reads.
+As data they become refusal nodes that name the hazard.
 
     field       audience                    when it is shown
     reason      the agent being refused     at the decision

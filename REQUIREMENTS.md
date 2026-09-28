@@ -21,7 +21,7 @@ no test yet, and reported by the gate as context instead of as a failure.
 
 ## 1. Reading a command
 
-*Derives from:* **Why a parser rather than a matcher**.
+*Derives from:* Why a parser rather than a matcher.
 
 | ID | Requirement | |
 |---|---|---|
@@ -37,8 +37,8 @@ no test yet, and reported by the gate as context instead of as a failure.
 
 ## 2. What a command establishes
 
-*Derives from:* **Rules are layered by cost**; **Tier one: the command must say
-what it does**.
+*Derives from:* Rules are layered by cost; Tier one: the command must say what
+it does.
 
 | ID | Requirement | |
 |---|---|---|
@@ -54,7 +54,7 @@ what it does**.
 
 ## 3. The command line
 
-*Derives from:* **Why a parser rather than a matcher**. A rule names node types,
+*Derives from:* Why a parser rather than a matcher. A rule names node types,
 so the vocabulary has to be visible before a rule is written.
 
 | ID | Requirement | |
@@ -66,8 +66,8 @@ so the vocabulary has to be visible before a rule is written.
 
 ## 4. Deciding
 
-*Derives from:* **The decision model**; **Rules are layered by cost**;
-**The strictest action wins**; **Tags have lifetimes**; **Configuration**.
+*Derives from:* The decision model; Rules are layered by cost; Precedence
+decides a verdict; Tags have lifetimes; Configuration.
 
 Twenty-seven of this section's thirty-three requirements are built and tested.
 Six are open: rules in cost order (FR-4.2), tag lifetime and its countdown
@@ -125,7 +125,7 @@ candidate is the shell check of FR-1.8.
 
 ## 5. Addressing a command's words
 
-*Derives from:* **A clause names a position**; **Nothing is expanded**.
+*Derives from:* A clause names a position; Nothing is expanded.
 
 | ID | Requirement | |
 |---|---|---|
@@ -145,8 +145,8 @@ candidate is the shell check of FR-1.8.
 
 ## 6. Options
 
-*Derives from:* **What it costs to detect `-f`**; **Controlling what an agent
-can run**.
+*Derives from:* What it costs to detect `-f`; Controlling what an agent can
+run.
 
 | ID | Requirement | |
 |---|---|---|
@@ -164,8 +164,8 @@ can run**.
 
 ## 7. Clauses
 
-*Derives from:* **A rule is a conjunction**; **A clause states a string or a
-pattern**.
+*Derives from:* A rule states how its clauses combine; A clause states a
+string or a pattern.
 
 | ID | Requirement | |
 |---|---|---|
@@ -196,7 +196,7 @@ limiting this way.
 Everything below is therefore marked `[?]`: decided in principle, carrying no
 test, and not waiting on anybody.
 
-*Derives from:* **Tags have lifetimes**; **The decision model**.
+*Derives from:* Tags have lifetimes; The decision model.
 
 | ID | Requirement | |
 |---|---|---|
@@ -216,8 +216,8 @@ test, and not waiting on anybody.
 
 ## 9. The blast radius
 
-*Derives from:* **The agent has a directory it was started in**; **A manifest
-states what may be read and written**.
+*Derives from:* The agent has a directory it was started in; A manifest states
+what may be read and written.
 
 | ID | Requirement | |
 |---|---|---|
@@ -231,7 +231,7 @@ states what may be read and written**.
 
 ## 10. The hook contract
 
-*Derives from:* **Read out of the installed binary**, Claude Code 2.1.233, not
+*Derives from:* Read out of the installed binary, Claude Code 2.1.233, not
 recalled and not inferred.
 
 | ID | Requirement | |

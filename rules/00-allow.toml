@@ -1,7 +1,7 @@
 # qwark, the structural phase: permission, and no requirement to be described.
 #
 # ############################################################################
-# THE STRUCTURAL PHASE IS THIS FILE AND `01-structure.toml`, AND NOTHING ELSE.
+# The structural phase is this file and `01-structure.toml`, and nothing else.
 #
 # `05-declarations.toml`, `10-commands.toml`, `20-paths.toml`, `30-options.toml`
 # and `40-state.toml` exist in the source tree and are deliberately NOT loaded.
@@ -9,7 +9,7 @@
 # ############################################################################
 #
 # ----------------------------------------------------------------------------
-# TURNING OFF THE REQUIREMENT TO DECLARE, AND WHAT IT COSTS
+# Turning off the requirement to declare, and what it costs
 # ----------------------------------------------------------------------------
 #
 # FR-4.16 refuses a command qwark holds no declaration for, and it arrives
@@ -24,9 +24,9 @@
 # shaping it.
 #
 # ############################################################################
-# WHAT THIS GIVES UP. Read it before assuming the gate is stronger than it is.
+# What this gives up. Read it before assuming the gate is stronger than it is.
 #
-# ANY COMMAND WORD RUNS, if its shape is clean. That includes interpreters:
+# Any command word runs, if its shape is clean. That includes interpreters:
 #
 #     python3 -c '<any program>'
 #
@@ -45,7 +45,7 @@
 # exceptions nobody can read as a policy.
 # ############################################################################
 
-# BOTH ARE SAID, AND BOTH ARE NEEDED, because the two refusals sit at different
+# Both are said, and both are needed, because the two refusals sit at different
 # levels. `required` covers the command word. `accounted` covers the options a
 # DECLARED command carries (FR-6.7). An undeclared command's options are never
 # decomposed, so while nothing is declared, `accounted` looks unnecessary and is
@@ -56,7 +56,7 @@
 # file happens to be loaded, rather than depending on an absence somebody
 # changes months from now for an unrelated reason.
 #
-# BOTH ARE FOR NOW. The way back is to declare commands with their option sets,
+# Both are for now. The way back is to declare commands with their option sets,
 # then delete this table. Deleting it restores FR-4.16 and FR-6.7 as written,
 # because absent means required.
 

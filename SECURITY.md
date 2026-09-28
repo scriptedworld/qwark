@@ -52,7 +52,7 @@ deployment that declares one has widened its own surface deliberately.
 structural files are shipped that way on purpose, as an observation phase.
 `docs/RULES.md` shows both answers side by side.
 
-**A failure to record does not change a verdict.** Somebody who can fill the
+A failure to record does not change a verdict. Somebody who can fill the
 disk can stop the logging without stopping the commands. That direction is
 chosen deliberately, because the alternative makes a full disk a way to stop
 every command on the machine.
