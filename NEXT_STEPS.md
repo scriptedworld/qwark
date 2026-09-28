@@ -196,10 +196,11 @@ judging nothing while looking installed.
 
 Installed, and gating this tree now. `.claude/settings.local.json` registers
 `bin/qwark hook ~/.config/qwark/rules || exit 2` on `PreToolUse` for Bash, both
-paths absolute. The live set is two files, `01-structure.toml` and
-`00-allow.toml`, so what is refused is shape: compound calls, pipes,
+paths absolute. The live set is `00-allow.toml`, `01-structure.toml` and
+`02-inline-code.toml`, so what is refused is shape: compound calls, pipes,
 redirections, globs, substitutions, here-documents, backgrounding and prefix
-assignments. Everything else runs, which is why a session can still build,
+assignments, and a program given to an interpreter as an argument. Everything
+else runs, which is why a session can still build,
 commit and run the gate.
 
 Arming it with declarations required refused `ls`, `cat`, `grep`, `go` and both

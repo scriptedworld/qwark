@@ -1,0 +1,109 @@
+# qwark, programs written into the command line.
+#
+# An interpreter given its program as an argument runs code that was never a
+# file. It is the here-document refusal (FR-4.10) in another spelling: nothing
+# was written that a diff could show, so nothing can be reviewed. Running a
+# script file stays permitted; the program has to exist as a file first.
+#
+# The live set declares no commands, so options cannot be decomposed here, and
+# each rule matches the flag's spellings by pattern instead: bundled short
+# flags such as `-lc`, `-ne` and `-pe`, a program attached to its flag such as
+# `-c'print(1)'`, and the long forms. A pattern that also matches an argument
+# meant for the script, `python3 tool.py -c conf`, refuses it, which is the
+# direction to be wrong in.
+#
+# The interpreter is matched at ordinal 0 only. A wrapper, `env python3 -c`,
+# puts it at ordinal 1, and wrappers are refused by name only in the source
+# set's `10-commands.toml`. Matching every ordinal instead would refuse
+# `grep -c python3 notes`.
+
+[[rule]]
+id     = "no-inline-shell"
+action = "block"
+reason = """
+This runs a shell program written into the command line, which is never a file
+and leaves no diff to review. Write it to a file with the file tools and run
+the file."""
+
+  [[rule.clause]]
+  index   = "0"
+  pattern = "(.*/)?(sh|bash|zsh|dash|ksh|mksh|fish|csh|tcsh)"
+
+  [[rule.clause]]
+  pattern = "-[A-Za-z]*c.*|--command(=.*)?"
+
+[[rule]]
+id     = "no-inline-python"
+action = "block"
+reason = """
+This runs a Python program written into the command line, which is never a
+file and leaves no diff to review. Write it to a file with the file tools and
+run the file."""
+
+  [[rule.clause]]
+  index   = "0"
+  pattern = "(.*/)?python[0-9.]*"
+
+  [[rule.clause]]
+  pattern = "-[A-Za-z]*c.*"
+
+[[rule]]
+id     = "no-inline-script-e"
+action = "block"
+reason = """
+This runs a program written into the command line with `-e`, which is never a
+file and leaves no diff to review. Write it to a file with the file tools and
+run the file."""
+
+  [[rule.clause]]
+  index   = "0"
+  pattern = "(.*/)?(perl|ruby|lua[0-9.]*|luajit|Rscript)"
+
+  [[rule.clause]]
+  pattern = "-[A-Za-z]*[eE].*"
+
+[[rule]]
+id     = "no-inline-javascript"
+action = "block"
+reason = """
+This runs a JavaScript program written into the command line, which is never a
+file and leaves no diff to review. Write it to a file with the file tools and
+run the file."""
+
+  [[rule.clause]]
+  index   = "0"
+  pattern = "(.*/)?(node|nodejs|bun)"
+
+  [[rule.clause]]
+  pattern = "-[A-Za-z]*[ep].*|--eval(=.*)?|--print(=.*)?"
+
+[[rule]]
+id     = "no-deno-eval"
+action = "block"
+reason = """
+This runs a JavaScript program written into the command line, which is never a
+file and leaves no diff to review. Write it to a file with the file tools and
+run the file."""
+
+  [[rule.clause]]
+  index   = "0"
+  pattern = "(.*/)?deno"
+
+  [[rule.clause]]
+  index = "1"
+  value = "eval"
+
+[[rule]]
+id     = "no-inline-php"
+action = "block"
+reason = """
+This runs a PHP program written into the command line, which is never a file
+and leaves no diff to review. Write it to a file with the file tools and run
+the file."""
+
+  [[rule.clause]]
+  index   = "0"
+  pattern = "(.*/)?php[0-9.]*"
+
+  [[rule.clause]]
+  pattern = "-[A-Za-z]*r.*"

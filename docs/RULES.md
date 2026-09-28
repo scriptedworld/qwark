@@ -181,11 +181,12 @@ structural files can answer differently:
     block
       no-interpreters                    This runs code supplied as an argument, …
 
-    $ qwark judge rules/01-structure.toml rules/00-allow.toml -- python3 -c "import os"
+    $ qwark judge rules/01-structure.toml rules/00-allow.toml -- python3 tool.py
     allow
       (engine) allow by default          No rule decided this, and the rule set allows …
 
-Loading the structural pair alone is observation, not containment. Any
+The live set adds `02-inline-code.toml`, which blocks `python3 -c` and the
+other inline-program forms. Loading it is still observation, not containment. Any
 command word runs if its shape is clean, interpreters and task runners included,
 and what they go on to execute is invisible to every rule. It is a deliberate
 first phase: a rule set that refuses undeclared commands refused roughly two
