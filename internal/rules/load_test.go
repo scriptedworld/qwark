@@ -165,6 +165,11 @@ func TestARuleThatCannotBeTrustedIsRefused(t *testing.T) {
 			toml: "[[rule]]\nid=\"a\"\naction=\"deny\"\n",
 			want: rules.ErrNoClauses,
 		},
+		{
+			name: "unknown match",
+			toml: "[[rule]]\nid=\"a\"\naction=\"deny\"\nmatch=\"some\"\n[[rule.clause]]\nfact=\"pipe\"\n",
+			want: rules.ErrUnknownMatch,
+		},
 	}
 
 	for _, c := range cases {

@@ -35,14 +35,13 @@ func TestEveryActionIsAccepted(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.11 | negative
+// COVERS: FR-4.30 | negative
 func TestEveryClauseMustHoldForARuleToApply(t *testing.T) {
 	t.Parallel()
 
-	// There is no disjunction inside a rule. A rule whose first clause matches
-	// and whose second does not must not apply, otherwise "all clauses" would
-	// quietly mean "any clause", and every conjunctive rule in the drafts would
-	// be broader than it reads.
+	// A rule that states no match combines its clauses with all. One whose
+	// first clause matches and whose second does not must not apply, otherwise
+	// every rule written before match existed would be broader than it reads.
 	twoClauses := `
 [[rule]]
 id = "allow-rm"
@@ -69,6 +68,62 @@ reason = "Both clauses held."
 	}
 	if judgeWith(t, ruleSet(twoClauses), `rm x`).Action != rules.ActionAllow {
 		t.Error("a rule applied with only one of its two clauses matching")
+	}
+}
+
+// COVERS: FR-4.30 | positive
+func TestAnAnyRuleAppliesOnOneClause(t *testing.T) {
+	t.Parallel()
+
+	// Two unlike things refused by one rule: a force option, or the word
+	// shred. Either alone fires it, and a command with neither is untouched.
+	anyOfTwo := `
+[[rule]]
+id = "allow-rm"
+action = "allow"
+reason = "So the command is not refused for a different reason."
+  [[rule.clause]]
+  index = "0"
+  value = "rm"
+
+[[rule]]
+id = "either"
+action = "deny"
+match = "any"
+reason = "One clause held."
+  [[rule.clause]]
+  option = "force"
+
+  [[rule.clause]]
+  index = "1"
+  value = "shred"
+`
+
+	if judgeWith(t, ruleSet(anyOfTwo), `rm -f x`).Action != rules.ActionDeny {
+		t.Error("an any rule did not apply on its first clause")
+	}
+	if judgeWith(t, ruleSet(anyOfTwo), `rm shred`).Action != rules.ActionDeny {
+		t.Error("an any rule did not apply on its second clause")
+	}
+	if judgeWith(t, ruleSet(anyOfTwo), `rm x`).Action != rules.ActionAllow {
+		t.Error("an any rule applied with none of its clauses matching")
+	}
+}
+
+// COVERS: FR-4.30a | negative
+func TestAnyIsRefusedOnAnActionThatWidens(t *testing.T) {
+	t.Parallel()
+
+	// Under any, one clause written too broadly fires the rule. On allow or
+	// untag that permits, so the rule file is refused before it can.
+	for _, action := range []rules.Action{rules.ActionAllow, rules.ActionUntag} {
+		t.Run(string(action), func(t *testing.T) {
+			t.Parallel()
+
+			body := "[[rule]]\nid=\"a\"\naction=\"" + string(action) + "\"\n" +
+				"match=\"any\"\ntag=\"t\"\nreason=\"r\"\n[[rule.clause]]\nfact=\"pipe\"\n"
+			mustFail(t, map[string]string{"x.toml": body}, rules.ErrAnyWidens)
+		})
 	}
 }
 

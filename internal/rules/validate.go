@@ -56,6 +56,12 @@ func (s *Set) validateRule(rule Rule) error {
 	if len(rule.Clause) == 0 {
 		return fmt.Errorf("%w: rule %s", ErrNoClauses, rule.ID)
 	}
+	if !rule.Match.known() {
+		return fmt.Errorf("%w: rule %s: %q", ErrUnknownMatch, rule.ID, rule.Match)
+	}
+	if rule.Match == CombineAny && rule.Action.Widens() {
+		return fmt.Errorf("%w: rule %s: %s", ErrAnyWidens, rule.ID, rule.Action)
+	}
 
 	for i, clause := range rule.Clause {
 		if err := s.validateClause(rule.ID, i, clause); err != nil {

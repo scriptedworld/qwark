@@ -30,6 +30,8 @@ var (
 	ErrDuplicateRule = errors.New("rule id already used")
 	ErrUnknownAction = errors.New("not an action")
 	ErrNoClauses     = errors.New("rule states no clauses")
+	ErrUnknownMatch  = errors.New("match is all or any, nothing else")
+	ErrAnyWidens     = errors.New("match any on an action that widens")
 	ErrUnknownGroup  = errors.New("clause names a group nothing declares")
 	ErrEmptyGroup    = errors.New("group has no members")
 	ErrClauseEmpty   = errors.New("clause selects nothing")

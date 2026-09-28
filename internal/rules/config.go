@@ -42,14 +42,16 @@ type Group struct {
 	Members []string `toml:"members"`
 }
 
-// A Rule is a decision and the clauses that must all hold for it to apply.
+// A Rule is a decision and the clauses that decide whether it applies.
 //
-// There is no disjunction inside a rule. Alternatives are separate rules, so
-// that each one can be checked by reading it alone.
+// Match says how the clauses combine: all of them, the default, or any one.
+// Without any, a rule that should fire on one of several unlike things has to
+// be written once per thing, and the copies drift apart.
 type Rule struct {
-	ID     string `toml:"id"`
-	Action Action `toml:"action"`
-	Reason string `toml:"reason"`
+	ID     string      `toml:"id"`
+	Action Action      `toml:"action"`
+	Reason string      `toml:"reason"`
+	Match  Combination `toml:"match"`
 
 	// Tag is the name a `tag` or `untag` rule sets or clears.
 	Tag string `toml:"tag"`
@@ -61,7 +63,32 @@ type Rule struct {
 	Clause []Clause `toml:"clause"`
 }
 
-// An Action is what a rule does when all of its clauses hold.
+// A Combination is how a rule's clauses combine.
+type Combination string
+
+// The combinations. Unstated is all, so every rule written before match
+// existed means what it always meant.
+const (
+	CombineAll Combination = "all"
+	CombineAny Combination = "any"
+)
+
+// known reports whether this is a combination at all. A rule file naming
+// something else is refused, never read as one of these.
+func (c Combination) known() bool {
+	return c == "" || c == CombineAll || c == CombineAny
+}
+
+// Widens reports whether an action makes more commands run when it applies.
+// Under any, each clause is enough on its own, so one clause written too
+// broadly is enough to fire the rule. On an action that refuses, that refuses
+// too much; on one that widens, it permits too much. The second is refused at
+// load.
+func (a Action) Widens() bool {
+	return a == ActionAllow || a == ActionUntag
+}
+
+// An Action is what a rule does when its clauses hold.
 type Action string
 
 // The actions. When several rules apply, the strictest wins: deny over ask
@@ -125,8 +152,8 @@ func (a Action) known() bool {
 	}
 }
 
-// A Clause selects part of a command and tests it. Every clause of a rule must
-// hold for the rule to apply.
+// A Clause selects part of a command and tests it. The rule's match says
+// whether every clause must hold or any one.
 //
 // A clause names at most one selector and at most one test. The selectors that
 // need no test (nodes, flags, ops, fact, tag) are satisfied by presence.

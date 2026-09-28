@@ -23,12 +23,13 @@ type subject struct {
 	groups  map[string]Group
 }
 
-// satisfies reports whether every clause of a rule holds, and returns the text
-// that set the rule off so a message can quote it.
-//
-// All clauses must hold. There is no disjunction inside a rule: alternatives
-// are separate rules, so each can be checked by reading it alone.
+// satisfies reports whether a rule's clauses hold as its match combines them,
+// and returns the text that set the rule off so a message can quote it.
 func (sub *subject) satisfies(rule Rule) (string, bool) {
+	if rule.Match == CombineAny {
+		return sub.satisfiesAny(rule)
+	}
+
 	cause := ""
 
 	for _, clause := range rule.Clause {
@@ -42,6 +43,16 @@ func (sub *subject) satisfies(rule Rule) (string, bool) {
 	}
 
 	return cause, true
+}
+
+// satisfiesAny reports whether some clause holds, quoting the first that does.
+func (sub *subject) satisfiesAny(rule Rule) (string, bool) {
+	for _, clause := range rule.Clause {
+		if matched, text := sub.holds(clause); matched {
+			return text, true
+		}
+	}
+	return "", false
 }
 
 // holds reports whether one clause holds.
