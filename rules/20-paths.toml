@@ -171,7 +171,7 @@ members = [
 
 [[rule]]
 id     = "no-touching-qwark"
-action = "deny"
+action = "block"
 reason = """
 This reaches qwark's own rules or state. A rule set the subject can edit is not
 a constraint on the subject."""
@@ -182,7 +182,7 @@ a constraint on the subject."""
 
 [[rule]]
 id     = "no-touching-claude-config"
-action = "deny"
+action = "block"
 reason = """
 This reaches Claude Code's configuration or runtime state. The shell snapshot
 in particular is replayed into every command, so anything written there runs
@@ -194,7 +194,7 @@ with everything that follows."""
 
 [[rule]]
 id     = "no-touching-shell-config"
-action = "deny"
+action = "block"
 reason = """
 This reaches a shell startup file. What is defined there becomes an alias or a
 function in every later shell, and a function shadows any command of the same
@@ -206,7 +206,7 @@ name, which neither a backslash nor an absolute path escapes."""
 
 [[rule]]
 id     = "no-touching-hooks"
-action = "deny"
+action = "block"
 reason = """
 This reaches git's hooks or config. A hook is a file that ordinary git commands
 execute, so writing one turns `git commit` into arbitrary execution."""
@@ -217,7 +217,7 @@ execute, so writing one turns `git commit` into arbitrary execution."""
 
 [[rule]]
 id     = "no-touching-task-definitions"
-action = "deny"
+action = "block"
 reason = """
 This reaches the file that decides what a task runner runs. `just checks` is a
 fixed command line whose meaning lives in the working tree, so whoever writes
@@ -230,7 +230,7 @@ says nothing about it."""
 
 [[rule]]
 id     = "no-touching-path-directories"
-action = "deny"
+action = "block"
 reason = """
 This reaches a directory on PATH. A file placed there answers to a bare command
 name, so it decides what every later unqualified command runs."""

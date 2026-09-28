@@ -326,7 +326,7 @@ func ruleSet(extra string) map[string]string {
 	return map[string]string{"00.toml": declarations + extra}
 }
 
-// COVERS: FR-4.22 | negative
+// COVERS: FR-4.35 | negative
 func TestNothingIsPermittedByDefault(t *testing.T) {
 	t.Parallel()
 
@@ -346,7 +346,7 @@ func TestNothingIsPermittedByDefault(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.22 | positive
+// COVERS: FR-4.35 | positive
 func TestAnAllowRulePermits(t *testing.T) {
 	t.Parallel()
 
@@ -365,20 +365,23 @@ reason = "Removing a named file."
 	}
 }
 
-// COVERS: FR-4.14 | property
-func TestTheStrictestRuleWins(t *testing.T) {
-	t.Parallel()
-
-	// Both rules match every one of these. Whichever was read first, the
-	// verdict is the stricter, which is what makes rule order irrelevant.
-	both := `
+// layered carries one rule of each deciding action. `rm keep` matches two
+// denies and one allow, so the allow has to lift both.
+const layered = `
 [[rule]]
-id = "allow-rm"
-action = "allow"
-reason = "Removing a named file."
+id = "deny-rm"
+action = "deny"
+reason = "Removing is refused unless something narrower permits it."
   [[rule.clause]]
   index = "0"
   value = "rm"
+
+[[rule]]
+id = "deny-keep"
+action = "deny"
+reason = "A second refusal, lifted along with the first."
+  [[rule.clause]]
+  value = "keep"
 
 [[rule]]
 id = "ask-recursive"
@@ -388,35 +391,50 @@ reason = "This is recursive."
   option = "recursive"
 
 [[rule]]
-id = "deny-force"
-action = "deny"
+id = "allow-keep"
+action = "allow"
+reason = "Removing this one file is fine."
+  [[rule.clause]]
+  value = "keep"
+
+[[rule]]
+id = "block-force"
+action = "block"
 reason = "Forcing suppresses the check that would have stopped this."
   [[rule.clause]]
   option = "force"
 `
 
+// COVERS: FR-4.32, FR-4.33 | property
+func TestTheHigherPrecedenceRuleWins(t *testing.T) {
+	t.Parallel()
+
+	// Block over allow over ask over deny. Whichever rule was read first, the
+	// verdict is the higher, which is what makes rule order irrelevant.
 	cases := []struct {
 		src  string
 		want rules.Action
 	}{
-		{src: `rm x`, want: rules.ActionAllow},
+		{src: `rm x`, want: rules.ActionDeny},
 		{src: `rm -r x`, want: rules.ActionAsk},
-		{src: `rm -f x`, want: rules.ActionDeny},
-		{src: `rm -rf x`, want: rules.ActionDeny},
+		{src: `rm keep`, want: rules.ActionAllow},
+		{src: `rm -r keep`, want: rules.ActionAllow},
+		{src: `rm -f keep`, want: rules.ActionBlock},
+		{src: `rm -rf x`, want: rules.ActionBlock},
 	}
 
 	for _, c := range cases {
 		t.Run(c.src, func(t *testing.T) {
 			t.Parallel()
 
-			if got := judgeWith(t, ruleSet(both), c.src).Action; got != c.want {
+			if got := judgeWith(t, ruleSet(layered), c.src).Action; got != c.want {
 				t.Errorf("Action for %q = %q, want %q", c.src, got, c.want)
 			}
 		})
 	}
 }
 
-// COVERS: FR-4.25 | positive
+// COVERS: FR-4.34 | positive
 func TestEveryReasonForARefusalIsListed(t *testing.T) {
 	t.Parallel()
 
@@ -477,7 +495,7 @@ reason = "Forcing is not permitted."
 	}
 }
 
-// COVERS: FR-4.25 | negative
+// COVERS: FR-4.34 | negative
 func TestAnOutrankedRuleIsNotListedAmongTheReasons(t *testing.T) {
 	t.Parallel()
 
@@ -493,15 +511,15 @@ reason = "Removing a named file."
   value = "rm"
 
 [[rule]]
-id = "deny-force"
-action = "deny"
+id = "block-force"
+action = "block"
 reason = "Forcing is not permitted."
   [[rule.clause]]
   option = "force"
 `), `rm -f x`)
 
 	for _, finding := range outcome.Findings {
-		if finding.Action != rules.ActionDeny {
+		if finding.Action != rules.ActionBlock {
 			t.Errorf("a %q finding was listed among the reasons for a refusal", finding.Action)
 		}
 	}
@@ -586,8 +604,8 @@ reason = "Something worth remembering."
   value = "rm"
 
 [[rule]]
-id = "deny-force"
-action = "deny"
+id = "block-force"
+action = "block"
 reason = "Forcing is not permitted."
   [[rule.clause]]
   option = "force"
@@ -661,7 +679,7 @@ func TestAnUndeclaredCommandStillGetsItsStructuralReasons(t *testing.T) {
 	outcome := judgeWith(t, ruleSet(`
 [[rule]]
 id = "no-redirection"
-action = "deny"
+action = "block"
 reason = "Redirections are not permitted."
   [[rule.clause]]
   nodes = ["Redirect"]

@@ -137,7 +137,7 @@ func TestTheShippedRulesDenyWrappersByName(t *testing.T) {
 	}
 
 	if !deniedByName(set, "wrapper") {
-		t.Error("no deny rule names the wrapper group, so wrappers are refused " +
+		t.Error("no block rule names the wrapper group, so wrappers are refused " +
 			"only by being undeclared")
 	}
 }
@@ -178,7 +178,7 @@ func TestTheShippedRulesDenyTaskRunnersByName(t *testing.T) {
 	}
 
 	if !deniedByName(set, "executor") {
-		t.Error("no deny rule names the executor group, so a task runner is " +
+		t.Error("no block rule names the executor group, so a task runner is " +
 			"refused only by being undeclared")
 	}
 }
@@ -284,10 +284,11 @@ func contains(members []string, want string) bool {
 	return false
 }
 
-// deniedByName reports whether some deny rule has a clause naming the group.
+// deniedByName reports whether some block rule has a clause naming the group.
+// A block, because a deny is lifted by any allow somebody writes later.
 func deniedByName(set *rules.Set, group string) bool {
 	for _, rule := range set.Rules {
-		if rule.Action != rules.ActionDeny {
+		if rule.Action != rules.ActionBlock {
 			continue
 		}
 		for _, clause := range rule.Clause {

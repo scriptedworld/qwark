@@ -77,7 +77,7 @@ anyone remembers being there."""
 
 [[rule]]
 id     = "no-deleting-after-a-rebase"
-action = "deny"
+action = "block"
 reason = """
 A rebase happened within the last few commands. Deleting now acts on a tree
 whose history was just rewritten, and the copy that would have shown what was
@@ -95,7 +95,7 @@ lost is the thing being deleted. Look at `git reflog` first."""
 
 [[rule]]
 id     = "no-force-pushing-after-a-rebase"
-action = "deny"
+action = "block"
 reason = """
 A rebase happened within the last few commands. Force-pushing now publishes the
 rewritten history before anyone has confirmed it is the intended one, and the

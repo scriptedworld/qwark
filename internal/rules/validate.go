@@ -32,6 +32,14 @@ func (s *Set) validate() error {
 		}
 	}
 
+	if s.Declarations != nil {
+		switch s.Declarations.Default {
+		case "", ActionAllow, ActionDeny:
+		default:
+			return fmt.Errorf("%w: %q", ErrUnknownDefault, s.Declarations.Default)
+		}
+	}
+
 	for _, rule := range s.Rules {
 		if seen[rule.ID] {
 			return fmt.Errorf("%w: %s", ErrDuplicateRule, rule.ID)

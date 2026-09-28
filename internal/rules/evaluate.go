@@ -69,6 +69,8 @@ const (
 		"knows to be incomplete:"
 	reasonNothingAllowed = "Nothing permitted this. Being allowed means an allow " +
 		"rule matched, and none did."
+	reasonObserving = "No rule decided this, and the rule set allows what no " +
+		"rule decides while the gate is observing."
 )
 
 // Ids for the refusals the engine makes itself, so a message can name what
@@ -78,6 +80,7 @@ const (
 	ruleDeclared    = "(engine) declared commands only"
 	ruleAccounted   = "(engine) accounted options only"
 	ruleNoAllowance = "(engine) deny by default"
+	ruleObserving   = "(engine) allow by default"
 )
 
 // Evaluate judges one parsed command.
@@ -87,12 +90,12 @@ const (
 // allow rule matched. A rule set containing no allow rules therefore permits
 // nothing, which is the correct reading of an empty policy.
 //
-// A deny settles the verdict, nothing stricter exists, so no later rule can
-// change it, but evaluation continues so the refusal can list everything that
-// was wrong instead of sending its reader round three times.
+// Every rule is evaluated whatever has already matched, so a refusal can list
+// everything that was wrong instead of sending its reader round three times.
 //
-// A denied command has no effect of any kind, so tag changes are returned
-// only when the verdict is not a denial.
+// The engine's own refusals are blocks: no allow lifts a command qwark could
+// not account for. A refused command has no effect of any kind, so tag
+// changes are returned only when the verdict is not a refusal.
 func (s *Set) Evaluate(parsed *shell.Parsed, ctx Context) Outcome {
 	facts := parsed.Facts()
 
@@ -141,10 +144,10 @@ func (s *Set) declarationsHold(
 	// yes and FR-4.16 holds as written. See DeclarationPolicy for what turning
 	// it off gives up, which is more than it looks.
 	if undeclared != nil && s.required() {
-		out.Action = ActionDeny
+		out.Action = ActionBlock
 		out.Findings = append([]Finding{{
 			Rule:   ruleDeclared,
-			Action: ActionDeny,
+			Action: ActionBlock,
 			Reason: reasonUndeclared,
 			Cause:  simple.Name(),
 		}}, out.Findings...)
@@ -162,7 +165,7 @@ func (s *Set) declarationsHold(
 	// wants neither has to say so twice. See DeclarationPolicy.
 	if s.accounted() {
 		if faults := unaccounted(options); len(faults) > 0 {
-			out.Action = ActionDeny
+			out.Action = ActionBlock
 			out.Findings = append(faults, out.Findings...)
 		}
 	}
@@ -179,7 +182,7 @@ func unaccounted(options command.Options) []Finding {
 	for _, fault := range options.Faults {
 		findings = append(findings, Finding{
 			Rule:   ruleAccounted,
-			Action: ActionDeny,
+			Action: ActionBlock,
 			Reason: reasonUnaccounted + " " + fault.Err.Error() + ".",
 			Cause:  fault.Text,
 		})
@@ -191,7 +194,7 @@ func unaccounted(options command.Options) []Finding {
 // the caller, which knows whether the command was declared.
 func (s *Set) judge(sub *subject) Outcome {
 	out := Outcome{Action: ActionDeny}
-	strictest := 0
+	highest := precedenceNone
 
 	for _, rule := range order(s.Rules) {
 		cause, applies := sub.satisfies(rule)
@@ -206,8 +209,8 @@ func (s *Set) judge(sub *subject) Outcome {
 			Cause:  cause,
 		})
 
-		if rule.Action.Decides() && rule.Action.Strictness() > strictest {
-			strictest, out.Action = rule.Action.Strictness(), rule.Action
+		if rule.Action.Precedence() > highest {
+			highest, out.Action = rule.Action.Precedence(), rule.Action
 		}
 		if rule.Action == ActionTag || rule.Action == ActionUntag {
 			out.Tags = append(out.Tags, TagChange{
@@ -218,13 +221,13 @@ func (s *Set) judge(sub *subject) Outcome {
 		}
 	}
 
-	if strictest == 0 {
-		out.Findings = append(out.Findings, Finding{
-			Rule:   ruleNoAllowance,
-			Action: ActionDeny,
-			Reason: reasonNothingAllowed,
-		})
-		out.Action = ActionDeny
+	if highest == precedenceNone {
+		finding := Finding{Rule: ruleNoAllowance, Action: ActionDeny, Reason: reasonNothingAllowed}
+		if s.fallback() == ActionAllow {
+			finding = Finding{Rule: ruleObserving, Action: ActionAllow, Reason: reasonObserving}
+		}
+		out.Findings = append(out.Findings, finding)
+		out.Action = finding.Action
 	}
 	return out
 }
@@ -232,10 +235,10 @@ func (s *Set) judge(sub *subject) Outcome {
 // settle reduces an outcome to the findings that produced it, and strips the
 // tag changes from a refusal.
 //
-// A denied command has no effect of any kind: it sets and clears no tags and
+// A refused command has no effect of any kind: it sets and clears no tags and
 // advances no countdown, because it did not happen.
 func settle(out Outcome) Outcome {
-	if out.Action == ActionDeny {
+	if out.Action.Refuses() {
 		out.Tags = nil
 	}
 	out.Findings = producing(out.Findings, out.Action)
@@ -244,8 +247,8 @@ func settle(out Outcome) Outcome {
 
 // order decides which rules are evaluated first.
 //
-// It is identity, which is correct and not merely convenient. The strictest
-// action wins, so no ordering can change a verdict; ordering is about how much
+// It is identity, which is correct and not merely convenient. The action with
+// the highest precedence wins, so no ordering can change a verdict; ordering is about how much
 // work is done before the answer is known, not about what the answer is.
 //
 // It exists as a seam. Evaluating cheap structural clauses before expensive
@@ -271,9 +274,9 @@ func producing(findings []Finding, verdict Action) []Finding {
 
 func refusal(rule, reason, cause string) Outcome {
 	return Outcome{
-		Action: ActionDeny,
+		Action: ActionBlock,
 		Findings: []Finding{
-			{Rule: rule, Action: ActionDeny, Reason: reason, Cause: cause},
+			{Rule: rule, Action: ActionBlock, Reason: reason, Cause: cause},
 		},
 	}
 }
@@ -283,8 +286,8 @@ func (s *Set) table() command.Table {
 	return command.Table{Commands: s.Commands}
 }
 
-// Denied reports whether the outcome refuses the command.
-func (o Outcome) Denied() bool { return o.Action == ActionDeny }
+// Denied reports whether the outcome refuses the command, by block or deny.
+func (o Outcome) Denied() bool { return o.Action.Refuses() }
 
 // Reasons returns every reason the verdict was reached, in the order the rules
 // were read.

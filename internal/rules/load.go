@@ -22,26 +22,27 @@ import (
 // way out must also not require a shell: editing the file with the file tools
 // does not.
 var (
-	ErrNoRuleFiles   = errors.New("no rule files given")
-	ErrNoRulesFound  = errors.New("no rule files found")
-	ErrUnreadable    = errors.New("rule file could not be read")
-	ErrSyntax        = errors.New("rule file is not valid TOML")
-	ErrRedefined     = errors.New("definition already created by another file")
-	ErrDuplicateRule = errors.New("rule id already used")
-	ErrUnknownAction = errors.New("not an action")
-	ErrNoClauses     = errors.New("rule states no clauses")
-	ErrUnknownMatch  = errors.New("match is all or any, nothing else")
-	ErrAnyWidens     = errors.New("match any on an action that widens")
-	ErrUnknownGroup  = errors.New("clause names a group nothing declares")
-	ErrEmptyGroup    = errors.New("group has no members")
-	ErrClauseEmpty   = errors.New("clause selects nothing")
-	ErrTagMissing    = errors.New("rule tags nothing")
-	ErrUnknownNode   = errors.New("clause names a node type the parser does not have")
-	ErrUnknownFlag   = errors.New("clause names a statement flag that does not exist")
-	ErrGroupMatch    = errors.New("a group compares by value or partial, nothing else")
-	ErrRelativeCwd   = errors.New("clause names a working directory that is not absolute")
-	ErrHomeRelative  = errors.New("home directory is not absolute")
-	ErrHomeRoot      = errors.New("home directory is the root, which widens every ~/ member")
+	ErrNoRuleFiles    = errors.New("no rule files given")
+	ErrNoRulesFound   = errors.New("no rule files found")
+	ErrUnreadable     = errors.New("rule file could not be read")
+	ErrSyntax         = errors.New("rule file is not valid TOML")
+	ErrRedefined      = errors.New("definition already created by another file")
+	ErrDuplicateRule  = errors.New("rule id already used")
+	ErrUnknownAction  = errors.New("not an action")
+	ErrNoClauses      = errors.New("rule states no clauses")
+	ErrUnknownMatch   = errors.New("match is all or any, nothing else")
+	ErrAnyWidens      = errors.New("match any on an action that widens")
+	ErrUnknownDefault = errors.New("default is allow or deny, nothing else")
+	ErrUnknownGroup   = errors.New("clause names a group nothing declares")
+	ErrEmptyGroup     = errors.New("group has no members")
+	ErrClauseEmpty    = errors.New("clause selects nothing")
+	ErrTagMissing     = errors.New("rule tags nothing")
+	ErrUnknownNode    = errors.New("clause names a node type the parser does not have")
+	ErrUnknownFlag    = errors.New("clause names a statement flag that does not exist")
+	ErrGroupMatch     = errors.New("a group compares by value or partial, nothing else")
+	ErrRelativeCwd    = errors.New("clause names a working directory that is not absolute")
+	ErrHomeRelative   = errors.New("home directory is not absolute")
+	ErrHomeRoot       = errors.New("home directory is the root, which widens every ~/ member")
 )
 
 // ruleFileSuffix is what a directory contributes. A directory named on the
@@ -89,7 +90,7 @@ type Set struct {
 //
 // A path naming a directory contributes every `.toml` file directly in it, read
 // in lexical order; a path naming a file contributes that file. Order affects
-// only which collision is reported first: the strictest action wins, so no
+// only which collision is reported first: precedence decides a verdict, so no
 // verdict depends on the order files were read in.
 func Load(paths []string) (*Set, error) {
 	if len(paths) == 0 {

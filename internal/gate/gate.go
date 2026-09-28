@@ -119,7 +119,7 @@ func decisionOf(action rules.Action) hook.Decision {
 		return hook.DecisionAllow
 	case rules.ActionAsk:
 		return hook.DecisionAsk
-	case rules.ActionDeny, rules.ActionTag, rules.ActionUntag:
+	case rules.ActionBlock, rules.ActionDeny, rules.ActionTag, rules.ActionUntag:
 		return hook.DecisionDeny
 	default:
 		return hook.DecisionDeny
@@ -152,7 +152,7 @@ func heading(action rules.Action) string {
 		return "qwark permitted this command."
 	case rules.ActionAsk:
 		return "qwark wants this confirmed before it runs."
-	case rules.ActionDeny, rules.ActionTag, rules.ActionUntag:
+	case rules.ActionBlock, rules.ActionDeny, rules.ActionTag, rules.ActionUntag:
 		return "qwark refused this command."
 	default:
 		return "qwark refused this command."

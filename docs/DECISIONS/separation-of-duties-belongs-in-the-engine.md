@@ -47,9 +47,9 @@ nothing to keep in step outside the file being read. The policy in force stays
 readable where qwark is invoked, which is what FR-4.15 was for.
 
 It composes with everything already here instead of adding a mechanism. An `agent`
-clause is a clause: rules stay conjunctions, the strictest action still wins, and
-a role cannot grant itself anything, because deny outranks allow and no rule can
-override another.
+clause is a clause: precedence still decides, and a role cannot grant itself
+past a block, because nothing outranks one. Against a deny, an allow scoped to
+a role is exactly how one role is given what another is not.
 
 ### What this does not fix
 

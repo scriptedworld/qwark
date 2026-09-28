@@ -140,7 +140,7 @@ func TestRulesReportsWhatARuleSetHolds(t *testing.T) {
 	}
 	// A rule set can be found wrong here, before it is the reason every
 	// command is failing.
-	for _, want := range []string{"shells:", "groups:", "declarations:", "rules:", "deny"} {
+	for _, want := range []string{"shells:", "groups:", "declarations:", "rules:", "block"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("report lacks %q:\n%s", want, out)
 		}
@@ -164,19 +164,19 @@ func TestRulesReportsWhyASetWillNotLoad(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.22 | negative
+// COVERS: FR-4.33 | negative
 func TestJudgeRefusesWhatNothingAllows(t *testing.T) {
 	t.Parallel()
 
-	// The repository's own rules carry no allow rules and no declarations, so
-	// every command is refused. That is the correct reading of a policy that
-	// is all denials, and showing it is what the command is for.
+	// The repository's own rules block forcing, and a block outranks the
+	// observation default and every allow. Showing that is what the command is
+	// for.
 	out, errOut, status := invoke(t, "", "judge", "../../rules", "--", "rm", "-rf", "/")
 
 	if status != statusOK {
 		t.Fatalf("status = %d, want %d (stderr: %s)", status, statusOK, errOut)
 	}
-	if !strings.HasPrefix(out, "deny") {
+	if !strings.HasPrefix(out, "block") {
 		t.Errorf("verdict = %q, want a refusal", out)
 	}
 }

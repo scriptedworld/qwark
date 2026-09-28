@@ -136,7 +136,7 @@ func check(paths []string, stdout, stderr io.Writer) int {
 		counts[rule.Action]++
 	}
 	for _, action := range []rules.Action{
-		rules.ActionDeny, rules.ActionAsk, rules.ActionAllow,
+		rules.ActionBlock, rules.ActionAllow, rules.ActionAsk, rules.ActionDeny,
 		rules.ActionTag, rules.ActionUntag,
 	} {
 		if counts[action] > 0 {

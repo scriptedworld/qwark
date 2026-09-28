@@ -33,8 +33,8 @@ filled. A person at a terminal is not what the gate is for.
 ## What the worked example in `30-options.toml` teaches
 
 Two rules cover three spellings, because `rm -rf` matches both. With both set to
-`deny` that demonstrates composition, not escalation: `rm -rf` is refused with
-both reasons given under FR-4.25, so its author learns that the force is a
+`block` that demonstrates composition, not escalation: `rm -rf` is refused with
+both reasons given under FR-4.34, so its author learns that the force is a
 problem and the recursion is a problem, instead of being sent round twice.
 
 A comment that explains a rule is part of that rule. Changing an action and

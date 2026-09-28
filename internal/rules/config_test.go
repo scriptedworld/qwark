@@ -6,24 +6,26 @@ import (
 	"github.com/scriptedworld/qwark/internal/rules"
 )
 
-// COVERS: FR-4.14 | property
-func TestTheStrictestActionOutranksTheRest(t *testing.T) {
+// COVERS: FR-4.32 | property
+func TestTheHigherPrecedenceActionOutranksTheRest(t *testing.T) {
 	t.Parallel()
 
-	// This ordering is the reason rule order never changes a verdict, and the
-	// reason no file can weaken another by being read later. It is stated once
-	// here so a second comparison written elsewhere cannot disagree with it.
-	ordered := []rules.Action{rules.ActionAllow, rules.ActionAsk, rules.ActionDeny}
+	// This ordering is the reason rule order never changes a verdict. It is
+	// stated once here so a second comparison written elsewhere cannot
+	// disagree with it.
+	ordered := []rules.Action{
+		rules.ActionDeny, rules.ActionAsk, rules.ActionAllow, rules.ActionBlock,
+	}
 
 	for i := 1; i < len(ordered); i++ {
-		looser, stricter := ordered[i-1], ordered[i]
-		if stricter.Strictness() <= looser.Strictness() {
-			t.Errorf("%q does not outrank %q", stricter, looser)
+		lower, higher := ordered[i-1], ordered[i]
+		if higher.Precedence() <= lower.Precedence() {
+			t.Errorf("%q does not outrank %q", higher, lower)
 		}
 	}
 }
 
-// COVERS: FR-8.1, FR-4.25a | negative
+// COVERS: FR-8.1 | negative
 func TestTaggingDecidesNothing(t *testing.T) {
 	t.Parallel()
 
@@ -33,13 +35,13 @@ func TestTaggingDecidesNothing(t *testing.T) {
 		if action.Decides() {
 			t.Errorf("%q reports itself as a verdict", action)
 		}
-		if got := action.Strictness(); got != 0 {
-			t.Errorf("%q has strictness %d, want 0", action, got)
+		if got := action.Precedence(); got != 0 {
+			t.Errorf("%q has precedence %d, want 0", action, got)
 		}
 	}
 
 	for _, action := range []rules.Action{
-		rules.ActionAllow, rules.ActionAsk, rules.ActionDeny,
+		rules.ActionBlock, rules.ActionAllow, rules.ActionAsk, rules.ActionDeny,
 	} {
 		if !action.Decides() {
 			t.Errorf("%q does not report itself as a verdict", action)
@@ -59,7 +61,7 @@ func TestSomethingThatIsNotAnActionRanksBelowEverything(t *testing.T) {
 	if unknown.Decides() {
 		t.Error("an unknown action reported itself as a verdict")
 	}
-	if got := unknown.Strictness(); got != 0 {
-		t.Errorf("strictness = %d, want 0", got)
+	if got := unknown.Precedence(); got != 0 {
+		t.Errorf("precedence = %d, want 0", got)
 	}
 }

@@ -91,19 +91,20 @@ func (a Action) Widens() bool {
 // An Action is what a rule does when its clauses hold.
 type Action string
 
-// The actions. When several rules apply, the strictest wins: deny over ask
-// over allow, so rule order never changes a verdict and no file can weaken
-// another by being read later.
+// The actions. When several rules apply, the highest precedence wins: block
+// over allow over ask over deny. Rule order never changes a verdict.
 //
-// There is deliberately no overridable deny. The two tiers of refusal are
-// already here: ActionAsk is a refusal a person can lift, one command at a
-// time and on the record, and ActionDeny is one nobody can. A rule that could
-// override another rule would put that power in configuration, which sits far
-// closer to the subject than a person does.
+// A block is a refusal nothing lifts. A deny is a refusal with a reason that
+// any matching allow or ask lifts, however many denies matched. An ask shows
+// the person a warning and lets them decide, which is how a narrow case of
+// something denied is handed to a person: deleting a branch is denied,
+// deleting your own is asked. A refusal meant to hold whatever else is written
+// is a block.
 const (
+	ActionBlock Action = "block"
 	ActionAllow Action = "allow"
-	ActionAsk   Action = "ask"
 	ActionDeny  Action = "deny"
+	ActionAsk   Action = "ask"
 	ActionTag   Action = "tag"
 	ActionUntag Action = "untag"
 )
@@ -111,33 +112,42 @@ const (
 // Decides reports whether an action produces a verdict. Tagging does not: it
 // attaches a name for later rules to match, and decides nothing itself.
 func (a Action) Decides() bool {
-	return a == ActionAllow || a == ActionAsk || a == ActionDeny
+	return a.Precedence() > precedenceNone
+}
+
+// Refuses reports whether a verdict stops the command.
+func (a Action) Refuses() bool {
+	return a == ActionBlock || a == ActionDeny
 }
 
 // How the deciding actions order against each other. Named, not written as
-// numbers at the point of return, so that "deny outranks ask" is stated once
+// numbers at the point of return, so that "allow outranks deny" is stated once
 // and cannot be disagreed with by a second comparison written elsewhere.
 const (
-	strictnessNone  = 0
-	strictnessAllow = 1
-	strictnessAsk   = 2
-	strictnessDeny  = 3
+	precedenceNone  = 0
+	precedenceDeny  = 1
+	precedenceAsk   = 2
+	precedenceAllow = 3
+	precedenceBlock = 4
 )
 
-// Strictness orders the deciding actions so the strictest of several can be
-// taken. Non-deciding actions sort below all of them and are never a verdict.
-func (a Action) Strictness() int {
+// Precedence orders the deciding actions so the one that wins among several
+// can be taken. Non-deciding actions sort below all of them and are never a
+// verdict.
+func (a Action) Precedence() int {
 	switch a {
-	case ActionDeny:
-		return strictnessDeny
-	case ActionAsk:
-		return strictnessAsk
+	case ActionBlock:
+		return precedenceBlock
 	case ActionAllow:
-		return strictnessAllow
+		return precedenceAllow
+	case ActionDeny:
+		return precedenceDeny
+	case ActionAsk:
+		return precedenceAsk
 	case ActionTag, ActionUntag:
-		return strictnessNone
+		return precedenceNone
 	default:
-		return strictnessNone
+		return precedenceNone
 	}
 }
 
@@ -145,7 +155,7 @@ func (a Action) Strictness() int {
 // else is refused, never treated as one of these.
 func (a Action) known() bool {
 	switch a {
-	case ActionAllow, ActionAsk, ActionDeny, ActionTag, ActionUntag:
+	case ActionBlock, ActionAllow, ActionAsk, ActionDeny, ActionTag, ActionUntag:
 		return true
 	default:
 		return false
@@ -237,10 +247,8 @@ type Clause struct {
 	// This is how a conditional refusal is written: "git commit is forbidden
 	// unless it is signed" is one deny rule with a clause saying the signing
 	// option is absent. The exception therefore lives inside the rule it
-	// modifies, where a reader of that rule sees it, and not in a second rule
-	// that outranks the first. That is why there is no overridable deny: an
-	// exception stated here is visible, and one stated by precedence between
-	// files is not.
+	// modifies, where a reader of that rule sees it. The other way is a deny
+	// with a narrower allow beside it, which a block cannot have.
 	//
 	// Where a selector names several positions, a plain clause holds if some
 	// of them satisfy it, so an inverted clause holds when none do. That falls

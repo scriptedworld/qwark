@@ -87,7 +87,7 @@ members = [
 # READ THIS BEFORE ADDING A NAME. **The list is not what makes this safe.**
 #
 # Deny-by-default is. A command absent from every group is refused anyway
-# (FR-4.16, FR-4.22), so adding a name here buys a REASON, not a refusal: it
+# (FR-4.16, FR-4.35), so adding a name here buys a REASON, not a refusal: it
 # turns "nothing permitted this" into a message that says what the class is and
 # why nobody gets it (FR-4.21).
 #
@@ -140,8 +140,8 @@ members = ["test", "run", "generate", "tool"]
 # porcelain commands are classified, checked against `git --list-cmds`.
 #
 # THE CLASSES OVERLAP AND THAT IS THE POINT. `rebase` runs hooks and rewrites
-# history; `push` runs hooks and reaches the network. Under FR-4.25 every deny
-# reason is collected, so a command in three classes is refused with all three
+# history; `push` runs hooks and reaches the network. Under FR-4.34 every
+# refusing reason is collected, so a command in three classes is refused with all three
 # stated. A command belongs in a class when the class's reason is true of it,
 # not when no other class claimed it first.
 #
@@ -299,7 +299,7 @@ members = [
 
 [[rule]]
 id     = "no-wrappers"
-action = "deny"
+action = "block"
 reason = """
 This command runs another command, so the rules about that other command do not
 apply to it. Run the intended command directly."""
@@ -310,7 +310,7 @@ apply to it. Run the intended command directly."""
 
 [[rule]]
 id     = "no-interpreters"
-action = "deny"
+action = "block"
 reason = """
 This runs code supplied as an argument, which no rule here can read. Put the
 code in a file with the file tools if it needs to exist."""
@@ -321,7 +321,7 @@ code in a file with the file tools if it needs to exist."""
 
 [[rule]]
 id     = "no-resolution-changes"
-action = "deny"
+action = "block"
 reason = """
 This changes what later commands resolve to or how they behave. Its effect is
 not in this call, which is exactly why it cannot be judged by looking at this
@@ -333,7 +333,7 @@ call."""
 
 [[rule]]
 id     = "no-executors"
-action = "deny"
+action = "block"
 reason = """
 This executes content from the working tree (a recipe, a test file, a hook),
 which is content that can be written without a shell. Permitting it is
@@ -351,7 +351,7 @@ with a reason recorded."""
 
 [[rule]]
 id     = "no-go-execution"
-action = "deny"
+action = "block"
 reason = """
 `go test`, `go run`, `go generate` and `go tool` compile and execute code from
 this tree, including code written moments ago. `go build` and `go vet` do not."""
@@ -370,7 +370,7 @@ this tree, including code written moments ago. `go build` and `go vet` do not.""
 
 [[rule]]
 id     = "no-git-hook-running"
-action = "deny"
+action = "block"
 reason = """
 This git subcommand runs hooks from .git/hooks, or a filter or merge driver
 named in .git/config, all of them files that can be written with no shell
@@ -386,7 +386,7 @@ involved. Reading the repository does not."""
 
 [[rule]]
 id     = "no-git-launching-a-program"
-action = "deny"
+action = "block"
 reason = """
 This git subcommand exists to launch another program, chosen by configuration
 or by the environment rather than by this command line. What runs is therefore
@@ -402,7 +402,7 @@ never visible to a gate reading the command."""
 
 [[rule]]
 id     = "no-git-rewriting-history"
-action = "deny"
+action = "block"
 reason = """
 This git subcommand rewrites or discards what the repository has recorded. The
 copy that would show what was there before is the thing being changed, so the
@@ -418,7 +418,7 @@ mistake and the evidence of it go together."""
 
 [[rule]]
 id     = "no-git-destroying-work"
-action = "deny"
+action = "block"
 reason = """
 This git subcommand discards work in the working tree that was never committed.
 Uncommitted work exists in one place, and this is the command that empties it."""
@@ -433,7 +433,7 @@ Uncommitted work exists in one place, and this is the command that empties it.""
 
 [[rule]]
 id     = "no-git-changing-configuration"
-action = "deny"
+action = "block"
 reason = """
 This git subcommand changes what a LATER git command will do. Its effect is not
 in this call, which is exactly why looking at this call cannot judge it: the
@@ -449,7 +449,7 @@ same reason `eval` and `export` are refused."""
 
 [[rule]]
 id     = "no-git-reaching-the-network"
-action = "deny"
+action = "block"
 reason = """
 This git subcommand reaches a machine that is not this one, publishing what is
 here, or fetching what will then be trusted here. Neither is a thing to do
@@ -465,7 +465,7 @@ without somebody having decided to."""
 
 [[rule]]
 id     = "no-git-by-the-bare-word"
-action = "deny"
+action = "block"
 reason = """
 This git subcommand reads when bare and writes when given an option, so the
 word alone does not say what it does: `git branch` lists and `git branch -D`
@@ -492,7 +492,7 @@ rule that names the word."""
 
 [[rule]]
 id     = "no-git-destroying-the-reflog"
-action = "deny"
+action = "block"
 reason = """
 The reflog is the record every recovery from a rewritten history depends on,
 and these are the three subcommands that discard it. Reading the reflog is
@@ -531,7 +531,7 @@ permitted precisely so that it is there to read."""
 
 [[rule]]
 id     = "no-git-staging"
-action = "deny"
+action = "block"
 reason = """
 Staging content writes .git/index, which is what a later commit records, and
 the index is shared with every other session in this worktree: staging here
@@ -580,7 +580,7 @@ Reading the repository changes nothing in it."""
 
 [[rule]]
 id     = "no-git-config-override"
-action = "deny"
+action = "block"
 reason = """
 `git -c` sets configuration for one invocation, including values such as
 core.pager and core.hooksPath that name a program to run."""
@@ -618,7 +618,7 @@ core.pager and core.hooksPath that name a program to run."""
 
 [[rule]]
 id     = "no-git-config-writing"
-action = "deny"
+action = "block"
 reason = """
 `git config` sets configuration that persists, including keys that name a
 program git will then run on its own: core.hooksPath, core.pager,
@@ -639,13 +639,13 @@ arbitrary execution."""
 # ============================================================================
 #
 # ############################################################################
-# NOTHING RUNS ON A DECLARATION ALONE. Deny is the engine's default (FR-4.22),
+# NOTHING RUNS ON A DECLARATION ALONE. Deny is the engine's default (FR-4.35),
 # so a command that is described and unobjected-to is still refused until an
 # allow rule names it. A rule set with no allow rules permits nothing, which is
 # a state this project reached on 2026-08-28 and spent a session inside.
 #
-# Every deny above outranks everything here (FR-4.14), so an allow can never
-# widen a refusal and a command appearing in both lists is denied.
+# Every block above outranks everything here (FR-4.33), so an allow can never
+# widen one and a command appearing in both lists is refused.
 #
 # WHAT KEEPS THESE NARROW IS NOT THIS SECTION. It is tier one in
 # 01-structure.toml and the option tables in 05-declarations.toml. `grep x .`
@@ -695,19 +695,23 @@ members = ["mkdir", "cp", "mv"]
 
 # `rm` is allowed as a word and refused in a shape, which is the mechanical this
 # rule set already uses for `git reflog`. Bare `rm <path>` names what it removes
-# and removes only that. `rm-force` and `rm-recursive` in 30-options.toml deny
-# the two options that stop it being true, and both outrank this.
+# and removes only that. `rm-force` in 30-options.toml blocks force, which
+# outranks this. Recursion is excluded here instead, so that `rm-recursive`
+# can ask: an allow matching it would outrank the ask.
 [[rule]]
 id     = "allow-removing-a-named-file"
 action = "allow"
 reason = """
-Removing a file the command names is permitted. Force and recursive are not:
-the first suppresses the report of what was missing, the second walks a tree
-whose contents the command never named."""
+Removing a file the command names is permitted. Recursion is asked about and
+force is refused."""
 
   [[rule.clause]]
   index = "0"
   value = "rm"
+
+  [[rule.clause]]
+  option = "recursive"
+  absent = true
 
 [[rule]]
 id     = "allow-building-go"

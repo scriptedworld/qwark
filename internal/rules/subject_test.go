@@ -6,8 +6,9 @@ import (
 	"github.com/scriptedworld/qwark/internal/rules"
 )
 
-// clauseSet wraps one clause in a deny rule, so a test can ask whether that
-// clause held by asking whether the command was refused.
+// clauseSet wraps one clause in a block rule, so a test can ask whether that
+// clause held by asking whether the command was refused. A block, because the
+// allow beside it would lift a deny.
 func clauseSet(clause string) map[string]string {
 	return map[string]string{"00.toml": declarations + `
 [group.protected]
@@ -27,7 +28,7 @@ reason = "So that a refusal below means the clause held."
 
 [[rule]]
 id = "under-test"
-action = "deny"
+action = "block"
 reason = "The clause under test held."
 ` + clause}
 }

@@ -60,6 +60,22 @@ type DeclarationPolicy struct {
 	// behaviour depends on whether a file happens to be loaded, which can change
 	// months from now for a reason unrelated to what it breaks.
 	Accounted *bool `toml:"accounted"`
+
+	// Default is the verdict for a command no deciding rule matched: deny when
+	// absent, or allow while the gate is observing.
+	//
+	// It is a setting and not a catch-all allow rule because an allow rule
+	// outranks every ask and deny it matches, so a rule matching every command
+	// would lift them all. A default decides only where nothing else did.
+	Default Action `toml:"default"`
+}
+
+// fallback is the verdict when no deciding rule matched.
+func (s *Set) fallback() Action {
+	if s.Declarations != nil && s.Declarations.Default == ActionAllow {
+		return ActionAllow
+	}
+	return ActionDeny
 }
 
 // required reports whether this set refuses undeclared commands.

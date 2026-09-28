@@ -8,14 +8,14 @@ import (
 	"github.com/scriptedworld/qwark/internal/rules"
 )
 
-// COVERS: FR-4.1 | positive
+// COVERS: FR-4.31 | positive
 func TestEveryActionIsAccepted(t *testing.T) {
 	t.Parallel()
 
-	// Five, and the two tagging ones decide nothing. A rule file naming any
+	// Six, and the two tagging ones decide nothing. A rule file naming any
 	// other is refused, which is tested separately; this pins the set itself.
 	for _, action := range []rules.Action{
-		rules.ActionAllow, rules.ActionAsk, rules.ActionDeny,
+		rules.ActionBlock, rules.ActionAllow, rules.ActionAsk, rules.ActionDeny,
 		rules.ActionTag, rules.ActionUntag,
 	} {
 		t.Run(string(action), func(t *testing.T) {
@@ -53,7 +53,7 @@ reason = "So the command is not refused for a different reason."
 
 [[rule]]
 id = "both-or-neither"
-action = "deny"
+action = "block"
 reason = "Both clauses held."
   [[rule.clause]]
   index = "0"
@@ -63,7 +63,7 @@ reason = "Both clauses held."
   option = "force"
 `
 
-	if judgeWith(t, ruleSet(twoClauses), `rm -f x`).Action != rules.ActionDeny {
+	if judgeWith(t, ruleSet(twoClauses), `rm -f x`).Action != rules.ActionBlock {
 		t.Error("a rule with two matching clauses did not apply")
 	}
 	if judgeWith(t, ruleSet(twoClauses), `rm x`).Action != rules.ActionAllow {
@@ -88,7 +88,7 @@ reason = "So the command is not refused for a different reason."
 
 [[rule]]
 id = "either"
-action = "deny"
+action = "block"
 match = "any"
 reason = "One clause held."
   [[rule.clause]]
@@ -99,10 +99,10 @@ reason = "One clause held."
   value = "shred"
 `
 
-	if judgeWith(t, ruleSet(anyOfTwo), `rm -f x`).Action != rules.ActionDeny {
+	if judgeWith(t, ruleSet(anyOfTwo), `rm -f x`).Action != rules.ActionBlock {
 		t.Error("an any rule did not apply on its first clause")
 	}
-	if judgeWith(t, ruleSet(anyOfTwo), `rm shred`).Action != rules.ActionDeny {
+	if judgeWith(t, ruleSet(anyOfTwo), `rm shred`).Action != rules.ActionBlock {
 		t.Error("an any rule did not apply on its second clause")
 	}
 	if judgeWith(t, ruleSet(anyOfTwo), `rm x`).Action != rules.ActionAllow {

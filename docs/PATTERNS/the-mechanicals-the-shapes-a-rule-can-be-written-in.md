@@ -24,7 +24,7 @@ of it.
     group = "git-network"
 
 Adding a member is a one-line edit that leaves the rule alone. Classes are
-expected to overlap. `push` runs hooks and it reaches the network; FR-4.25
+expected to overlap. `push` runs hooks and it reaches the network; FR-4.34
 collects both reasons, so a command in three classes is refused with all three
 stated. Put a command in a class whenever the class's reason is true of it, and
 not only when no other class has claimed it.
@@ -119,15 +119,14 @@ beside it:
       cwd    = "/home/user/.projects/qwark"
       absent = true
 
-The reflex is to write a scoped allow, and it does not work. There is no
-overridable deny in this engine: the strictest action wins, so an allow naming a
-directory cannot lift a deny that already fired. Adding one leaves both rules
-live and the command refused, which reads as the clause being broken.
+A scoped allow lifts a `deny` but never a `block` (FR-4.33). Every refusal in
+the shipped set is a block, so against those an allow naming a directory
+leaves both rules live and the command refused, which reads as the clause
+being broken.
 
-So the exception goes where shape 3 puts every exception, in the rule it
-modifies, and for the same reason: a reader of the deny rule sees the whole of
-it. Judging a probe under `.ephemera/` with the scoped rules alongside the
-originals, the originals fired and the scope looked inert.
+Against a block, the exception goes where shape 3 puts every exception, in the
+rule it modifies, so a reader of the rule sees the whole of it. Against a deny,
+it can be an allow of its own.
 
 The same holds for the agent clause, which shares the shape. What differs is
 what the two are good for: `agent` names a role a dispatcher assigned, and `cwd`

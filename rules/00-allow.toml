@@ -60,44 +60,28 @@
 # then delete this table. Deleting it restores FR-4.16 and FR-6.7 as written,
 # because absent means required.
 
+# `default = "allow"` is the permission. Deny is the engine's default when this
+# is absent (FR-4.35), and `01-structure.toml` carries only refusals, so the
+# structural rules alone would permit nothing, which is indistinguishable from a
+# broken gate.
+#
+# It decides only where no rule did. It is a setting and not an allow rule
+# because an allow outranks every ask and deny it matches, and a rule matching
+# every command would lift them all. A block is never lifted, so anything that
+# redirects, substitutes, pipes, globs, backgrounds, or carries more than one
+# statement is refused as before.
+#
+# It does not survive the phase. Permitting what no rule decided is right while
+# the gate is observing what real use looks like, and wrong afterwards. Delete
+# the line rather than narrowing it.
+#
+# An `allow` verdict replaces the normal permission flow rather than passing to
+# it, so the prompt Claude Code would otherwise raise does not appear. A
+# structurally clean command runs unprompted, `rm -rf <path>` among them,
+# because no option rule is loaded. The ruling on `rm -f`, `-r` and `-rf` lives
+# in `30-options.toml` and returns with that file.
+
 [declarations]
 required  = false
 accounted = false
-
-# ============================================================================
-# Permission
-# ============================================================================
-#
-# THIS RULE EXISTS TO SATISFY FR-4.22 AND NOTHING ELSE.
-#
-# Deny is the engine's default: a command is denied unless an allow rule matched
-# it. `01-structure.toml` carries only denials, so the structural rules alone
-# permit nothing, which is indistinguishable from a broken gate.
-#
-# WHAT IT DOES NOT DO. It does not weaken a structural denial: the strictest
-# action wins (FR-4.14), so anything that redirects, substitutes, pipes, globs,
-# backgrounds, or carries more than one statement is refused with this rule
-# having matched it. It does not reach a form with no word at ordinal 0, so
-# `((x=1))` and `let x=1` stay denied by its silence as well as by name.
-#
-# It does not survive the phase. A rule that permits on the strength of a
-# command merely having a name is right while the gate is observing what real
-# use looks like, and wrong afterwards. Delete it rather than narrowing it.
-#
-# AN `allow` VERDICT REPLACES THE NORMAL PERMISSION FLOW rather than passing to
-# it, so the prompt Claude Code would otherwise raise does not appear. A
-# structurally clean command runs unprompted, `rm -rf <path>` among them,
-# because no option rule is loaded. The ruling that `rm -f`, `-r` and `-rf` are
-# refused lives in `30-options.toml` and returns with that file.
-
-[[rule]]
-id     = "allow-a-single-plain-command"
-action = "allow"
-reason = """
-A command whose effect is fixed by its own text is permitted while the gate is
-observing. Everything else here denies by shape; nothing judges what the
-command is, and that is the phase rather than the design."""
-
-  [[rule.clause]]
-  index   = "0"
-  pattern = ".*"
+default   = "allow"

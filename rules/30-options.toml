@@ -21,29 +21,24 @@
 # The worked example
 # ============================================================================
 #
-# The ruling, revised 2026-08-28: bare `rm` is fine, and `rm -f`, `rm -r` and
-# `rm -rf` are not.
+# The ruling: bare `rm` is fine, recursion is a person's call, and force is
+# never allowed.
 #
 #     rm x       permitted, by allow-removing-a-named-file in 10-commands.toml
-#     rm -f x    forbidden
-#     rm -r x    forbidden
-#     rm -rf x   forbidden, twice over
+#     rm -r x    asked: a recursive removal, confirmed by a person
+#     rm -f x    blocked
+#     rm -rf x   blocked, because it contains -f
 #
-# The original 2026-08-19 ruling had the middle case as `ask` and this file
-# taught the precedence argument with it: two rules rather than three, because
-# `rm -rf` matches both and the strictest action wins, so neither rule has to
-# know the other exists. That argument is still true and is still what the two
-# rules below demonstrate; it is simply no longer visible in their ACTIONS,
-# because both are now deny.
+# Two rules rather than three, because `rm -rf` matches both and precedence
+# decides: the block outranks the ask, so neither rule has to know the other
+# exists.
 #
-# The demonstration that survives is the composition rather than the escalation.
-# `rm -rf` is refused with BOTH reasons given, under FR-4.25, so its author is
-# told the force is a problem and the recursion is a problem, rather than being
-# sent round twice.
+# The allow for `rm` excludes recursion. Allow outranks ask, so an allow that
+# matched `rm -r` would lift the ask and nobody would be asked.
 
 [[rule]]
 id     = "rm-force"
-action = "deny"
+action = "block"
 reason = """
 `rm` with force suppresses every check it has: it does not ask, and it does not
 report what was missing. If the file should go, name it and let rm say whether
@@ -58,11 +53,10 @@ it was there."""
 
 [[rule]]
 id     = "rm-recursive"
-action = "deny"
+action = "ask"
 reason = """
-Recursive removal is not permitted. What it deletes is decided by what the tree
-holds when it runs rather than by anything this command names, which is the
-same property tier one refuses a glob for. Name the files."""
+A recursive removal. What it deletes is decided by what the tree holds when it
+runs, not by anything this command names. Check the path before confirming."""
 
   [[rule.clause]]
   index = "0"
@@ -80,11 +74,9 @@ same property tier one refuses a glob for. Name the files."""
 #
 #   absent = true    the clause holds when what it names is NOT there
 #
-# This is where the cost of "the strictest action wins" is paid: the exception
-# sits inside the rule it modifies, so anyone reading the denial sees the way
-# out of it. Written as a second rule that overrode the first, it would live in
-# another file, and knowing what a command does would mean reading every file
-# to find out which one won.
+# This is how an exception to a block is written: inside the rule it modifies,
+# since nothing outranks a block. An exception to a deny can instead be an
+# allow of its own.
 #
 # The live example is now `no-git-staging` in 10-commands.toml, which refuses
 # `git add` unless `-N` is present.
@@ -127,7 +119,7 @@ same property tier one refuses a glob for. Name the files."""
 
 [[rule]]
 id     = "no-forcing-anything"
-action = "deny"
+action = "block"
 reason = """
 Forcing is not permitted. A force option exists to suppress the check that
 would otherwise have stopped the command, which makes it the one option a gate
@@ -138,7 +130,7 @@ cannot let past."""
 
 [[rule]]
 id     = "no-preserve-root"
-action = "deny"
+action = "block"
 reason = "`--no-preserve-root` exists only to permit destroying the root filesystem."
 
   [[rule.clause]]
@@ -157,7 +149,7 @@ reason = "`--no-preserve-root` exists only to permit destroying the root filesys
 
 [[rule]]
 id     = "no-skipping-hooks"
-action = "deny"
+action = "block"
 reason = """
 `--no-verify` skips the hooks, which are the checks that run without being
 asked for and are therefore the ones a mistake cannot route around. The
@@ -179,7 +171,7 @@ If a hook is wrong often enough to be worth skipping, fix the hook."""
 
 [[rule]]
 id     = "no-option-supplied-program"
-action = "deny"
+action = "block"
 reason = """
 This option supplies a program for the command to run. The program is not
 visible to any rule here, so permitting the option is permitting whatever it

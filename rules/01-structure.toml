@@ -8,11 +8,11 @@
 # for the rule to apply; there is no `or` inside a rule, so alternatives are
 # written as separate rules.
 #
-#   action = "deny" | "ask" | "allow" | "tag"
+#   action = "block" | "allow" | "ask" | "deny" | "tag" | "untag"
 #
-# When several rules match, the strictest action wins: deny over ask over
-# allow. Order therefore never changes a verdict, and no rule can be weakened
-# by which file it arrived in.
+# When several rules match, the highest precedence wins: block over allow over
+# ask over deny. Order therefore never changes a verdict. Nothing lifts a
+# block; an allow lifts a deny. Every refusal in this file is a block.
 #
 # A clause SELECTS and then TESTS.
 #
@@ -117,7 +117,7 @@ allow = ["/bin/bash", "/usr/bin/bash"]
 
 [[rule]]
 id     = "no-substitution"
-action = "deny"
+action = "block"
 reason = """
 Substitutions are not permitted: command, process, arithmetic and parameter
 alike, so $HOME and $PWD are included. A command should state what it does. A
@@ -144,7 +144,7 @@ nothing here is ever expanded to find out."""
 
 [[rule]]
 id     = "no-glob"
-action = "deny"
+action = "block"
 reason = """
 A wildcard is not permitted. What it matches is decided by what happens to be
 in the directory when it runs, not by the command's own text, which is the
@@ -155,7 +155,7 @@ property every other tier-one rule exists to hold. Name the files."""
 
 [[rule]]
 id     = "no-redirection"
-action = "deny"
+action = "block"
 reason = """
 Redirections are not permitted. The tool already returns stdout and stderr
 separately, so redirecting to capture output gains nothing, while truncating a
@@ -166,7 +166,7 @@ file is a side effect nobody asked for."""
 
 [[rule]]
 id     = "no-pipe"
-action = "deny"
+action = "block"
 reason = "Pipes are not permitted. Run one command."
 
   [[rule.clause]]
@@ -174,7 +174,7 @@ reason = "Pipes are not permitted. Run one command."
 
 [[rule]]
 id     = "no-logical-concatenation"
-action = "deny"
+action = "block"
 reason = """
 `&&` and `||` are not permitted. Run one command, look at the result, then run
 the next."""
@@ -189,7 +189,7 @@ the next."""
 
 [[rule]]
 id     = "no-heredoc-write"
-action = "deny"
+action = "block"
 reason = """
 Writing a file through a here-document is not permitted. Content arriving as
 `cat > f <<'EOF'` was never a diff and was never held against what it replaced.
@@ -206,7 +206,7 @@ Use the file tools, where the change can be reviewed."""
 
 [[rule]]
 id     = "no-sequence"
-action = "deny"
+action = "block"
 reason = "Several commands in one call are not permitted. Send them one at a time."
 
   [[rule.clause]]
@@ -214,7 +214,7 @@ reason = "Several commands in one call are not permitted. Send them one at a tim
 
 [[rule]]
 id     = "no-background"
-action = "deny"
+action = "block"
 reason = """
 Backgrounding is not permitted. A backgrounded command outlives the tool call
 that started it, so its output is never seen and its failure is never noticed."""
@@ -224,7 +224,7 @@ that started it, so its output is never seen and its failure is never noticed.""
 
 [[rule]]
 id     = "no-grouping"
-action = "deny"
+action = "block"
 reason = "Subshells and brace groups are not permitted."
 
   [[rule.clause]]
@@ -240,7 +240,7 @@ reason = "Subshells and brace groups are not permitted."
 
 [[rule]]
 id     = "no-program-structure"
-action = "deny"
+action = "block"
 reason = """
 Function definitions, loops and conditionals are not permitted. Run one command
 and read its result; a program that decides for itself what to run next cannot
@@ -264,7 +264,7 @@ escapes one: both shells accept a function named `/usr/bin/ls`."""
 
 [[rule]]
 id     = "no-time-prefix"
-action = "deny"
+action = "block"
 reason = """
 `time` is not permitted. It is a keyword rather than a command, so the word at
 ordinal 0 is the command underneath it and `time` itself is unaddressable by
@@ -275,7 +275,7 @@ name."""
 
 [[rule]]
 id     = "no-coprocess"
-action = "deny"
+action = "block"
 reason = """
 Coprocesses are not permitted. A coprocess runs alongside the shell with its
 own pipes, outliving the call that started it."""
@@ -285,7 +285,7 @@ own pipes, outliving the call that started it."""
 
 [[rule]]
 id     = "no-arithmetic-command"
-action = "deny"
+action = "block"
 reason = "`((…))` and `let` are not permitted; they evaluate rather than run."
 
   [[rule.clause]]
@@ -305,7 +305,7 @@ reason = "`((…))` and `let` are not permitted; they evaluate rather than run."
 
 [[rule]]
 id     = "no-setting-names"
-action = "deny"
+action = "block"
 reason = """
 Setting a variable is not permitted, as a prefix or as a keyword. A prefix
 assignment changes what the command on the same line resolves to (PATH most

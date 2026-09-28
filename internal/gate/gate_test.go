@@ -66,14 +66,14 @@ reason = "Echo says something and changes nothing."
 
 [[rule]]
 id = "no-shouting"
-action = "deny"
+action = "block"
 reason = "Shouting is not permitted."
   [[rule.clause]]
   value = "LOUD"
 
 [[rule]]
 id = "nothing-loud-first"
-action = "deny"
+action = "block"
 reason = "The first argument may not be that."
   [[rule.clause]]
   index = "1"
@@ -102,7 +102,7 @@ func TestADecisionNamesItsRuleAndQuotesTheCause(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.25 | property
+// COVERS: FR-4.34 | property
 func TestEveryReasonReachesTheReply(t *testing.T) {
 	t.Parallel()
 
@@ -110,10 +110,9 @@ func TestEveryReasonReachesTheReply(t *testing.T) {
 	// evaluator gathers every reason precisely so it does not have to, and that
 	// buys nothing unless the reply carries them all.
 	//
-	// Only the DENY reasons, which is the requirement's own wording and is
-	// deliberate: `may-echo` also matched this command, and reporting that a
-	// command was refused and permitted in one message tells its reader nothing
-	// about which to act on.
+	// Only the reasons that refused, which is deliberate: `may-echo` also
+	// matched this command, and reporting that a command was refused and
+	// permitted in one message tells its reader nothing about which to act on.
 	decision, reason := gate.Decider(setFrom(t, permissive))(
 		request(t, "", "echo LOUD"))
 
@@ -224,24 +223,16 @@ reason = "The gate runner may echo."
 	}
 }
 
-// COVERS: FR-4.1 | edge
+// COVERS: FR-4.31 | edge
 func TestAnAskReachesTheReplyAsAnAsk(t *testing.T) {
 	t.Parallel()
 
-	// Ask is the refusal a person can lift, and it is a different answer from
-	// deny, not a softer wording of it. Collapsing the two here would
+	// Ask is the warning a person decides on, and it is a different answer
+	// from deny, not a softer wording of it. Collapsing the two here would
 	// turn every confirmable command into a refused one.
 	const asking = `
 [command.echo]
 operands = "text"
-
-[[rule]]
-id = "may-echo"
-action = "allow"
-reason = "Echo says something and changes nothing."
-  [[rule.clause]]
-  index = "0"
-  value = "echo"
 
 [[rule]]
 id = "check-first"

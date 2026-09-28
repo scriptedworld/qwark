@@ -1,6 +1,7 @@
 package rules_test
 
 import (
+	"errors"
 	"strings"
 	"testing"
 
@@ -56,8 +57,8 @@ func TestAnUndeclaredCommandIsRefusedByDefault(t *testing.T) {
 	// quietly be the reason an unknown command ran.
 	outcome := judged(t, permits, "somethingnobodydeclared --wild")
 
-	if outcome.Action != rules.ActionDeny {
-		t.Errorf("action = %v, want deny for an undeclared command", outcome.Action)
+	if outcome.Action != rules.ActionBlock {
+		t.Errorf("action = %v, want block for an undeclared command", outcome.Action)
 	}
 	if !says(outcome, "declared commands only") {
 		t.Errorf("findings = %+v, want the declaration refusal", outcome.Findings)
@@ -93,8 +94,8 @@ func TestAnUndeclaredOptionIsRefusedByDefault(t *testing.T) {
 	// leaving an option out costs a refusal, not a hole.
 	outcome := judged(t, declaring, "rm -r somewhere")
 
-	if outcome.Action != rules.ActionDeny {
-		t.Errorf("action = %v, want deny for an option no declaration names",
+	if outcome.Action != rules.ActionBlock {
+		t.Errorf("action = %v, want block for an option no declaration names",
 			outcome.Action)
 	}
 	if !says(outcome, "accounted options only") {
@@ -134,7 +135,7 @@ func TestTurningOffTheCommandCheckDoesNotTurnOffTheOptionCheck(t *testing.T) {
 		declaring+"\n[declarations]\nrequired = false\n",
 		"rm -r somewhere")
 
-	if outcome.Action != rules.ActionDeny {
+	if outcome.Action != rules.ActionBlock {
 		t.Errorf("action = %v, want the option check still refusing", outcome.Action)
 	}
 	if !says(outcome, "accounted options only") {
@@ -160,5 +161,55 @@ func TestTwoFilesCannotBothDecideWhetherDeclarationsAreRequired(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "declarations") {
 		t.Errorf("error = %v, want it to name what collided", err)
+	}
+}
+
+// observing permits by default and carries one ask and one deny, so what is
+// measured is whether the default lifts them.
+const observing = "[shell]\nallow=[\"/bin/bash\"]\n" +
+	"\n[declarations]\nrequired = false\naccounted = false\ndefault = \"allow\"\n" +
+	"\n[[rule]]\nid=\"ask-maybe\"\naction=\"ask\"\nreason=\"r\"\n" +
+	"  [[rule.clause]]\n  value=\"maybe\"\n" +
+	"\n[[rule]]\nid=\"deny-no\"\naction=\"deny\"\nreason=\"r\"\n" +
+	"  [[rule.clause]]\n  value=\"no\"\n"
+
+// COVERS: FR-4.35 | positive
+func TestAnAllowDefaultPermitsWhatNoRuleDecided(t *testing.T) {
+	t.Parallel()
+
+	outcome := judged(t, observing, "anything at all")
+
+	if outcome.Action != rules.ActionAllow {
+		t.Errorf("action = %v, want allow when no rule decided", outcome.Action)
+	}
+	if !says(outcome, "allow by default") {
+		t.Errorf("findings = %+v, want the default named as what allowed it",
+			outcome.Findings)
+	}
+}
+
+// COVERS: FR-4.35 | negative
+func TestAnAllowDefaultLiftsNoAskAndNoDeny(t *testing.T) {
+	t.Parallel()
+
+	// A catch-all allow rule would outrank both. The default decides only
+	// where nothing else did.
+	if got := judged(t, observing, "echo maybe").Action; got != rules.ActionAsk {
+		t.Errorf("action = %v, want the ask to stand", got)
+	}
+	if got := judged(t, observing, "echo no").Action; got != rules.ActionDeny {
+		t.Errorf("action = %v, want the deny to stand", got)
+	}
+}
+
+// COVERS: FR-4.35 | negative
+func TestADefaultOtherThanAllowOrDenyIsRefused(t *testing.T) {
+	t.Parallel()
+
+	_, err := rules.Load([]string{plantedSet(t,
+		"[shell]\nallow=[\"/bin/bash\"]\n[declarations]\ndefault = \"ask\"\n")})
+
+	if !errors.Is(err, rules.ErrUnknownDefault) {
+		t.Errorf("Load = %v, want %v", err, rules.ErrUnknownDefault)
 	}
 }

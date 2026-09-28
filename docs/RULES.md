@@ -178,12 +178,12 @@ be the loaded set. The files are split so that the whole directory and the two
 structural files can answer differently:
 
     $ qwark judge rules -- python3 -c "import os"
-    deny
+    block
       no-interpreters                    This runs code supplied as an argument, …
 
     $ qwark judge rules/01-structure.toml rules/00-allow.toml -- python3 -c "import os"
     allow
-      allow-a-single-plain-command       A command whose effect is fixed by its own text …
+      (engine) allow by default          No rule decided this, and the rule set allows …
 
 Loading the structural pair alone is observation, not containment. Any
 command word runs if its shape is clean, interpreters and task runners included,

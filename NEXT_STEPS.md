@@ -163,9 +163,8 @@ Try it:
 
     ./bin/qwark judge --agent=gate-runner rules/ -- git status
 
-It composed instead of adding a mechanism. An `agent` clause is a clause, rules
-stay conjunctions, strictest still wins, and a role cannot grant itself anything
-because deny outranks allow. An agent allowance also reaches only the command its
+It composed instead of adding a mechanism. An `agent` clause is a clause,
+precedence still decides, and a role cannot grant itself past a block. An agent allowance also reaches only the command its
 rule names.
 
 Still to do: `rules/` carries no agent-scoped rule, because which agent types
@@ -240,7 +239,7 @@ agent type."*
 `REQUIREMENTS.md` already says the *first* mode gates the Bash tool, so this is
 the second and not a replacement. It matters for what to invest in now:
 
-- The engine carries over. Conjunctions, strictest-wins, deny-by-default,
+- The engine carries over. Clause matching, precedence, deny-by-default,
   declarations, groups, reasons that explain themselves: none of that is about
   shells.
 - The shell half is mode-one adapter. Tier one exists because a command line
@@ -350,10 +349,10 @@ tree. Measured against a probe: allow at the root, allow in a subdirectory, deny
 from another repository, deny from a neighbour whose name shares a prefix, and
 deny when the request carries no directory at all.
 
-Writing the scope is not what the reflex suggests. There is no overridable
-deny, so a scoped allow beside the existing deny leaves both live and the
-command refused. The scope goes inside the deny rule as an inverted `cwd`
-clause, which also fails closed. Shape 6 in
+The existing refusals are blocks, so a scoped allow beside one leaves both
+live and the command refused. Either the scope goes inside the block as an
+inverted `cwd` clause, which fails closed, or the refusal becomes a deny that
+a scoped allow lifts. Shape 6 in
 `docs/PATTERNS/the-mechanicals-the-shapes-a-rule-can-be-written-in.md`.
 
 What is left is the policy, and it is a rules change. Which denials become
