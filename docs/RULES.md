@@ -186,7 +186,8 @@ structural files can answer differently:
       (engine) allow by default          No rule decided this, and the rule set allows …
 
 The live set adds `02-inline-code.toml`, which blocks `python3 -c` and the
-other inline-program forms. Loading it is still observation, not containment. Any
+other inline-program forms, and `03-wrappers.toml`, which blocks `env`, `xargs`
+and the other commands that run a command. Loading it is still observation, not containment. Any
 command word runs if its shape is clean, interpreters and task runners included,
 and what they go on to execute is invisible to every rule. It is a deliberate
 first phase: a rule set that refuses undeclared commands refused roughly two

@@ -1,0 +1,33 @@
+# qwark, commands that run other commands.
+#
+# The command word is not the command. `env rm -rf x` puts `env` at ordinal 0,
+# so every rule about `rm` is silent on it, and `env python3 -c` walks past
+# `02-inline-code.toml` the same way. So wrappers are blocked by name, in the
+# live set as well as the full one.
+#
+# `time` is not here: it is a keyword and never a command word, so it is
+# blocked by node type in 01-structure.toml instead.
+
+[group.wrapper]
+members = [
+  "env", "xargs", "sudo", "doas", "su", "runuser",
+  "nohup", "timeout", "nice", "ionice", "setsid", "stdbuf", "chrt",
+  "watch", "command", "builtin", "exec", "chroot", "unshare", "parallel",
+  # Environment and dependency managers whose whole purpose is `<tool> run
+  # <command>`. They are wrappers by the same test as `env`: the thing that
+  # runs is an operand, so every rule about that thing is silent here.
+  "uv", "uvx", "pipx", "poetry", "pdm", "hatch", "pipenv", "rye",
+  "mise", "asdf", "nix-shell", "nix", "conda", "micromamba",
+  "bundle", "rbenv", "pyenv", "nvm", "volta", "fnm",
+]
+
+[[rule]]
+id     = "no-wrappers"
+action = "block"
+reason = """
+This command runs another command, so the rules about that other command do not
+apply to it. Run the intended command directly."""
+
+  [[rule.clause]]
+  index = "0"
+  group = "wrapper"

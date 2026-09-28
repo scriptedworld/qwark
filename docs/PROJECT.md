@@ -205,8 +205,9 @@ checker holds only settled requirements to one.
 
 qwark gates this repository, and what that costs is measured, not predicted. The
 hook in `.claude/settings.local.json` is live, and the tree is workable because
-the loaded set is shape plus inline programs: a session commits, builds and
-runs the gate, and only compound shapes and `-c`-style programs are refused.
+the loaded set is shape, inline programs and wrappers: a session commits,
+builds and runs the gate, and only compound shapes, `-c`-style programs and
+commands like `env` are refused.
 
 An early arming with declarations required and almost nothing declared refused
 `ls`, `cat`, `find`, `grep`, `go`, `bolt`, `git add -N` and `git commit -F`,

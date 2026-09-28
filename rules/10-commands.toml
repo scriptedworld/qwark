@@ -25,23 +25,8 @@
 # Groups
 # ============================================================================
 
-# The command word is not the command. `env rm -rf x` puts `env` at ordinal 0,
-# so every rule about `rm` is silent on it.
-#
-# `time` is NOT here: it is a keyword and never a command word, so it is denied
-# by fact in 01-structure.toml instead.
-[group.wrapper]
-members = [
-  "env", "xargs", "sudo", "doas", "su", "runuser",
-  "nohup", "timeout", "nice", "ionice", "setsid", "stdbuf", "chrt",
-  "watch", "command", "builtin", "exec", "chroot", "unshare", "parallel",
-  # Environment and dependency managers whose whole purpose is `<tool> run
-  # <command>`. They are wrappers by the same test as `env`: the thing that
-  # runs is an operand, so every rule about that thing is silent here.
-  "uv", "uvx", "pipx", "poetry", "pdm", "hatch", "pipenv", "rye",
-  "mise", "asdf", "nix-shell", "nix", "conda", "micromamba",
-  "bundle", "rbenv", "pyenv", "nvm", "volta", "fnm",
-]
+# Wrappers, the commands that run other commands, are in 03-wrappers.toml so
+# that the live set carries them too.
 
 # The program is an argument rather than a file, so what runs is never visible
 # to a gate that reads command lines.
@@ -295,17 +280,6 @@ members = [
 # ============================================================================
 # Rules
 # ============================================================================
-
-[[rule]]
-id     = "no-wrappers"
-action = "block"
-reason = """
-This command runs another command, so the rules about that other command do not
-apply to it. Run the intended command directly."""
-
-  [[rule.clause]]
-  index = "0"
-  group = "wrapper"
 
 [[rule]]
 id     = "no-interpreters"

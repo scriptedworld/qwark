@@ -1,7 +1,8 @@
 # qwark, the structural phase: permission, and no requirement to be described.
 #
 # ############################################################################
-# The live set is this file, `01-structure.toml` and `02-inline-code.toml`.
+# The live set is this file, `01-structure.toml`, `02-inline-code.toml` and
+# `03-wrappers.toml`.
 #
 # `05-declarations.toml`, `10-commands.toml`, `20-paths.toml`, `30-options.toml`
 # and `40-state.toml` exist in the source tree and are deliberately NOT loaded.
