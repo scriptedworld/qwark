@@ -65,10 +65,11 @@ type ShellPolicy struct {
 //
 // This is a consistency check on the best available signal, not proof, and a
 // passing check is not a guarantee. qwark runs as a child process of the tool
-// that will spawn the shell, so it cannot observe that shell directly: `type` answers only from inside it, and
-// a child sees the un-aliased view. The signal is what the environment reports,
-// and it is trustworthy only to the extent that the environment is: whatever
-// names it must be unwritable, exactly as the rule files must be.
+// that will spawn the shell, so it cannot observe that shell directly: `type`
+// answers only from inside it, and a child sees the un-aliased view. The
+// signal is what the environment reports, and it is trustworthy only to the
+// extent that the environment is: whatever names it must be unwritable, exactly
+// as the rule files must be.
 //
 // Both sides are resolved through their symbolic links first, so two spellings
 // of one file reach one answer and a replaced link does not slip past on the
