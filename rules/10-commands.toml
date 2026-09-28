@@ -341,9 +341,13 @@ this tree, including code written moments ago. `go build` and `go vet` do not.""
 # reason, so a command in more than one is refused with each reason given, which
 # is what tells its author whether a different spelling would help. It would not.
 
+# The three classes that follow are denies and not blocks, so that an ask can
+# hand one narrow case of them to a person: a hard reset, a pruning gc, a
+# rebase. Nothing allows any of their members, so without an ask they refuse
+# exactly as a block would. Reaching the network stays a block.
 [[rule]]
 id     = "no-git-hook-running"
-action = "block"
+action = "deny"
 reason = """
 This git subcommand runs hooks from .git/hooks, or a filter or merge driver
 named in .git/config, all of them files that can be written with no shell
@@ -375,7 +379,7 @@ never visible to a gate reading the command."""
 
 [[rule]]
 id     = "no-git-rewriting-history"
-action = "block"
+action = "deny"
 reason = """
 This git subcommand rewrites or discards what the repository has recorded. The
 copy that would show what was there before is the thing being changed, so the
@@ -391,7 +395,7 @@ mistake and the evidence of it go together."""
 
 [[rule]]
 id     = "no-git-destroying-work"
-action = "block"
+action = "deny"
 reason = """
 This git subcommand discards work in the working tree that was never committed.
 Uncommitted work exists in one place, and this is the command that empties it."""
@@ -403,6 +407,21 @@ Uncommitted work exists in one place, and this is the command that empties it.""
   [[rule.clause]]
   index = "1"
   group = "git-destroys-work"
+
+[[rule]]
+id     = "ask-before-rebasing"
+action = "ask"
+reason = """
+A rebase rewrites the commits on this branch and runs hooks while it does.
+Confirm the branch and the base before it runs."""
+
+  [[rule.clause]]
+  index = "0"
+  value = "git"
+
+  [[rule.clause]]
+  index = "1"
+  value = "rebase"
 
 [[rule]]
 id     = "no-git-changing-configuration"
@@ -734,8 +753,8 @@ nothing it is given is written."""
   group = "qwark-reads"
 
 # The two halves of the commit workflow hard rules 2 and 3 mandate. `git add`
-# reaches this only with `-N`, because `no-git-staging` denies it otherwise and
-# a deny outranks an allow.
+# reaches this only with `-N`, because `no-git-staging` blocks it otherwise and
+# a block outranks an allow.
 [[rule]]
 id     = "allow-the-mandated-commit-workflow"
 action = "allow"

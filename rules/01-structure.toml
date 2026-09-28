@@ -164,23 +164,25 @@ file is a side effect nobody asked for."""
   [[rule.clause]]
   nodes = ["Redirect"]
 
-[[rule]]
-id     = "no-pipe"
-action = "block"
-reason = "Pipes are not permitted. Run one command."
-
-  [[rule.clause]]
-  ops = ["|", "|&"]
-
-[[rule]]
-id     = "no-logical-concatenation"
-action = "block"
-reason = """
-`&&` and `||` are not permitted. Run one command, look at the result, then run
-the next."""
-
-  [[rule.clause]]
-  ops = ["&&", "||"]
+# Pipes, `&&`, `||`, `;` and `((…))` are refused by the engine, not by a rule
+# here: each is more than one command, or none, and the engine blocks that
+# before any rule runs (FR-4.26). A rule matching them could never decide
+# anything, so they are kept below as comments recording the reasons, and the
+# engine's refusal is pinned by the `engine--*.cmd` cases in rules/testdata.
+#
+# [[rule]]
+# id     = "no-pipe"
+# action = "block"
+# reason = "Pipes are not permitted. Run one command."
+#   [[rule.clause]]
+#   ops = ["|", "|&"]
+#
+# [[rule]]
+# id     = "no-logical-concatenation"
+# action = "block"
+# reason = "`&&` and `||` are not permitted. Run one command, look at the result, then run the next."
+#   [[rule.clause]]
+#   ops = ["&&", "||"]
 
 # A here-document is already refused by no-redirection. It is stated again
 # because its reason is different. It names operators rather than a node type
@@ -203,15 +205,14 @@ Use the file tools, where the change can be reviewed."""
 # ============================================================================
 #
 # `;` and `&` were not in the tier-one list but compose commands just as much.
-
-[[rule]]
-id     = "no-sequence"
-action = "block"
-reason = "Several commands in one call are not permitted. Send them one at a time."
-
-  [[rule.clause]]
-  fact = "sequence"
-
+# `;` is the engine's, with the pipes above.
+#
+# [[rule]]
+# id     = "no-sequence"
+# action = "block"
+# reason = "Several commands in one call are not permitted. Send them one at a time."
+#   [[rule.clause]]
+#   fact = "sequence"
 [[rule]]
 id     = "no-background"
 action = "block"
@@ -283,13 +284,15 @@ own pipes, outliving the call that started it."""
   [[rule.clause]]
   nodes = ["CoprocClause"]
 
-[[rule]]
-id     = "no-arithmetic-command"
-action = "block"
-reason = "`((…))` and `let` are not permitted; they evaluate rather than run."
-
-  [[rule.clause]]
-  nodes = ["ArithmCmd", "LetClause"]
+# `((…))` and `let` hold no command at all, so the engine refuses them before
+# this file is consulted, with the pipes above.
+#
+# [[rule]]
+# id     = "no-arithmetic-command"
+# action = "block"
+# reason = "`((…))` and `let` are not permitted; they evaluate rather than run."
+#   [[rule.clause]]
+#   nodes = ["ArithmCmd", "LetClause"]
 
 # ============================================================================
 # Anything that sets a name

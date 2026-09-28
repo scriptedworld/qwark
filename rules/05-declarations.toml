@@ -40,9 +40,10 @@
 #      rather than fail loudly.
 #   2. It is harmless on every one of them.
 #
-# "Can reach it" is narrower than "exists", because deny outranks allow: an
-# option cannot be exploited through a subcommand a rule already refuses. Only
-# the git-reads set in 10-commands.toml can reach these.
+# "Can reach it" is narrower than "exists": an option cannot be exploited
+# through a subcommand a rule refuses. Only the git-reads set in
+# 10-commands.toml reaches these without a person, and a hard reset, a pruning
+# gc or a rebase reaches them once a person confirms the ask.
 #
 # The list is therefore short and mostly long-form. **Leaving an option out is
 # not a gap.** An option this table does not name is refused (FR-6.7), so the
@@ -58,9 +59,7 @@
 #   --git-dir=        operates on a different repository than the one the
 #   --work-tree=      command appears to be about
 #   --namespace=
-#   --ext-diff        runs the program named by diff.external
 #   --output=         `git diff --output=<file>` writes a file
-#   -O                `git grep -O <prog>` launches that program
 #   -w, --web         `git help -w` opens a browser
 #   -o                `git format-patch -o <dir>` writes into it
 #   -n                takes a value on `log` and takes none on `grep`, so one
@@ -153,6 +152,20 @@ operands = "text"
   # is only honest when the option is declared.
   long.no-verify = { means = "no-verify" }
 
+  # Declared so the rules about them can fire, for the same reason as
+  # `--no-verify`. `--ext-diff` runs the program named by diff.external and
+  # `-O` has `git grep` launch one, so both mean execute, which
+  # `no-option-supplied-program` blocks. `--hard`, `--prune` and delete are
+  # what the asks and the state rules in 30-options.toml and 40-state.toml
+  # select on.
+  long.ext-diff = { means = "execute" }
+  short.O       = { means = "execute" }
+  long.hard     = { means = "hard" }
+  long.prune    = { means = "prune" }
+  short.d       = { means = "delete" }
+  short.D       = { means = "delete" }
+  long.delete   = { means = "delete" }
+
 # ============================================================================
 # go
 # ============================================================================
@@ -162,8 +175,8 @@ operands = "text"
 # a filename.
 #
 # `test`, `run`, `generate` and `tool` compile and execute code from this tree
-# and stay denied by `no-go-execution` in 10-commands.toml. Declaring the word
-# does not reach them, because a deny outranks an allow.
+# and stay blocked by `no-go-execution` in 10-commands.toml. Declaring the word
+# does not reach them, because a block outranks an allow.
 
 [command.go]
 operands = "text"
@@ -207,6 +220,9 @@ operands = "path"
 
   long.force     = { means = "force" }
   long.recursive = { means = "recursive" }
+
+  # Declared so `no-preserve-root` in 30-options.toml can fire on it.
+  long.no-preserve-root = { means = "no-preserve-root" }
 
 # ============================================================================
 # Ordinary file and directory work

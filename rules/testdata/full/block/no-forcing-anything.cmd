@@ -1,0 +1,1 @@
+rm --force notes.md
