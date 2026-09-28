@@ -188,6 +188,53 @@ func TestTheHookWritesDownWhatItDecided(t *testing.T) {
 	}
 }
 
+// COVERS: FR-4.9c | positive
+func TestTheLogTellsABlockFromADeny(t *testing.T) {
+	// Not parallel: Setenv moves the log for the whole process.
+	state := t.TempDir()
+	t.Setenv("XDG_STATE_HOME", state)
+
+	set := ruleFile(t, "[declarations]\ndefault = \"allow\"\nrequired = false\naccounted = false\n"+
+		"[[rule]]\nid = \"stop-rm\"\naction = \"block\"\nreason = \"r\"\n"+
+		"  [[rule.clause]]\n  index = \"0\"\n  value = \"rm\"\n"+
+		"[[rule]]\nid = \"stop-mv\"\naction = \"deny\"\nreason = \"r\"\n"+
+		"  [[rule.clause]]\n  index = \"0\"\n  value = \"mv\"\n")
+
+	// Both are answered deny, which is the point: only the action separates
+	// the refusal nothing lifts from the one an allow would have.
+	for _, command := range []string{"rm x", "mv x y"} {
+		out, errOut, status := invoke(t, payload(t, command), "hook", set)
+		if status != 0 {
+			t.Fatalf("%s: status = %d (stderr: %s)", command, status, errOut)
+		}
+		if decision, _ := decisionIn(t, out); decision != "deny" {
+			t.Fatalf("%s: decision = %q, want deny", command, decision)
+		}
+	}
+
+	body, err := os.ReadFile(filepath.Clean(filepath.Join(state, "qwark", "decisions.jsonl")))
+	if err != nil {
+		t.Fatalf("reading the log: %v", err)
+	}
+
+	lines := strings.Split(strings.TrimSpace(string(body)), "\n")
+	want := []string{"block", "deny"}
+	if len(lines) != len(want) {
+		t.Fatalf("log holds %d lines, want %d:\n%s", len(lines), len(want), body)
+	}
+	for i, line := range lines {
+		var entry struct {
+			Action string `json:"action"`
+		}
+		if err := json.Unmarshal([]byte(line), &entry); err != nil {
+			t.Fatalf("line %d is not valid JSON: %v", i+1, err)
+		}
+		if entry.Action != want[i] {
+			t.Errorf("line %d action = %q, want %q", i+1, entry.Action, want[i])
+		}
+	}
+}
+
 // COVERS: FR-4.8 | negative
 func TestAnUnwritableLogDoesNotStopTheGateDeciding(t *testing.T) {
 	// Not parallel: Setenv moves the log for the whole process.

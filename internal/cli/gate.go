@@ -62,14 +62,15 @@ func recording(log *audit.Recorder, set *rules.Set, errOut io.Writer) hook.Decid
 	judged := gate.Judged(set)
 
 	return func(request hook.Request) (hook.Decision, string) {
-		decision, reason, fired := judged(request)
+		judgement := judged(request)
 
 		entry := audit.Entry{
 			At:        time.Now(),
 			RuleSet:   set.Digest,
-			Decision:  string(decision),
+			Decision:  string(judgement.Decision),
+			Action:    string(judgement.Action),
 			Tool:      request.ToolName,
-			Rules:     fired,
+			Rules:     judgement.Rules,
 			Agent:     request.AgentType,
 			Cwd:       request.Cwd,
 			SessionID: request.SessionID,
@@ -82,7 +83,7 @@ func recording(log *audit.Recorder, set *rules.Set, errOut io.Writer) hook.Decid
 			_, _ = fmt.Fprintf(errOut, "qwark could not record its decision: %v\n", err)
 		}
 
-		return decision, reason
+		return judgement.Decision, judgement.Reason
 	}
 }
 

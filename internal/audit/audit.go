@@ -45,6 +45,7 @@ type Entry struct {
 	At        time.Time `json:"at"`
 	RuleSet   string    `json:"rule_set"`
 	Decision  string    `json:"decision"`
+	Action    string    `json:"action,omitempty"`
 	Tool      string    `json:"tool"`
 	Command   string    `json:"command,omitempty"`
 	Rules     []string  `json:"rules,omitempty"`

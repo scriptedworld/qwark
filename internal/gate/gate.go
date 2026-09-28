@@ -32,14 +32,25 @@ func Decider(set *rules.Set) hook.Decider {
 	judged := Judged(set)
 
 	return func(request hook.Request) (hook.Decision, string) {
-		decision, reason, _ := judged(request)
-		return decision, reason
+		judgement := judged(request)
+		return judgement.Decision, judgement.Reason
 	}
 }
 
-// A Judge answers like a Decider and also names the rules that produced the
-// answer.
-type Judge func(hook.Request) (hook.Decision, string, []string)
+// A Judgement is a Decider's answer with what produced it kept.
+//
+// Action is the verdict's own action, beside the answer the hook gives. The
+// hook says deny for a block and for a deny alike, and those are different
+// facts: a deny is one an allow could lift and a block is one nothing lifts.
+type Judgement struct {
+	Decision hook.Decision
+	Reason   string
+	Action   rules.Action
+	Rules    []string
+}
+
+// A Judge answers like a Decider and also names what produced the answer.
+type Judge func(hook.Request) Judgement
 
 // Judged is Decider with the rule names kept.
 //
@@ -51,35 +62,50 @@ type Judge func(hook.Request) (hook.Decision, string, []string)
 //
 // The engine's own refusals are named here too, as `(engine) …`, because a
 // refusal for being unparseable or for naming a tool qwark does not model is
-// still a decision somebody will want to count.
+// still a decision somebody will want to count. Each is a block, as the
+// evaluator's own refusals are, because no rule can lift it.
 func Judged(set *rules.Set) Judge {
-	return func(request hook.Request) (hook.Decision, string, []string) {
+	return func(request hook.Request) Judgement {
 		if request.ToolName != hook.ToolBash {
-			return hook.DecisionDeny, wrongTool(request.ToolName),
-				[]string{"(engine) tool not modelled"}
+			return engineRefusal(wrongTool(request.ToolName), "tool not modelled")
 		}
 
 		call, err := request.Bash()
 		if err != nil {
 			// The payload named Bash and did not carry a Bash call. Reading
 			// that as an empty command would judge something nobody sent.
-			return hook.DecisionDeny, fmt.Sprintf(
-					"qwark could not read the Bash call it was asked about:\n  %v", err),
-				[]string{"(engine) unreadable payload"}
+			return engineRefusal(fmt.Sprintf(
+				"qwark could not read the Bash call it was asked about:\n  %v", err),
+				"unreadable payload")
 		}
 
 		parsed, err := shell.Parse(call.Command)
 		if err != nil {
-			return hook.DecisionDeny, fmt.Sprintf(
-					"qwark could not parse this command, so it cannot judge it:\n  %v", err),
-				[]string{"(engine) unparseable"}
+			return engineRefusal(fmt.Sprintf(
+				"qwark could not parse this command, so it cannot judge it:\n  %v", err),
+				"unparseable")
 		}
 
 		outcome := set.Evaluate(parsed, rules.Context{
 			Agent: request.AgentType,
 			Cwd:   request.Cwd,
 		})
-		return decisionOf(outcome.Action), explain(outcome), named(outcome)
+		return Judgement{
+			Decision: decisionOf(outcome.Action),
+			Reason:   explain(outcome),
+			Action:   outcome.Action,
+			Rules:    named(outcome),
+		}
+	}
+}
+
+// engineRefusal is a refusal the engine makes before any rule is consulted.
+func engineRefusal(reason, cause string) Judgement {
+	return Judgement{
+		Decision: hook.DecisionDeny,
+		Reason:   reason,
+		Action:   rules.ActionBlock,
+		Rules:    []string{"(engine) " + cause},
 	}
 }
 
