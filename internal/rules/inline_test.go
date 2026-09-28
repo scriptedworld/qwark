@@ -1,22 +1,30 @@
 package rules_test
 
 import (
+	"io/fs"
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/scriptedworld/qwark/internal/rules"
 )
 
-// liveSet is the observation-phase set as it is installed: permission by
-// default, the structural blocks, the inline-code blocks and the wrappers.
+// liveSet is the observation-phase set as it is installed, read from the same
+// listing the rules suite uses, so there is one statement of what live means.
 func liveSet(t *testing.T) *rules.Set {
 	t.Helper()
 
+	dir := filepath.Join("..", "..", "rules", "testdata", "live")
+	listing, err := fs.ReadFile(os.DirFS(dir), "set.txt")
+	if err != nil {
+		t.Fatalf("read the live set listing: %v", err)
+	}
 	var paths []string
-	for _, name := range []string{
-		"00-allow.toml", "01-structure.toml", "02-inline-code.toml", "03-wrappers.toml",
-	} {
-		paths = append(paths, filepath.Join("..", "..", "rules", name))
+	for _, line := range strings.Split(string(listing), "\n") {
+		if line = strings.TrimSpace(line); line != "" && !strings.HasPrefix(line, "#") {
+			paths = append(paths, filepath.Join(dir, line))
+		}
 	}
 	set, err := rules.Load(paths)
 	if err != nil {

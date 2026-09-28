@@ -3,3 +3,4 @@
 ../../01-structure.toml
 ../../02-inline-code.toml
 ../../03-wrappers.toml
+../../04-git-in-place.toml

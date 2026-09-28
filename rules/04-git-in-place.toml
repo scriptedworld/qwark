@@ -1,0 +1,27 @@
+# qwark, git runs from inside the repository it acts on.
+#
+# `-C <path>`, `--git-dir` and `--work-tree` each point git at a repository
+# other than the one the command runs in, so what the command appears to be
+# about and what it acts on differ. The agent has to be in the repository.
+# `GIT_DIR=` as a prefix is refused already, as an assignment.
+#
+# git takes `-C` only as a word of its own, so the pattern is exact. After a
+# subcommand, `-C` means copy detection on `log`, `diff` and `blame`, and with
+# nothing declared a pattern cannot tell the two positions apart, so that
+# spelling is refused too and the reason names the one that is not. Matching
+# only the word after `git` instead would let `git --no-pager -C x` through.
+
+[[rule]]
+id     = "no-git-elsewhere"
+action = "block"
+reason = """
+This points git at a repository other than the one the command runs in. Run
+git from inside the repository it acts on. For copy detection on log, diff or
+blame, spell it --find-copies."""
+
+  [[rule.clause]]
+  index   = "0"
+  pattern = "(.*/)?git"
+
+  [[rule.clause]]
+  pattern = "-C|--git-dir(=.*)?|--work-tree(=.*)?"
