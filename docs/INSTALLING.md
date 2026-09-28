@@ -17,6 +17,10 @@ through. Nothing warns you.
 
 ## Deploy a rule set
 
+I deploy the rules and install the binary myself. A session may write files in
+the source tree, `rules/` included, and stops there: it never runs the commands
+that move them into place, and says what is ready to go.
+
     install -d ~/.config/qwark/rules
     install -m 0644 rules/*.toml ~/.config/qwark/rules/
 
