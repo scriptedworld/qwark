@@ -94,8 +94,10 @@ are canonical, below.
 ## Phase one: a rule is still a conjunction
 
 The structural model is deployed, works, and is not in question. It is
-translated, not redesigned. `docs/DECISIONS/a-rule-is-a-conjunction.md` and
-`the-strictest-action-wins.md` both stand.
+translated, not redesigned.
+`docs/DECISIONS/a-rule-states-how-its-clauses-combine.md` and
+`precedence-decides-a-verdict.md` say how clauses combine and which verdict
+wins.
 
     "phase": 1
     "about": "Structural denials. Judged without knowing any command word."

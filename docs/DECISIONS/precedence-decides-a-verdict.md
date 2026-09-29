@@ -1,10 +1,9 @@
 # Precedence decides a verdict, so order never matters
 
-Superseded 2026-09-28. Where several rules match one command, the verdict is
-the one with the highest precedence: block over allow over ask over deny.
-FR-4.32 and FR-4.33.
+Where several rules match one command, the verdict is the one with the highest
+precedence: block over allow over ask over deny. FR-4.32 and FR-4.33.
 
-## What changed
+## Why
 
 A block is a refusal nothing lifts. An allow lifts any number of denies, and
 an ask lifts denies too, handing a narrow case to a person. Deleting a branch

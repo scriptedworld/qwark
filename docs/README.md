@@ -15,8 +15,8 @@ The reasoning that would otherwise survive only in a commit message.
 
 `why-a-parser-rather-than-a-matcher` ·
 `the-decision-model` ·
-`a-rule-is-a-conjunction` ·
-`the-strictest-action-wins` ·
+`a-rule-states-how-its-clauses-combine` ·
+`precedence-decides-a-verdict` ·
 `a-clause-states-one-of-three-forms` ·
 `addressing-a-command` ·
 `nothing-is-expanded`

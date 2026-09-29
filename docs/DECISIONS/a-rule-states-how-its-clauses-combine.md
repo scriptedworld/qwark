@@ -1,9 +1,9 @@
 # A rule states how its clauses combine, and all is the default
 
-Superseded 2026-09-27. A rule carries `match`, `all` or `any`, defaulting
-to `all`. FR-4.30 and FR-4.30a.
+A rule carries `match`, `all` or `any`, defaulting to `all`. FR-4.30 and
+FR-4.30a.
 
-## What changed
+## Why
 
 Conjunction only meant a rule refusing one of several unlike things had to be
 written once per thing. Similar rules became permutations of each other, and

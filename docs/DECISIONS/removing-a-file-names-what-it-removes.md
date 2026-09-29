@@ -41,14 +41,9 @@ A comment that explains a rule is part of that rule. Changing an action and
 leaving the explanation is how a file comes to document something that is not
 there, and the next reader believes the comment.
 
-## Recorded first-hand
+## Why it is a rule and not a practice
 
-I heard this ruling directly and am writing it down here, in this project's own
-decision record, because a ruling relayed between sessions is not recorded. It
-had already been repeated second-hand twice before this file existed.
-
-It did not hold while it was only spoken. I used `rm -r` to delete a resolved
-inbox entry within the hour, against a tree that was ungated at the time, having
-received the ruling in that same conversation. Nothing caught it because nothing
-was there to catch it. That is the argument for a boundary over care, and it is
-why the rule lives in `30-options.toml` and not only in a paragraph.
+Spoken, it did not hold. An `rm -r` deleted a resolved inbox entry within the
+hour of the ruling, on a tree that was ungated, and nothing caught it because
+nothing was there to catch it. That is the argument for a boundary over care,
+and why the rule lives in `30-options.toml` and not only in a paragraph.

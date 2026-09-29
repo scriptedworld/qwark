@@ -91,9 +91,3 @@ off, and because tier one still refuses the shapes that made them dangerous:
 `grep -rn x .` runs, `grep x *.md` is a glob, and `grep x f | head` is a pipe.
 Revisit when the proxy lands, which is the point at which the native tools
 replace these instead of competing with them.
-
-## Recorded first-hand
-
-I heard this ruling directly, in the conversation where the structural-only plan
-was abandoned, and am writing it here because a ruling that reaches other
-sessions by relay is not recorded anywhere that binds.

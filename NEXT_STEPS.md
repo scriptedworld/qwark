@@ -506,8 +506,7 @@ layers*.
   one. Neither is the other's backend, and both must read it or it binds
   nothing."*
 
-  That last clause is the whole of why the twin fails and grim would not. A twin
-  is a second list, kept in step by hand, and three such lists in this
+  A twin is a second list, kept in step by hand, and three such lists in this
   repository drifted off their subjects within a single day. One manifest read by
   two gates has no second list to keep in step. qwark's own decision file talks
   about "the proxy" generically and never names grim or states the

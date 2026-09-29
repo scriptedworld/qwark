@@ -34,11 +34,13 @@ A deployment names which files it loads, and the shipped set is not obliged to
 be the loaded set. `docs/RULES.md` says what each file holds, which is what you
 choose between.
 
-The rule files must not be writable by the user the agent runs as, and neither
-may the directory holding them. A writable directory permits unlink and
-replace, which defeats an unwritable file.
-`docs/DECISIONS/rule-files-must-not-be-writable-by-the-agent.md` carries what
-that costs and when it is worth paying.
+The live set is owned by the user the agent runs as, and qwark does not check
+its permissions: FR-4.17 is retired. What keeps an agent off it is the rule
+that an agent does not edit these files without me. The `permissions.deny` twin
+for the file tools is meant to back that, and `NEXT_STEPS.md` records that it
+does not hold.
+`docs/DECISIONS/rule-files-must-not-be-writable-by-the-agent.md` carries why
+the ownership check went and what would bring it back.
 
 ## Register the hook
 
