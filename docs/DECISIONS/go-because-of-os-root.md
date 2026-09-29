@@ -1,22 +1,23 @@
 # Go, because of `os.Root`
 
-This decision is superseded. qwark is being rewritten in Rust, and `os.Root`
-goes with it. The parser choice drove the language: tree-sitter-bash is a C
-library, which is cgo in Go and an ordinary crate in Rust, and the two grounds
-that chose `mvdan.cc/sh` were round-tripping, which this gate never uses, and
-no-cgo, which was an argument for a pure-Go parser inside a Go program.
+qwark is written in Go and stays in Go. The estate's other tools are Rust and
+Python, and bolt was moved off Go deliberately, so this is a choice and not a
+default.
 
+## The Rust rewrite, reversed
+
+A rewrite in Rust was decided and is reversed. The parser drove it:
+tree-sitter-bash is a C library, which is cgo in Go and an ordinary crate in
+Rust, and the two grounds that chose `mvdan.cc/sh` were round-tripping, which
+this gate never uses, and no-cgo, which matters only inside a Go program. Its
+cost was `cap-std` as a dependency where `os.Root` is standard library, for a
+tool whose whole job is containment.
+
+The premise underneath it did not hold. `what-the-two-parsers-actually-give.md`
+measured the two parsers, and tree-sitter-bash builds no better tree for what
+qwark judges and is worse in three places that carry deny rules.
 `silo/docs/DECISIONS/what-language-each-component-is-written-in.md` carries the
-ruling and states the cost: `cap-std` is a dependency where `os.Root` is
-standard library, for a tool whose whole job is containment. The section below
-is why that cost is real, so it is kept.
-
-Two of the costs below expire with the language. Branch coverage is measurable
-in Rust, and the one-statement `main` exists because a Go test process cannot
-reach `main`. The last section already said so.
-
-qwark is written in Go. The estate's other tools are Rust and Python, and bolt
-was moved off Go deliberately, so this is a choice and not a default.
+estate's language ruling.
 
 ## What decided it
 

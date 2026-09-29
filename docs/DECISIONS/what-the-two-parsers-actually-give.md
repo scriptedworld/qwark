@@ -1,14 +1,11 @@
 # What the two parsers actually give
 
-The Rust rewrite rests on a premise nobody had checked: that tree-sitter-bash
-builds a better and more specific tree for judging a command. This record
-measures it.
+The Rust rewrite, since reversed, rested on a premise nobody had checked: that
+tree-sitter-bash builds a better and more specific tree for judging a command.
+This record measures it.
 
 **It does not, for the thing qwark needs most, and it is worse in three places
-that currently carry deny rules.** The language ruling stands on its other
-grounds; this is the premise underneath it coming out the other way, which
-`silo/docs/DECISIONS/what-language-each-component-is-written-in.md` names itself
-as the place to record.
+that currently carry deny rules.** qwark stays in Go on `mvdan.cc/sh`.
 
 Evidence, with a script that regenerates it:
 `clank/tasks/qwark/rewrite/20-measure-the-two-parsers.*/evidence/`.

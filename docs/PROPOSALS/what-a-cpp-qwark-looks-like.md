@@ -1,7 +1,8 @@
 # What a C++ qwark looks like
 
-Status: an assessment. **Nothing is decided and the Rust ruling stands until it
-is changed.** It is written down because the estate records an assessment
+Status: an assessment, not adopted. **qwark stays in Go**, and the Rust ruling
+this compares against is reversed; `docs/DECISIONS/go-because-of-os-root.md`
+says why. It is written down because the estate records an assessment
 whether or not it changes the answer, the way
 `wrench/docs/DECISIONS/a-zig-pack-was-assessed-and-declined.md` does.
 

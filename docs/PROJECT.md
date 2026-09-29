@@ -4,11 +4,10 @@ A `PreToolUse` hook for Claude Code that decides whether a proposed Bash command
 may run. It takes the tool call on stdin, parses the command the way a shell
 would, judges it against declared rules, and answers with a decision.
 
-**Everything below describes the Go implementation, which is what is on disk and
-what gates this repository today.** A rewrite in Rust with tree-sitter-bash is
-decided and not started. The decision and its cost are in
-`silo/docs/DECISIONS/what-language-each-component-is-written-in.md`; the shape
-of the new rule set is `docs/PROPOSALS/a-tree-of-declared-commands.md` and
+**qwark is written in Go and stays in Go.** A rewrite in Rust with
+tree-sitter-bash was decided and is reversed; `docs/DECISIONS/go-because-of-os-root.md`
+says why. The shape of the new rule set is
+`docs/PROPOSALS/a-tree-of-declared-commands.md` and
 `docs/PROPOSALS/the-format-for-phases-one-and-two.md`. Read those before
 building anything new here, and read this file for anything that runs now.
 
