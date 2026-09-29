@@ -397,6 +397,11 @@ caught by a rule about running code supplied as an argument.
    declaration question: a `writes` flag per command, or per option.
 4. The manifest (FR-9.7), created by the task management process, read at
    runtime, saying which files may be read and which written.
+5. A pre-commit hook that runs `just checks`. The estate standard is that a
+   pre-commit hook calls `just` recipes, and qwark already has the recipe and
+   no other task runner. Where the hook lives, given the global
+   `core.hooksPath`, is silo's to answer:
+   `clank/inbox/silo/pre-commit-runs-just-recipes-in-every-repository`.
 
 **3 and 4 are the priority.** The end state is three layers: a sandbox, the blast
 radius, then the manifest. The sandbox absorbs four of the six path groups in

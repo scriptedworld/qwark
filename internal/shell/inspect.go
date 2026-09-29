@@ -113,6 +113,11 @@ func nameOf(node syntax.Node) string {
 	case *syntax.ParamExp:
 		return "param=" + n.Param.Value
 	case *syntax.Assign:
+		// An option to a declaration, the -x of `declare -x A=1`, is an
+		// Assign with a value and no name.
+		if n.Name == nil {
+			return ""
+		}
 		return "name=" + n.Name.Value
 	case *syntax.FuncDecl:
 		return "name=" + n.Name.Value

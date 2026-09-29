@@ -40,6 +40,63 @@ func TestTheOutlineNamesNodeTypesAsARuleMustSpellThem(t *testing.T) {
 	}
 }
 
+// COVERS: FR-3.1 | positive
+func TestTheOutlinePrintsEveryNodeTypeTheRulesCite(t *testing.T) {
+	t.Parallel()
+
+	// One command per name 01-structure.toml cites. The outline is the
+	// documented authority for that vocabulary, so a name it cannot print, or
+	// crashes printing, is a name no rule author can check.
+	cases := map[string]string{
+		"ArithmCmd":    `((x=1))`,
+		"ArithmExp":    `echo $((1+1))`,
+		"Assign":       `A=1 ls`,
+		"Block":        `{ ls; }`,
+		"CaseClause":   `case x in a) ls;; esac`,
+		"CmdSubst":     `echo $(ls)`,
+		"CoprocClause": `coproc ls`,
+		"DeclClause":   `declare -x A=1`,
+		"ForClause":    `for x in a; do ls; done`,
+		"FuncDecl":     `f() { ls; }`,
+		"IfClause":     `if true; then ls; fi`,
+		"LetClause":    `let x=1`,
+		"ParamExp":     `echo $HOME`,
+		"ProcSubst":    `diff <(ls) b`,
+		"Redirect":     `ls > a`,
+		"Subshell":     `(ls)`,
+		"TestClause":   `[[ -f a ]]`,
+		"TimeClause":   `time ls`,
+		"WhileClause":  `while true; do ls; done`,
+	}
+	for name, src := range cases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := outlineOf(t, src); !strings.Contains(got, " "+name+" ") {
+				t.Errorf("outline of %q does not name %s:\n%s", src, name, got)
+			}
+		})
+	}
+
+	// Background is a flag on the statement, not a node of its own.
+	if got := outlineOf(t, `sleep 1 &`); !strings.Contains(got, "background") {
+		t.Errorf("outline of a backgrounded command does not say so:\n%s", got)
+	}
+}
+
+// COVERS: FR-3.1 | regression
+func TestADeclarationOptionHasNoNameAndStillPrints(t *testing.T) {
+	t.Parallel()
+
+	// The -x in `declare -x A=1` parses as an Assign with a value and no name,
+	// and reading its name was a nil dereference that killed `qwark ast`.
+	got := outlineOf(t, `declare -x A=1`)
+
+	if !strings.Contains(got, "name=A") {
+		t.Errorf("outline lost the assignment beside the option:\n%s", got)
+	}
+}
+
 // COVERS: FR-3.1 | property
 func TestTheOutlineIsOneNodePerLine(t *testing.T) {
 	t.Parallel()
