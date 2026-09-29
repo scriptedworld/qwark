@@ -29,11 +29,9 @@ not about which parser. The predecessor's failure, the glob hybrid, and the
 limit that a tool-layer gate cannot see a path named at runtime are all
 parser-independent.
 
-The sentence naming tree-sitter-bash as the alternative is also the only
-comparison of the two parsers on record anywhere in the estate, and it says
-tree-sitter loses. The case for the swap is that it builds a better and more
-specific tree, and that claim is written down nowhere. Measuring it is queued at
-`clank/tasks/qwark/rewrite/10-agree-the-format.questions`.
+`what-the-two-parsers-actually-give.md` measures the two parsers against each
+other. tree-sitter-bash does not build a better tree for what qwark judges, and
+is worse in three places that carry deny rules.
 
 ## One tier-one rule is not a tree question, and it is a hybrid, not text
 
