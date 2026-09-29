@@ -6,7 +6,7 @@ import (
 	"github.com/scriptedworld/qwark/internal/rules"
 )
 
-// COVERS: FR-4.38 | positive
+// COVERS FR-4.38 | positive
 func TestTheLiveSetKeepsGitInTheRepositoryItActsOn(t *testing.T) {
 	t.Parallel()
 
@@ -25,7 +25,7 @@ func TestTheLiveSetKeepsGitInTheRepositoryItActsOn(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.38 | negative
+// COVERS FR-4.38 | negative
 func TestTheLiveSetRunsGitInPlace(t *testing.T) {
 	t.Parallel()
 

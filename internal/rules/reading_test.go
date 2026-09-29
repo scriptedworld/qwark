@@ -28,7 +28,7 @@ func wordAt(t *testing.T, src string, ordinal int) command.Word {
 	return word
 }
 
-// COVERS: FR-7.8 | positive
+// COVERS FR-7.8 | positive
 func TestTheTwoReadingsOfAWordDiffer(t *testing.T) {
 	t.Parallel()
 
@@ -70,7 +70,7 @@ func TestTheTwoReadingsOfAWordDiffer(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.8 | regression
+// COVERS FR-7.8 | regression
 func TestAClauseOnTheValueSeesThroughAnEscapedPath(t *testing.T) {
 	t.Parallel()
 
@@ -96,7 +96,7 @@ func TestAClauseOnTheValueSeesThroughAnEscapedPath(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.9 | negative
+// COVERS FR-7.9 | negative
 func TestAValueThatDoesNotExistDoesNotMatch(t *testing.T) {
 	t.Parallel()
 
@@ -113,7 +113,7 @@ func TestAValueThatDoesNotExistDoesNotMatch(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.8 | edge
+// COVERS FR-7.8 | edge
 func TestTheDefaultReadingIsTheInterpretedValue(t *testing.T) {
 	t.Parallel()
 

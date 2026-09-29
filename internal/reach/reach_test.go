@@ -31,7 +31,7 @@ func contains(t *testing.T, radius reach.Radius, base, path string) bool {
 	return inside
 }
 
-// COVERS: FR-9.1 | positive
+// COVERS FR-9.1 | positive
 func TestAPathInsideTheRadiusIsContained(t *testing.T) {
 	t.Parallel()
 
@@ -54,7 +54,7 @@ func TestAPathInsideTheRadiusIsContained(t *testing.T) {
 	}
 }
 
-// COVERS: FR-9.2 | negative
+// COVERS FR-9.2 | negative
 func TestASiblingWhoseNameSharesAPrefixIsNotContained(t *testing.T) {
 	t.Parallel()
 
@@ -79,7 +79,7 @@ func TestASiblingWhoseNameSharesAPrefixIsNotContained(t *testing.T) {
 	}
 }
 
-// COVERS: FR-9.2 | negative
+// COVERS FR-9.2 | negative
 func TestClimbingOutIsNotContained(t *testing.T) {
 	t.Parallel()
 
@@ -102,7 +102,7 @@ func TestClimbingOutIsNotContained(t *testing.T) {
 	}
 }
 
-// COVERS: FR-9.3 | positive
+// COVERS FR-9.3 | positive
 func TestARelativePathIsResolvedAgainstWhereTheCommandRuns(t *testing.T) {
 	t.Parallel()
 
@@ -131,7 +131,7 @@ func TestARelativePathIsResolvedAgainstWhereTheCommandRuns(t *testing.T) {
 	}
 }
 
-// COVERS: FR-9.4 | negative
+// COVERS FR-9.4 | negative
 func TestASymlinkLeavingTheRadiusIsNotContained(t *testing.T) {
 	t.Parallel()
 
@@ -160,7 +160,7 @@ func TestASymlinkLeavingTheRadiusIsNotContained(t *testing.T) {
 	}
 }
 
-// COVERS: FR-9.4 | edge
+// COVERS FR-9.4 | edge
 func TestAFileThatDoesNotExistYetIsStillPlaced(t *testing.T) {
 	t.Parallel()
 
@@ -185,7 +185,7 @@ func TestAFileThatDoesNotExistYetIsStillPlaced(t *testing.T) {
 	}
 }
 
-// COVERS: FR-9.4 | property
+// COVERS FR-9.4 | property
 func TestTheRadiusReportsItselfAsItWillBeCompared(t *testing.T) {
 	t.Parallel()
 
@@ -220,7 +220,7 @@ func reachResolved(t *testing.T, path string) string {
 	return resolved
 }
 
-// COVERS: FR-9.5 | negative
+// COVERS FR-9.5 | negative
 func TestARelativeRadiusOrBaseIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -236,7 +236,7 @@ func TestARelativeRadiusOrBaseIsRefused(t *testing.T) {
 	}
 }
 
-// COVERS: FR-9.1 | edge
+// COVERS FR-9.1 | edge
 func TestARadiusOfTheWholeFilesystemContainsEverything(t *testing.T) {
 	t.Parallel()
 

@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-// COVERS: FR-10.8 | property
+// COVERS FR-10.8 | property
 func TestQwarkRunsInOneGoroutine(t *testing.T) {
 	t.Parallel()
 
@@ -31,7 +31,7 @@ func TestQwarkRunsInOneGoroutine(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.19 | property
+// COVERS FR-4.19 | property
 func TestQwarkNeverExecutesAnything(t *testing.T) {
 	t.Parallel()
 

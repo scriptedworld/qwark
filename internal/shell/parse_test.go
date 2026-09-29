@@ -8,7 +8,7 @@ import (
 	"mvdan.cc/sh/v3/syntax"
 )
 
-// COVERS: FR-1.1 | positive
+// COVERS FR-1.1 | positive
 func TestParseAcceptsBashBeyondPOSIX(t *testing.T) {
 	t.Parallel()
 
@@ -34,7 +34,7 @@ func TestParseAcceptsBashBeyondPOSIX(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.2 | negative
+// COVERS FR-1.2 | negative
 func TestParseReportsWhereItStopped(t *testing.T) {
 	t.Parallel()
 
@@ -60,7 +60,7 @@ func TestParseReportsWhereItStopped(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.2 | property
+// COVERS FR-1.2 | property
 func TestParseErrorUnwrapsToTheParser(t *testing.T) {
 	t.Parallel()
 
@@ -76,7 +76,7 @@ func TestParseErrorUnwrapsToTheParser(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.3 | edge
+// COVERS FR-1.3 | edge
 func TestParseDistinguishesTruncationFromMalformation(t *testing.T) {
 	t.Parallel()
 
@@ -108,7 +108,7 @@ func TestParseDistinguishesTruncationFromMalformation(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.4 | positive
+// COVERS FR-1.4 | positive
 func TestTextReturnsSourceAsWritten(t *testing.T) {
 	t.Parallel()
 
@@ -138,7 +138,7 @@ func TestTextReturnsSourceAsWritten(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.4 | edge
+// COVERS FR-1.4 | edge
 func TestTextRefusesAnOutOfRangeNode(t *testing.T) {
 	t.Parallel()
 

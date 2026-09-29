@@ -80,7 +80,7 @@ reason = "The first argument may not be that."
   value = "LOUD"
 `
 
-// COVERS: FR-4.28 | positive
+// COVERS FR-4.28 | positive
 func TestADecisionNamesItsRuleAndQuotesTheCause(t *testing.T) {
 	t.Parallel()
 
@@ -102,7 +102,7 @@ func TestADecisionNamesItsRuleAndQuotesTheCause(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.34 | property
+// COVERS FR-4.34 | property
 func TestEveryReasonReachesTheReply(t *testing.T) {
 	t.Parallel()
 
@@ -129,7 +129,7 @@ func TestEveryReasonReachesTheReply(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.12 | negative
+// COVERS FR-4.12 | negative
 func TestACommandThatWillNotParseIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -147,7 +147,7 @@ func TestACommandThatWillNotParseIsRefused(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.20 | negative
+// COVERS FR-4.20 | negative
 func TestACallForAToolQwarkDoesNotModelIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -169,7 +169,7 @@ func TestACallForAToolQwarkDoesNotModelIsRefused(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.2 | negative
+// COVERS FR-10.2 | negative
 func TestAToolInputThatIsNotABashCallIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -190,7 +190,7 @@ func TestAToolInputThatIsNotABashCallIsRefused(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.12 | positive
+// COVERS FR-7.12 | positive
 func TestTheAgentTypeFromThePayloadReachesTheRules(t *testing.T) {
 	t.Parallel()
 
@@ -223,7 +223,7 @@ reason = "The gate runner may echo."
 	}
 }
 
-// COVERS: FR-4.31 | edge
+// COVERS FR-4.31 | edge
 func TestAnAskReachesTheReplyAsAnAsk(t *testing.T) {
 	t.Parallel()
 

@@ -17,7 +17,7 @@ func permitted() rules.ShellPolicy {
 	return rules.ShellPolicy{Allow: []string{"/bin/bash", "/usr/bin/bash"}}
 }
 
-// COVERS: FR-1.7 | positive
+// COVERS FR-1.7 | positive
 func TestAPermittedShellIsAccepted(t *testing.T) {
 	t.Parallel()
 
@@ -32,7 +32,7 @@ func TestAPermittedShellIsAccepted(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.5 | negative
+// COVERS FR-1.5 | negative
 func TestAnotherShellIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -60,7 +60,7 @@ func TestAnotherShellIsRefused(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.9 | negative
+// COVERS FR-1.9 | negative
 func TestSomethingMerelyNamedBashIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -87,7 +87,7 @@ func TestSomethingMerelyNamedBashIsRefused(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.10 | positive
+// COVERS FR-1.10 | positive
 func TestTwoSpellingsOfOneShellReachOneAnswer(t *testing.T) {
 	t.Parallel()
 
@@ -118,7 +118,7 @@ func TestTwoSpellingsOfOneShellReachOneAnswer(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.10 | negative
+// COVERS FR-1.10 | negative
 func TestAPermittedNameLinkedElsewhereIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -144,7 +144,7 @@ func TestAPermittedNameLinkedElsewhereIsRefused(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.7 | negative
+// COVERS FR-1.7 | negative
 func TestOmittingTheDeclarationIsARefusal(t *testing.T) {
 	t.Parallel()
 
@@ -160,7 +160,7 @@ func TestOmittingTheDeclarationIsARefusal(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.9 | negative
+// COVERS FR-1.9 | negative
 func TestARelativeEntryIsAConfigurationError(t *testing.T) {
 	t.Parallel()
 
@@ -180,7 +180,7 @@ func TestARelativeEntryIsAConfigurationError(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.8 | negative
+// COVERS FR-1.8 | negative
 func TestAnUnreportedShellIsARefusal(t *testing.T) {
 	t.Parallel()
 
@@ -192,7 +192,7 @@ func TestAnUnreportedShellIsARefusal(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.8 | property
+// COVERS FR-1.8 | property
 func TestARefusalSaysWhatRanAndWhatWasWanted(t *testing.T) {
 	t.Parallel()
 

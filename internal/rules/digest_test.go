@@ -22,7 +22,7 @@ func plantedSet(t *testing.T, body string) string {
 // minimal is a rule set that loads and decides nothing.
 const minimal = "[shell]\nallow=[\"/bin/bash\"]\n"
 
-// COVERS: FR-4.9b | positive
+// COVERS FR-4.9b | positive
 func TestALoadedSetCarriesADigest(t *testing.T) {
 	t.Parallel()
 
@@ -36,7 +36,7 @@ func TestALoadedSetCarriesADigest(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.9b | property
+// COVERS FR-4.9b | property
 func TestTheDigestIsOverContentAndNotPaths(t *testing.T) {
 	t.Parallel()
 
@@ -59,7 +59,7 @@ func TestTheDigestIsOverContentAndNotPaths(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.9b | negative
+// COVERS FR-4.9b | negative
 func TestChangingARuleChangesTheDigest(t *testing.T) {
 	t.Parallel()
 
@@ -82,7 +82,7 @@ func TestChangingARuleChangesTheDigest(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.9b | edge
+// COVERS FR-4.9b | edge
 func TestTheDigestIsStableAcrossLoads(t *testing.T) {
 	t.Parallel()
 

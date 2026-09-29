@@ -20,7 +20,7 @@ func selectOf(t *testing.T, spec string, last int) []int {
 	return index.Select(last)
 }
 
-// COVERS: FR-5.1 | positive
+// COVERS FR-5.1 | positive
 func TestOrdinalZeroIsTheCommandAndArgumentsRunFromOne(t *testing.T) {
 	t.Parallel()
 
@@ -47,7 +47,7 @@ func TestOrdinalZeroIsTheCommandAndArgumentsRunFromOne(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.2 | positive
+// COVERS FR-5.2 | positive
 func TestNegativeOrdinalsCountFromTheEnd(t *testing.T) {
 	t.Parallel()
 
@@ -75,7 +75,7 @@ func TestNegativeOrdinalsCountFromTheEnd(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.2 | property
+// COVERS FR-5.2 | property
 func TestTheLastOrdinalIsStableAgainstBundling(t *testing.T) {
 	t.Parallel()
 
@@ -93,7 +93,7 @@ func TestTheLastOrdinalIsStableAgainstBundling(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.3, FR-5.4 | positive
+// COVERS FR-5.3, FR-5.4 | positive
 func TestAnIndexMayNameSeveralOrdinals(t *testing.T) {
 	t.Parallel()
 
@@ -125,7 +125,7 @@ func TestAnIndexMayNameSeveralOrdinals(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.5 | edge
+// COVERS FR-5.5 | edge
 func TestAnOrdinalTheCommandLacksSelectsNothing(t *testing.T) {
 	t.Parallel()
 
@@ -159,7 +159,7 @@ func TestAnOrdinalTheCommandLacksSelectsNothing(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.5 | edge
+// COVERS FR-5.5 | edge
 func TestARangeRunningBackwardsNamesNothing(t *testing.T) {
 	t.Parallel()
 
@@ -178,7 +178,7 @@ func TestARangeRunningBackwardsNamesNothing(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.6, FR-5.13 | negative
+// COVERS FR-5.6, FR-5.13 | negative
 func TestAMalformedIndexIsAConfigurationError(t *testing.T) {
 	t.Parallel()
 
@@ -210,7 +210,7 @@ func TestAMalformedIndexIsAConfigurationError(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.11 | positive
+// COVERS FR-5.11 | positive
 func TestEitherEndOfARangeMayBeLeftOff(t *testing.T) {
 	t.Parallel()
 
@@ -243,7 +243,7 @@ func TestEitherEndOfARangeMayBeLeftOff(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.6 | property
+// COVERS FR-5.6 | property
 func TestAnIndexQuotesItselfAsWritten(t *testing.T) {
 	t.Parallel()
 

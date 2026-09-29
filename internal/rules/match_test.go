@@ -11,7 +11,7 @@ import (
 // from "stated as empty".
 func ptr(s string) *string { return &s }
 
-// COVERS: FR-7.1 | positive
+// COVERS FR-7.1 | positive
 func TestValueMatchesTheWholeWordExactly(t *testing.T) {
 	t.Parallel()
 
@@ -30,7 +30,7 @@ func TestValueMatchesTheWholeWordExactly(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.2 | positive
+// COVERS FR-7.2 | positive
 func TestPartialMatchesAnywhereWithin(t *testing.T) {
 	t.Parallel()
 
@@ -53,7 +53,7 @@ func TestPartialMatchesAnywhereWithin(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.2 | property
+// COVERS FR-7.2 | property
 func TestPartialIsTheBroadFormAndSaysSo(t *testing.T) {
 	t.Parallel()
 
@@ -74,7 +74,7 @@ func TestPartialIsTheBroadFormAndSaysSo(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.5 | negative
+// COVERS FR-7.5 | negative
 func TestAnEmptyPartialIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -90,7 +90,7 @@ func TestAnEmptyPartialIsRefused(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.3 | property
+// COVERS FR-7.3 | property
 func TestAPatternMustMatchTheWholeValue(t *testing.T) {
 	t.Parallel()
 
@@ -126,7 +126,7 @@ func TestAPatternMustMatchTheWholeValue(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.3 | edge
+// COVERS FR-7.3 | edge
 func TestAnAlternationCannotEscapeTheAnchors(t *testing.T) {
 	t.Parallel()
 
@@ -142,7 +142,7 @@ func TestAnAlternationCannotEscapeTheAnchors(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.4 | negative
+// COVERS FR-7.4 | negative
 func TestAPatternThatWillNotCompileIsAConfigurationError(t *testing.T) {
 	t.Parallel()
 
@@ -151,7 +151,7 @@ func TestAPatternThatWillNotCompileIsAConfigurationError(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.6 | positive
+// COVERS FR-7.6 | positive
 func TestASpecStatesExactlyOneForm(t *testing.T) {
 	t.Parallel()
 
@@ -180,7 +180,7 @@ func TestASpecStatesExactlyOneForm(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.6 | negative
+// COVERS FR-7.6 | negative
 func TestASpecStatingNoneOrSeveralIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -215,7 +215,7 @@ func TestASpecStatingNoneOrSeveralIsRefused(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.7 | positive
+// COVERS FR-7.7 | positive
 func TestAMatchQuotesItselfAsWritten(t *testing.T) {
 	t.Parallel()
 
@@ -236,7 +236,7 @@ func TestAMatchQuotesItselfAsWritten(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.6 | edge
+// COVERS FR-7.6 | edge
 func TestAMatchThatWasNeverStatedTestsNothing(t *testing.T) {
 	t.Parallel()
 

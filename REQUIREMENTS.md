@@ -9,7 +9,7 @@ not how the code is arranged. Mechanism appears only where the mechanism is itse
 the requirement.
 
 The chain is followed in both directions. A design entry says why; a
-requirement says what must be true; a test says `COVERS:` and names the
+requirement says what must be true; a test says `COVERS` and names the
 requirement it discharges. The `traceability` task enforces the second link
 mechanically; the first is enforced by review.
 

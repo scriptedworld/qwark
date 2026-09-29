@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-// COVERS: FR-4.37 | positive
+// COVERS FR-4.37 | positive
 func TestCasesPrintsAPassingEnvelope(t *testing.T) {
 	t.Parallel()
 
@@ -21,7 +21,7 @@ func TestCasesPrintsAPassingEnvelope(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.37 | negative
+// COVERS FR-4.37 | negative
 func TestCasesPrintsAFailingEnvelopeAndExitsNonZero(t *testing.T) {
 	t.Parallel()
 
@@ -55,7 +55,7 @@ func TestCasesPrintsAFailingEnvelopeAndExitsNonZero(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.37 | negative
+// COVERS FR-4.37 | negative
 func TestCasesRefusesADirectoryThatIsNotASuite(t *testing.T) {
 	t.Parallel()
 

@@ -18,7 +18,7 @@ func factsOf(t *testing.T, src string) *shell.Facts {
 	return parsed.Facts()
 }
 
-// COVERS: FR-2.1 | positive
+// COVERS FR-2.1 | positive
 func TestOneGatherAnswersForEveryFact(t *testing.T) {
 	t.Parallel()
 
@@ -43,7 +43,7 @@ func TestOneGatherAnswersForEveryFact(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.2 | property
+// COVERS FR-2.2 | property
 func TestAFactRecordsEveryLevelItSatisfies(t *testing.T) {
 	t.Parallel()
 
@@ -82,7 +82,7 @@ func TestAFactRecordsEveryLevelItSatisfies(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.3 | positive
+// COVERS FR-2.3 | positive
 func TestRedirectionsAreDistinguishedByWhatTheyDo(t *testing.T) {
 	t.Parallel()
 
@@ -116,7 +116,7 @@ func TestRedirectionsAreDistinguishedByWhatTheyDo(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.4 | negative
+// COVERS FR-2.4 | negative
 func TestAPipeIsNotALogicalConcatenation(t *testing.T) {
 	t.Parallel()
 
@@ -147,7 +147,7 @@ func TestAPipeIsNotALogicalConcatenation(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.5 | positive
+// COVERS FR-2.5 | positive
 func TestTheFourSubstitutionsAreNamedSeparately(t *testing.T) {
 	t.Parallel()
 
@@ -176,7 +176,7 @@ func TestTheFourSubstitutionsAreNamedSeparately(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.6 | edge
+// COVERS FR-2.6 | edge
 func TestAWildcardCountsOnlyWhereTheShellWouldExpandOne(t *testing.T) {
 	t.Parallel()
 
@@ -204,7 +204,7 @@ func TestAWildcardCountsOnlyWhereTheShellWouldExpandOne(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.7 | positive
+// COVERS FR-2.7 | positive
 func TestEveryFindingCarriesItsPositionAndText(t *testing.T) {
 	t.Parallel()
 
@@ -229,7 +229,7 @@ func TestEveryFindingCarriesItsPositionAndText(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.7 | negative
+// COVERS FR-2.7 | negative
 func TestAnAbsentFactHasNoFinding(t *testing.T) {
 	t.Parallel()
 
@@ -246,7 +246,7 @@ func TestAnAbsentFactHasNoFinding(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.8 | positive
+// COVERS FR-2.8 | positive
 func TestEveryCommandFormCarriesAFact(t *testing.T) {
 	t.Parallel()
 
@@ -276,7 +276,7 @@ func TestEveryCommandFormCarriesAFact(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.9 | regression
+// COVERS FR-2.9 | regression
 func TestAStatementWithNoCommandNameIsStillAddressable(t *testing.T) {
 	t.Parallel()
 
@@ -296,7 +296,7 @@ func TestAStatementWithNoCommandNameIsStillAddressable(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.1 | property
+// COVERS FR-2.1 | property
 func TestCountReportsEveryOccurrence(t *testing.T) {
 	t.Parallel()
 

@@ -8,7 +8,7 @@ import (
 	"github.com/scriptedworld/qwark/internal/rules"
 )
 
-// COVERS: FR-4.31 | positive
+// COVERS FR-4.31 | positive
 func TestEveryActionIsAccepted(t *testing.T) {
 	t.Parallel()
 
@@ -35,7 +35,7 @@ func TestEveryActionIsAccepted(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.30 | negative
+// COVERS FR-4.30 | negative
 func TestEveryClauseMustHoldForARuleToApply(t *testing.T) {
 	t.Parallel()
 
@@ -71,7 +71,7 @@ reason = "Both clauses held."
 	}
 }
 
-// COVERS: FR-4.30 | positive
+// COVERS FR-4.30 | positive
 func TestAnAnyRuleAppliesOnOneClause(t *testing.T) {
 	t.Parallel()
 
@@ -110,7 +110,7 @@ reason = "One clause held."
 	}
 }
 
-// COVERS: FR-4.30a | negative
+// COVERS FR-4.30a | negative
 func TestAnyIsRefusedOnAnActionThatWidens(t *testing.T) {
 	t.Parallel()
 
@@ -127,7 +127,7 @@ func TestAnyIsRefusedOnAnActionThatWidens(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.13b, FR-4.23 | negative
+// COVERS FR-4.13b, FR-4.23 | negative
 func TestADeclarationPermitsNothingByItself(t *testing.T) {
 	t.Parallel()
 
@@ -146,7 +146,7 @@ func TestADeclarationPermitsNothingByItself(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.20 | negative
+// COVERS FR-4.20 | negative
 func TestACommandFormWithNoCommandIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -174,7 +174,7 @@ reason = "Everything."
 	}
 }
 
-// COVERS: FR-7.10 | property
+// COVERS FR-7.10 | property
 func TestNoPatternCanMakeTheGateSlow(t *testing.T) {
 	t.Parallel()
 

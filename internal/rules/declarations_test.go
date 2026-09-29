@@ -48,7 +48,7 @@ func says(outcome rules.Outcome, text string) bool {
 	return false
 }
 
-// COVERS: FR-4.16 | positive
+// COVERS FR-4.16 | positive
 func TestAnUndeclaredCommandIsRefusedByDefault(t *testing.T) {
 	t.Parallel()
 
@@ -65,7 +65,7 @@ func TestAnUndeclaredCommandIsRefusedByDefault(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.16 | negative
+// COVERS FR-4.16 | negative
 func TestARuleSetMaySayDeclarationsAreNotRequired(t *testing.T) {
 	t.Parallel()
 
@@ -85,7 +85,7 @@ func TestARuleSetMaySayDeclarationsAreNotRequired(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.7 | positive
+// COVERS FR-6.7 | positive
 func TestAnUndeclaredOptionIsRefusedByDefault(t *testing.T) {
 	t.Parallel()
 
@@ -103,7 +103,7 @@ func TestAnUndeclaredOptionIsRefusedByDefault(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.7 | negative
+// COVERS FR-6.7 | negative
 func TestARuleSetMaySayOptionsNeedNotBeAccounted(t *testing.T) {
 	t.Parallel()
 
@@ -122,7 +122,7 @@ func TestARuleSetMaySayOptionsNeedNotBeAccounted(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.7 | property
+// COVERS FR-6.7 | property
 func TestTurningOffTheCommandCheckDoesNotTurnOffTheOptionCheck(t *testing.T) {
 	t.Parallel()
 
@@ -144,7 +144,7 @@ func TestTurningOffTheCommandCheckDoesNotTurnOffTheOptionCheck(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.13a | negative
+// COVERS FR-4.13a | negative
 func TestTwoFilesCannotBothDecideWhetherDeclarationsAreRequired(t *testing.T) {
 	t.Parallel()
 
@@ -173,7 +173,7 @@ const observing = "[shell]\nallow=[\"/bin/bash\"]\n" +
 	"\n[[rule]]\nid=\"deny-no\"\naction=\"deny\"\nreason=\"r\"\n" +
 	"  [[rule.clause]]\n  value=\"no\"\n"
 
-// COVERS: FR-4.35 | positive
+// COVERS FR-4.35 | positive
 func TestAnAllowDefaultPermitsWhatNoRuleDecided(t *testing.T) {
 	t.Parallel()
 
@@ -188,7 +188,7 @@ func TestAnAllowDefaultPermitsWhatNoRuleDecided(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.35 | negative
+// COVERS FR-4.35 | negative
 func TestAnAllowDefaultLiftsNoAskAndNoDeny(t *testing.T) {
 	t.Parallel()
 
@@ -202,7 +202,7 @@ func TestAnAllowDefaultLiftsNoAskAndNoDeny(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.35 | negative
+// COVERS FR-4.35 | negative
 func TestADefaultOtherThanAllowOrDenyIsRefused(t *testing.T) {
 	t.Parallel()
 

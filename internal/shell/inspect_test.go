@@ -24,7 +24,7 @@ func outlineOf(t *testing.T, src string) string {
 	return out.String()
 }
 
-// COVERS: FR-3.1 | positive
+// COVERS FR-3.1 | positive
 func TestTheOutlineNamesNodeTypesAsARuleMustSpellThem(t *testing.T) {
 	t.Parallel()
 
@@ -40,7 +40,7 @@ func TestTheOutlineNamesNodeTypesAsARuleMustSpellThem(t *testing.T) {
 	}
 }
 
-// COVERS: FR-3.1 | positive
+// COVERS FR-3.1 | positive
 func TestTheOutlinePrintsEveryNodeTypeTheRulesCite(t *testing.T) {
 	t.Parallel()
 
@@ -84,7 +84,7 @@ func TestTheOutlinePrintsEveryNodeTypeTheRulesCite(t *testing.T) {
 	}
 }
 
-// COVERS: FR-3.1 | regression
+// COVERS FR-3.1 | regression
 func TestADeclarationOptionHasNoNameAndStillPrints(t *testing.T) {
 	t.Parallel()
 
@@ -97,7 +97,7 @@ func TestADeclarationOptionHasNoNameAndStillPrints(t *testing.T) {
 	}
 }
 
-// COVERS: FR-3.1 | property
+// COVERS FR-3.1 | property
 func TestTheOutlineIsOneNodePerLine(t *testing.T) {
 	t.Parallel()
 
@@ -110,7 +110,7 @@ func TestTheOutlineIsOneNodePerLine(t *testing.T) {
 	}
 }
 
-// COVERS: FR-3.1 | positive
+// COVERS FR-3.1 | positive
 func TestTheOutlineDistinguishesOperators(t *testing.T) {
 	t.Parallel()
 
@@ -142,7 +142,7 @@ func TestTheOutlineDistinguishesOperators(t *testing.T) {
 	}
 }
 
-// COVERS: FR-3.1 | edge
+// COVERS FR-3.1 | edge
 func TestALongNodeIsTruncatedRatherThanWrapped(t *testing.T) {
 	t.Parallel()
 
@@ -161,7 +161,7 @@ func TestALongNodeIsTruncatedRatherThanWrapped(t *testing.T) {
 	}
 }
 
-// COVERS: FR-3.1 | edge
+// COVERS FR-3.1 | edge
 func TestDeepNestingStillIndents(t *testing.T) {
 	t.Parallel()
 

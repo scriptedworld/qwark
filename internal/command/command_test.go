@@ -42,7 +42,7 @@ func outerSimple(t *testing.T, src string) command.Simple {
 	return found[0]
 }
 
-// COVERS: FR-5.1 | positive
+// COVERS FR-5.1 | positive
 func TestWordsCarryTheirOrdinalAndTheirText(t *testing.T) {
 	t.Parallel()
 
@@ -70,7 +70,7 @@ func TestWordsCarryTheirOrdinalAndTheirText(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.1, FR-5.2 | positive
+// COVERS FR-5.1, FR-5.2 | positive
 func TestACommandReportsItsNameAndItsLastOrdinal(t *testing.T) {
 	t.Parallel()
 
@@ -100,7 +100,7 @@ func TestACommandReportsItsNameAndItsLastOrdinal(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.7 | negative
+// COVERS FR-5.7 | negative
 func TestAWordHoldingASubstitutionIsUndetermined(t *testing.T) {
 	t.Parallel()
 
@@ -138,7 +138,7 @@ func TestAWordHoldingASubstitutionIsUndetermined(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.7 | positive
+// COVERS FR-5.7 | positive
 func TestQuotingIsResolvedWithoutExpandingAnything(t *testing.T) {
 	t.Parallel()
 
@@ -173,7 +173,7 @@ func TestQuotingIsResolvedWithoutExpandingAnything(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.9 | positive
+// COVERS FR-5.9 | positive
 func TestEscapesResolveTheWayTheShellResolvesThem(t *testing.T) {
 	t.Parallel()
 
@@ -210,7 +210,7 @@ func TestEscapesResolveTheWayTheShellResolvesThem(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.9 | regression
+// COVERS FR-5.9 | regression
 func TestAnEscapeInsideAPathDoesNotHideIt(t *testing.T) {
 	t.Parallel()
 
@@ -224,7 +224,7 @@ func TestAnEscapeInsideAPathDoesNotHideIt(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.10 | positive
+// COVERS FR-5.10 | positive
 func TestAnEscapedCommandNameIsDistinguishable(t *testing.T) {
 	t.Parallel()
 
@@ -246,7 +246,7 @@ func TestAnEscapedCommandNameIsDistinguishable(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.7 | edge
+// COVERS FR-5.7 | edge
 func TestACommandNamedByASubstitutionHasNoName(t *testing.T) {
 	t.Parallel()
 
@@ -257,7 +257,7 @@ func TestACommandNamedByASubstitutionHasNoName(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.8 | positive
+// COVERS FR-5.8 | positive
 func TestEverySimpleCommandInAStructureIsFound(t *testing.T) {
 	t.Parallel()
 
@@ -282,7 +282,7 @@ func TestEverySimpleCommandInAStructureIsFound(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.8 | negative
+// COVERS FR-5.8 | negative
 func TestABareAssignmentIsNotACommand(t *testing.T) {
 	t.Parallel()
 
@@ -298,7 +298,7 @@ func TestABareAssignmentIsNotACommand(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.5 | negative
+// COVERS FR-5.5 | negative
 func TestAtRefusesAnOrdinalTheCommandLacks(t *testing.T) {
 	t.Parallel()
 

@@ -12,7 +12,7 @@ import (
 	"github.com/scriptedworld/qwark/internal/shell"
 )
 
-// COVERS: FR-10.9 | property
+// COVERS FR-10.9 | property
 func TestTheRegistrationRefusesWhenQwarkDies(t *testing.T) {
 	t.Parallel()
 
@@ -60,7 +60,7 @@ func TestTheRegistrationRefusesWhenQwarkDies(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.10 | property
+// COVERS FR-10.10 | property
 func TestTheRegistrationCarriesTheDenyListQwarkCannotEnforce(t *testing.T) {
 	t.Parallel()
 
@@ -112,7 +112,7 @@ func TestTheRegistrationCarriesTheDenyListQwarkCannotEnforce(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.21 | positive
+// COVERS FR-4.21 | positive
 func TestTheShippedRulesDenyWrappersByName(t *testing.T) {
 	t.Parallel()
 
@@ -142,7 +142,7 @@ func TestTheShippedRulesDenyWrappersByName(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.21 | positive
+// COVERS FR-4.21 | positive
 func TestTheShippedRulesDenyTaskRunnersByName(t *testing.T) {
 	t.Parallel()
 
@@ -183,7 +183,7 @@ func TestTheShippedRulesDenyTaskRunnersByName(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.11 | regression
+// COVERS FR-10.11 | regression
 func TestTheGuardCoversThePathsQwarkActuallyUses(t *testing.T) {
 	t.Parallel()
 
@@ -233,7 +233,7 @@ func TestTheGuardCoversThePathsQwarkActuallyUses(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.11 | regression
+// COVERS FR-10.11 | regression
 func TestTheDenyTwinCoversThePathsQwarkActuallyUses(t *testing.T) {
 	t.Parallel()
 
@@ -319,7 +319,7 @@ func shippedVerdict(t *testing.T, src string) (rules.Outcome, []string) {
 	return outcome, fired
 }
 
-// COVERS: FR-4.3 | positive
+// COVERS FR-4.3 | positive
 func TestTheShippedRulesForbidTierOneAsOneProperty(t *testing.T) {
 	t.Parallel()
 
@@ -373,7 +373,7 @@ func TestTheShippedRulesForbidTierOneAsOneProperty(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.10 | positive
+// COVERS FR-4.10 | positive
 func TestTheShippedRulesRefuseAHeredocWriteInItsOwnRight(t *testing.T) {
 	t.Parallel()
 

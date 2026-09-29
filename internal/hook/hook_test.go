@@ -25,7 +25,7 @@ const payload = `{
   "tool_input": {"command": "rm -rf x", "description": "remove", "timeout": 120}
 }`
 
-// COVERS: FR-10.1 | positive
+// COVERS FR-10.1 | positive
 func TestARequestIsReadAsItIsSent(t *testing.T) {
 	t.Parallel()
 
@@ -54,7 +54,7 @@ func TestARequestIsReadAsItIsSent(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.6 | positive
+// COVERS FR-10.6 | positive
 func TestTheAskingAgentIsIdentified(t *testing.T) {
 	t.Parallel()
 
@@ -74,7 +74,7 @@ func TestTheAskingAgentIsIdentified(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.1 | positive
+// COVERS FR-10.1 | positive
 func TestTheBashCallIsReadFromTheToolInput(t *testing.T) {
 	t.Parallel()
 
@@ -95,7 +95,7 @@ func TestTheBashCallIsReadFromTheToolInput(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.2 | negative
+// COVERS FR-10.2 | negative
 func TestAPayloadThatCannotBeReadIsARefusal(t *testing.T) {
 	t.Parallel()
 
@@ -113,7 +113,7 @@ func TestAPayloadThatCannotBeReadIsARefusal(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.2 | negative
+// COVERS FR-10.2 | negative
 func TestAToolInputThatIsNotTheToolsIsARefusal(t *testing.T) {
 	t.Parallel()
 
@@ -128,7 +128,7 @@ func TestAToolInputThatIsNotTheToolsIsARefusal(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.4 | positive
+// COVERS FR-10.4 | positive
 func TestAReplyNamesTheEventItAnswers(t *testing.T) {
 	t.Parallel()
 
@@ -163,7 +163,7 @@ func TestAReplyNamesTheEventItAnswers(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.5 | property
+// COVERS FR-10.5 | property
 func TestTheDecisionsAreTheOnesClaudeCodeAccepts(t *testing.T) {
 	t.Parallel()
 
@@ -182,7 +182,7 @@ func TestTheDecisionsAreTheOnesClaudeCodeAccepts(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.7 | negative
+// COVERS FR-10.7 | negative
 func TestQwarkNeverRewritesTheCommand(t *testing.T) {
 	t.Parallel()
 
@@ -212,7 +212,7 @@ func TestQwarkNeverRewritesTheCommand(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.5 | negative
+// COVERS FR-10.5 | negative
 func TestQwarkNeverAnswersDefer(t *testing.T) {
 	t.Parallel()
 
@@ -232,7 +232,7 @@ func TestQwarkNeverAnswersDefer(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.6a | edge
+// COVERS FR-10.6a | edge
 func TestAMainSessionCallCarriesNoAgentAndIsStillRead(t *testing.T) {
 	t.Parallel()
 

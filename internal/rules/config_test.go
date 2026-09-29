@@ -6,7 +6,7 @@ import (
 	"github.com/scriptedworld/qwark/internal/rules"
 )
 
-// COVERS: FR-4.32 | property
+// COVERS FR-4.32 | property
 func TestTheHigherPrecedenceActionOutranksTheRest(t *testing.T) {
 	t.Parallel()
 
@@ -25,7 +25,7 @@ func TestTheHigherPrecedenceActionOutranksTheRest(t *testing.T) {
 	}
 }
 
-// COVERS: FR-8.1 | negative
+// COVERS FR-8.1 | negative
 func TestTaggingDecidesNothing(t *testing.T) {
 	t.Parallel()
 
@@ -49,7 +49,7 @@ func TestTaggingDecidesNothing(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.4 | edge
+// COVERS FR-4.4 | edge
 func TestSomethingThatIsNotAnActionRanksBelowEverything(t *testing.T) {
 	t.Parallel()
 

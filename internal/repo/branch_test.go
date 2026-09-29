@@ -32,7 +32,7 @@ func write(t *testing.T, path, content string) {
 	}
 }
 
-// COVERS: FR-8.9 | positive
+// COVERS FR-8.9 | positive
 func TestTheCheckedOutBranchIsRead(t *testing.T) {
 	t.Parallel()
 
@@ -63,7 +63,7 @@ func TestTheCheckedOutBranchIsRead(t *testing.T) {
 	}
 }
 
-// COVERS: FR-8.9 | positive
+// COVERS FR-8.9 | positive
 func TestTheRepositoryIsFoundFromASubdirectory(t *testing.T) {
 	t.Parallel()
 
@@ -82,7 +82,7 @@ func TestTheRepositoryIsFoundFromASubdirectory(t *testing.T) {
 	}
 }
 
-// COVERS: FR-8.9 | edge
+// COVERS FR-8.9 | edge
 func TestADetachedHeadHasNoBranch(t *testing.T) {
 	t.Parallel()
 
@@ -103,7 +103,7 @@ func TestADetachedHeadHasNoBranch(t *testing.T) {
 	}
 }
 
-// COVERS: FR-8.9 | negative
+// COVERS FR-8.9 | negative
 func TestSomewhereWithNoRepositoryReportsSo(t *testing.T) {
 	t.Parallel()
 
@@ -113,7 +113,7 @@ func TestSomewhereWithNoRepositoryReportsSo(t *testing.T) {
 	}
 }
 
-// COVERS: FR-8.9 | edge
+// COVERS FR-8.9 | edge
 func TestAWorktreeRedirectionIsFollowed(t *testing.T) {
 	t.Parallel()
 
@@ -159,7 +159,7 @@ func TestAWorktreeRedirectionIsFollowed(t *testing.T) {
 	}
 }
 
-// COVERS: FR-8.9 | negative
+// COVERS FR-8.9 | negative
 func TestAMalformedRedirectionIsReported(t *testing.T) {
 	t.Parallel()
 
@@ -177,7 +177,7 @@ func TestAMalformedRedirectionIsReported(t *testing.T) {
 	}
 }
 
-// COVERS: FR-8.9 | negative
+// COVERS FR-8.9 | negative
 func TestAnAbsentHeadIsReported(t *testing.T) {
 	t.Parallel()
 

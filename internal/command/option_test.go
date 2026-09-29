@@ -64,7 +64,7 @@ func decomposeOf(t *testing.T, src string) command.Options {
 	return options
 }
 
-// COVERS: FR-6.2, FR-6.4 | positive
+// COVERS FR-6.2, FR-6.4 | positive
 func TestForcingIsRecognisedHoweverItIsSpelled(t *testing.T) {
 	t.Parallel()
 
@@ -91,7 +91,7 @@ func TestForcingIsRecognisedHoweverItIsSpelled(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.5 | negative
+// COVERS FR-6.5 | negative
 func TestNothingAfterTheTerminatorIsAnOption(t *testing.T) {
 	t.Parallel()
 
@@ -105,7 +105,7 @@ func TestNothingAfterTheTerminatorIsAnOption(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.9 | edge
+// COVERS FR-6.9 | edge
 func TestALoneDashIsAnOperand(t *testing.T) {
 	t.Parallel()
 
@@ -119,7 +119,7 @@ func TestALoneDashIsAnOperand(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.1, FR-6.6 | positive
+// COVERS FR-6.1, FR-6.6 | positive
 func TestTheSameLetterMeansDifferentThingsToDifferentCommands(t *testing.T) {
 	t.Parallel()
 
@@ -143,7 +143,7 @@ func TestTheSameLetterMeansDifferentThingsToDifferentCommands(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.6 | positive
+// COVERS FR-6.6 | positive
 func TestAValueMayArriveThreeWays(t *testing.T) {
 	t.Parallel()
 
@@ -181,7 +181,7 @@ func TestAValueMayArriveThreeWays(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.3 | edge
+// COVERS FR-6.3 | edge
 func TestAnExactNameBeatsAnAbbreviationOfAnother(t *testing.T) {
 	t.Parallel()
 
@@ -197,7 +197,7 @@ func TestAnExactNameBeatsAnAbbreviationOfAnother(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.7 | negative
+// COVERS FR-6.7 | negative
 func TestAnAmbiguousAbbreviationIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -213,7 +213,7 @@ func TestAnAmbiguousAbbreviationIsRefused(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.7 | negative
+// COVERS FR-6.7 | negative
 func TestAnUndeclaredOptionIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -244,7 +244,7 @@ func TestAnUndeclaredOptionIsRefused(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.8 | property
+// COVERS FR-6.8 | property
 func TestEveryFaultIsReportedNotOnlyTheFirst(t *testing.T) {
 	t.Parallel()
 
@@ -262,7 +262,7 @@ func TestEveryFaultIsReportedNotOnlyTheFirst(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.10 | positive
+// COVERS FR-6.10 | positive
 func TestOnlyDeclaredPathsAreReportedAsPaths(t *testing.T) {
 	t.Parallel()
 
@@ -299,7 +299,7 @@ func TestOnlyDeclaredPathsAreReportedAsPaths(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.10 | property
+// COVERS FR-6.10 | property
 func TestAPathReportsWhereItWasWritten(t *testing.T) {
 	t.Parallel()
 
@@ -318,7 +318,7 @@ func TestAPathReportsWhereItWasWritten(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.11 | negative
+// COVERS FR-6.11 | negative
 func TestAnUndeclaredKindSelectsNothing(t *testing.T) {
 	t.Parallel()
 
@@ -332,7 +332,7 @@ func TestAnUndeclaredKindSelectsNothing(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.8 | property
+// COVERS FR-6.8 | property
 func TestAFaultSaysWhichArgumentAndWhy(t *testing.T) {
 	t.Parallel()
 
@@ -350,7 +350,7 @@ func TestAFaultSaysWhichArgumentAndWhy(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.16 | negative
+// COVERS FR-4.16 | negative
 func TestACommandWithNoDeclarationIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -361,7 +361,7 @@ func TestACommandWithNoDeclarationIsRefused(t *testing.T) {
 	}
 }
 
-// COVERS: FR-5.7, FR-6.7 | negative
+// COVERS FR-5.7, FR-6.7 | negative
 func TestAWordThatIsNotFixedByItsTextIsAFault(t *testing.T) {
 	t.Parallel()
 
@@ -375,7 +375,7 @@ func TestAWordThatIsNotFixedByItsTextIsAFault(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.1 | positive
+// COVERS FR-6.1 | positive
 func TestOperandsAreReportedByOrdinal(t *testing.T) {
 	t.Parallel()
 

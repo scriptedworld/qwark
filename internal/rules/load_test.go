@@ -46,7 +46,7 @@ func mustFail(t *testing.T, files map[string]string, want error) string {
 	return err.Error()
 }
 
-// COVERS: FR-4.15 | positive
+// COVERS FR-4.15 | positive
 func TestADirectoryContributesEveryRuleFileInIt(t *testing.T) {
 	t.Parallel()
 
@@ -65,7 +65,7 @@ func TestADirectoryContributesEveryRuleFileInIt(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.15 | negative
+// COVERS FR-4.15 | negative
 func TestNothingToLoadIsARefusal(t *testing.T) {
 	t.Parallel()
 
@@ -82,7 +82,7 @@ func TestNothingToLoadIsARefusal(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.6 | negative
+// COVERS FR-4.6 | negative
 func TestASyntaxErrorNamesTheFileAndThePosition(t *testing.T) {
 	t.Parallel()
 
@@ -99,7 +99,7 @@ func TestASyntaxErrorNamesTheFileAndThePosition(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.13a | negative
+// COVERS FR-4.13a | negative
 func TestOneFileMayNotRedefineAnothersDefinition(t *testing.T) {
 	t.Parallel()
 
@@ -116,7 +116,7 @@ func TestOneFileMayNotRedefineAnothersDefinition(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.13a | positive
+// COVERS FR-4.13a | positive
 func TestAFileMayCreateItsOwnDefinitions(t *testing.T) {
 	t.Parallel()
 
@@ -136,7 +136,7 @@ func TestAFileMayCreateItsOwnDefinitions(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.5 | negative
+// COVERS FR-4.5 | negative
 func TestARuleThatCannotBeTrustedIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -181,7 +181,7 @@ func TestARuleThatCannotBeTrustedIsRefused(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.5 | negative
+// COVERS FR-4.5 | negative
 func TestAClauseThatCannotBeTrustedIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -238,7 +238,7 @@ func TestAClauseThatCannotBeTrustedIsRefused(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.11 | positive
+// COVERS FR-7.11 | positive
 func TestATestWithNoIndexIsACompleteClause(t *testing.T) {
 	t.Parallel()
 
@@ -258,7 +258,7 @@ func TestATestWithNoIndexIsACompleteClause(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.4 | regression
+// COVERS FR-4.4 | regression
 func TestThisRepositorysOwnRuleFilesLoad(t *testing.T) {
 	t.Parallel()
 
@@ -278,7 +278,7 @@ func TestThisRepositorysOwnRuleFilesLoad(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.29 | positive
+// COVERS FR-4.29 | positive
 func TestALeadingTildeInAGroupMemberBecomesTheHomeDirectory(t *testing.T) {
 	t.Parallel()
 
@@ -317,7 +317,7 @@ members = ["~/bin/", "/usr/bin/", "~name/not-a-home"]
 	}
 }
 
-// COVERS: FR-4.29 | negative
+// COVERS FR-4.29 | negative
 func TestAHomeThatWouldWidenAMemberRefusesToLoad(t *testing.T) {
 	// The dangerous case is a home that is present and wrong, not one that is
 	// missing. Refusing only on absence lets `HOME=/` load and turn

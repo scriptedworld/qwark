@@ -173,12 +173,12 @@ pragmas: `grep -rn 'nolint\|#nosec' --include='*.go' .` returns nothing.
 ## The chain, and how it is enforced
 
     docs/DECISIONS/  ->  REQUIREMENTS.md  ->  the tests
-      why                what must be true     COVERS: names the requirement
+      why                what must be true     COVERS names the requirement
 
 Every test states which requirement it discharges, in a comment immediately
 above it:
 
-    // COVERS: FR-2.4 | negative
+    // COVERS FR-2.4 | negative
 
 Kinds: `positive`, `negative`, `edge`, `property`, `regression`. The
 `traceability` task fails a test that cites nothing, and one that cites a

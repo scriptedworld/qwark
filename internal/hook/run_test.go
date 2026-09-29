@@ -24,7 +24,7 @@ func decisionIn(t *testing.T, written string) string {
 	return reply.Specific.PermissionDecision
 }
 
-// COVERS: FR-10.3 | positive
+// COVERS FR-10.3 | positive
 func TestADecisionExitsZeroAndTravelsInTheJSON(t *testing.T) {
 	t.Parallel()
 
@@ -45,7 +45,7 @@ func TestADecisionExitsZeroAndTravelsInTheJSON(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.3a, FR-10.3b | negative
+// COVERS FR-10.3a, FR-10.3b | negative
 func TestAnUnreadablePayloadExitsTwo(t *testing.T) {
 	t.Parallel()
 
@@ -70,7 +70,7 @@ func TestAnUnreadablePayloadExitsTwo(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.3b | negative
+// COVERS FR-10.3b | negative
 func TestAPanicExitsTwoRatherThanLettingTheCommandThrough(t *testing.T) {
 	t.Parallel()
 
@@ -103,7 +103,7 @@ func (failingWriter) Write([]byte) (int, error) {
 	return 0, errCannotWrite
 }
 
-// COVERS: FR-10.3b | negative
+// COVERS FR-10.3b | negative
 func TestADecisionThatCannotBeDeliveredExitsTwo(t *testing.T) {
 	t.Parallel()
 
@@ -120,7 +120,7 @@ func TestADecisionThatCannotBeDeliveredExitsTwo(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.3 | property
+// COVERS FR-10.3 | property
 func TestEveryPathEndsInADecisionOrARefusal(t *testing.T) {
 	t.Parallel()
 

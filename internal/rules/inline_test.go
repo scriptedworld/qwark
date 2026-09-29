@@ -33,7 +33,7 @@ func liveSet(t *testing.T) *rules.Set {
 	return set
 }
 
-// COVERS: FR-4.36 | positive
+// COVERS FR-4.36 | positive
 func TestTheLiveSetBlocksAProgramWrittenIntoTheCommandLine(t *testing.T) {
 	t.Parallel()
 
@@ -52,7 +52,7 @@ func TestTheLiveSetBlocksAProgramWrittenIntoTheCommandLine(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.36 | negative
+// COVERS FR-4.36 | negative
 func TestTheLiveSetStillRunsAScriptFile(t *testing.T) {
 	t.Parallel()
 

@@ -27,7 +27,7 @@ states each requirement as an observable property of a run: what is true, not
 how the code is arranged. Every test names the requirement it discharges, in a
 comment directly above it.
 
-    // COVERS: FR-4.4 | property
+    // COVERS FR-4.4 | property
 
 The kinds are `positive`, `negative`, `edge`, `property` and `regression`. The
 traceability check fails a test that cites nothing and a test that cites a
@@ -40,7 +40,7 @@ reported as context, not as a failure.
 A requirement can be retired or superseded, and **its ID is never reused**.
 Reuse silently rewrites what every existing reference to that ID means, and
 nothing about the new row looks wrong. A `## Retired` section records where each
-one went. Retiring a requirement leaves its `COVERS:` marks pointing at nothing,
+one went. Retiring a requirement leaves its `COVERS` marks pointing at nothing,
 and they are repointed or removed in the same change.
 
 ## Conventions particular to this repository

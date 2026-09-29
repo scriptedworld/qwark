@@ -6,7 +6,7 @@ import (
 	"github.com/scriptedworld/qwark/internal/shell"
 )
 
-// COVERS: FR-2.8 | positive
+// COVERS FR-2.8 | positive
 func TestTheNodeTypesPresentAreReported(t *testing.T) {
 	t.Parallel()
 
@@ -27,7 +27,7 @@ func TestTheNodeTypesPresentAreReported(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.4 | positive
+// COVERS FR-2.4 | positive
 func TestTheOperatorsUsedAreReported(t *testing.T) {
 	t.Parallel()
 
@@ -57,7 +57,7 @@ func TestTheOperatorsUsedAreReported(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.4 | negative
+// COVERS FR-2.4 | negative
 func TestAnOperatorNotUsedIsNotReported(t *testing.T) {
 	t.Parallel()
 
@@ -75,7 +75,7 @@ func TestAnOperatorNotUsedIsNotReported(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.8 | positive
+// COVERS FR-2.8 | positive
 func TestTheStatementFlagsSetAreReported(t *testing.T) {
 	t.Parallel()
 
@@ -97,7 +97,7 @@ func TestTheStatementFlagsSetAreReported(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.5 | negative
+// COVERS FR-4.5 | negative
 func TestARuleFileNamingSomethingThatDoesNotExistIsCatchable(t *testing.T) {
 	t.Parallel()
 
@@ -125,7 +125,7 @@ func TestARuleFileNamingSomethingThatDoesNotExistIsCatchable(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.7 | property
+// COVERS FR-2.7 | property
 func TestTheVocabularyQuotesTheSourceNotTheName(t *testing.T) {
 	t.Parallel()
 
@@ -143,7 +143,7 @@ func TestTheVocabularyQuotesTheSourceNotTheName(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.7 | edge
+// COVERS FR-2.7 | edge
 func TestTheFirstOccurrenceIsTheOneQuoted(t *testing.T) {
 	t.Parallel()
 

@@ -24,7 +24,7 @@ func invoke(t *testing.T, stdin string, args ...string) (string, string, int) {
 	return out.String(), errOut.String(), status
 }
 
-// COVERS: FR-3.1 | positive
+// COVERS FR-3.1 | positive
 func TestASTOutlinesTheTree(t *testing.T) {
 	t.Parallel()
 
@@ -38,7 +38,7 @@ func TestASTOutlinesTheTree(t *testing.T) {
 	}
 }
 
-// COVERS: FR-3.1 | positive
+// COVERS FR-3.1 | positive
 func TestASTDebugPrintsTheNodeStructs(t *testing.T) {
 	t.Parallel()
 
@@ -52,7 +52,7 @@ func TestASTDebugPrintsTheNodeStructs(t *testing.T) {
 	}
 }
 
-// COVERS: FR-3.2 | positive
+// COVERS FR-3.2 | positive
 func TestFactsListsWhatACommandEstablishes(t *testing.T) {
 	t.Parallel()
 
@@ -68,7 +68,7 @@ func TestFactsListsWhatACommandEstablishes(t *testing.T) {
 	}
 }
 
-// COVERS: FR-3.2 | negative
+// COVERS FR-3.2 | negative
 func TestFactsSaysNothingForABareInvocation(t *testing.T) {
 	t.Parallel()
 
@@ -82,7 +82,7 @@ func TestFactsSaysNothingForABareInvocation(t *testing.T) {
 	}
 }
 
-// COVERS: FR-3.3 | positive
+// COVERS FR-3.3 | positive
 func TestACommandMayComeFromStdin(t *testing.T) {
 	t.Parallel()
 
@@ -96,7 +96,7 @@ func TestACommandMayComeFromStdin(t *testing.T) {
 	}
 }
 
-// COVERS: FR-3.3 | edge
+// COVERS FR-3.3 | edge
 func TestAnUnquotedCommandIsJoinedRatherThanTruncated(t *testing.T) {
 	t.Parallel()
 
@@ -112,7 +112,7 @@ func TestAnUnquotedCommandIsJoinedRatherThanTruncated(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.2 | negative
+// COVERS FR-1.2 | negative
 func TestAnUnparseableCommandFails(t *testing.T) {
 	t.Parallel()
 
@@ -129,7 +129,7 @@ func TestAnUnparseableCommandFails(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.4 | positive
+// COVERS FR-4.4 | positive
 func TestRulesReportsWhatARuleSetHolds(t *testing.T) {
 	t.Parallel()
 
@@ -147,7 +147,7 @@ func TestRulesReportsWhatARuleSetHolds(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.5 | negative
+// COVERS FR-4.5 | negative
 func TestRulesReportsWhyASetWillNotLoad(t *testing.T) {
 	t.Parallel()
 
@@ -164,7 +164,7 @@ func TestRulesReportsWhyASetWillNotLoad(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.33 | negative
+// COVERS FR-4.33 | negative
 func TestJudgeRefusesWhatNothingAllows(t *testing.T) {
 	t.Parallel()
 
@@ -181,7 +181,7 @@ func TestJudgeRefusesWhatNothingAllows(t *testing.T) {
 	}
 }
 
-// COVERS: FR-1.2, FR-4.12 | negative
+// COVERS FR-1.2, FR-4.12 | negative
 func TestJudgeRefusesWhatItCannotParse(t *testing.T) {
 	t.Parallel()
 
@@ -200,7 +200,7 @@ func TestJudgeRefusesWhatItCannotParse(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.15 | negative
+// COVERS FR-4.15 | negative
 func TestJudgeNeedsBothARuleSetAndACommand(t *testing.T) {
 	t.Parallel()
 
@@ -218,7 +218,7 @@ func TestJudgeNeedsBothARuleSetAndACommand(t *testing.T) {
 	}
 }
 
-// COVERS: FR-3.4 | negative
+// COVERS FR-3.4 | negative
 func TestAnUnknownSubcommandIsAnError(t *testing.T) {
 	t.Parallel()
 
@@ -232,7 +232,7 @@ func TestAnUnknownSubcommandIsAnError(t *testing.T) {
 	}
 }
 
-// COVERS: FR-3.4 | negative
+// COVERS FR-3.4 | negative
 func TestNoArgumentsIsAUsageError(t *testing.T) {
 	t.Parallel()
 
@@ -246,7 +246,7 @@ func TestNoArgumentsIsAUsageError(t *testing.T) {
 	}
 }
 
-// COVERS: FR-3.4 | positive
+// COVERS FR-3.4 | positive
 func TestHelpIsAskedForRatherThanStumbledInto(t *testing.T) {
 	t.Parallel()
 
@@ -275,7 +275,7 @@ var errUnreadable = errors.New("stdin is unreadable")
 
 func (failingReader) Read([]byte) (int, error) { return 0, errUnreadable }
 
-// COVERS: FR-3.3 | negative
+// COVERS FR-3.3 | negative
 func TestAnUnreadableStdinIsReported(t *testing.T) {
 	t.Parallel()
 
@@ -290,7 +290,7 @@ func TestAnUnreadableStdinIsReported(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.12 | positive
+// COVERS FR-7.12 | positive
 func TestJudgeCanBeToldWhichAgentIsAsking(t *testing.T) {
 	t.Parallel()
 

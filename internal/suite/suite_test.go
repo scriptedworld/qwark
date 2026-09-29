@@ -77,7 +77,7 @@ func hasReason(env suite.Envelope, kind, text string) bool {
 	return false
 }
 
-// COVERS: FR-4.37 | positive
+// COVERS FR-4.37 | positive
 func TestTheShippedCasesPass(t *testing.T) {
 	t.Parallel()
 
@@ -93,7 +93,7 @@ func TestTheShippedCasesPass(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.37 | negative
+// COVERS FR-4.37 | negative
 func TestARuleNoCaseTriggersFailsTheRun(t *testing.T) {
 	t.Parallel()
 
@@ -118,7 +118,7 @@ func TestARuleNoCaseTriggersFailsTheRun(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.37a | negative
+// COVERS FR-4.37a | negative
 func TestARuleNoCaseHoldsQuietFailsTheRun(t *testing.T) {
 	t.Parallel()
 
@@ -145,7 +145,7 @@ func TestARuleNoCaseHoldsQuietFailsTheRun(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.37 | negative
+// COVERS FR-4.37 | negative
 func TestACaseWithTheWrongVerdictFailsTheRun(t *testing.T) {
 	t.Parallel()
 
@@ -163,7 +163,7 @@ func TestACaseWithTheWrongVerdictFailsTheRun(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.37 | negative
+// COVERS FR-4.37 | negative
 func TestACaseMustTriggerTheRuleItIsNamedAfter(t *testing.T) {
 	t.Parallel()
 
@@ -187,7 +187,7 @@ func TestACaseMustTriggerTheRuleItIsNamedAfter(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.37 | edge
+// COVERS FR-4.37 | edge
 func TestHeadersSetTheContextACaseIsJudgedIn(t *testing.T) {
 	t.Parallel()
 
@@ -207,7 +207,7 @@ func TestHeadersSetTheContextACaseIsJudgedIn(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.37 | negative
+// COVERS FR-4.37 | negative
 func TestADirectoryThatIsNotASuiteIsAnError(t *testing.T) {
 	t.Parallel()
 
@@ -238,7 +238,7 @@ func TestADirectoryThatIsNotASuiteIsAnError(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.37 | negative
+// COVERS FR-4.37 | negative
 func TestACaseUnderASetWithNoListingIsAnError(t *testing.T) {
 	t.Parallel()
 
@@ -258,7 +258,7 @@ func TestACaseUnderASetWithNoListingIsAnError(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.37 | negative
+// COVERS FR-4.37 | negative
 func TestASetWhoseRulesWillNotLoadIsAnError(t *testing.T) {
 	t.Parallel()
 

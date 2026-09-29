@@ -24,7 +24,7 @@ func decode(t *testing.T, line string) audit.Entry {
 	return entry
 }
 
-// COVERS: FR-4.8 | positive
+// COVERS FR-4.8 | positive
 func TestADecisionIsRecordedWithWhatBoreOnIt(t *testing.T) {
 	t.Parallel()
 
@@ -64,7 +64,7 @@ func TestADecisionIsRecordedWithWhatBoreOnIt(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.8 | property
+// COVERS FR-4.8 | property
 func TestEachEntryIsOneLine(t *testing.T) {
 	t.Parallel()
 
@@ -92,7 +92,7 @@ func TestEachEntryIsOneLine(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.9 | property
+// COVERS FR-4.9 | property
 func TestAWithheldValueIsRecordedAsPresent(t *testing.T) {
 	t.Parallel()
 
@@ -128,7 +128,7 @@ func TestAWithheldValueIsRecordedAsPresent(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.8 | property
+// COVERS FR-4.8 | property
 func TestOpeningALogAppendsRatherThanTruncating(t *testing.T) {
 	t.Parallel()
 
@@ -170,7 +170,7 @@ func TestOpeningALogAppendsRatherThanTruncating(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.8 | negative
+// COVERS FR-4.8 | negative
 func TestARecorderWithNowhereToWriteIsNotAnError(t *testing.T) {
 	t.Parallel()
 
@@ -196,7 +196,7 @@ type refusingWriter struct{ err error }
 
 func (w refusingWriter) Write([]byte) (int, error) { return 0, w.err }
 
-// COVERS: FR-4.8 | negative
+// COVERS FR-4.8 | negative
 func TestAFailedWriteIsReportedAndNamesTheLog(t *testing.T) {
 	t.Parallel()
 
@@ -220,7 +220,7 @@ func TestAFailedWriteIsReportedAndNamesTheLog(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.8 | edge
+// COVERS FR-4.8 | edge
 func TestClosingAWriterThatIsNotAFileIsNotAnError(t *testing.T) {
 	t.Parallel()
 
@@ -234,7 +234,7 @@ func TestClosingAWriterThatIsNotAFileIsNotAnError(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.8 | edge
+// COVERS FR-4.8 | edge
 func TestTheLogDirectoryIsCreatedAndNotWorldReadable(t *testing.T) {
 	t.Parallel()
 

@@ -87,7 +87,7 @@ reason = "The main session reads the repository."
   value = "git"
 `
 
-// COVERS: FR-7.12 | positive
+// COVERS FR-7.12 | positive
 func TestAClauseNamesTheAgentTheRequestCameFrom(t *testing.T) {
 	t.Parallel()
 
@@ -105,7 +105,7 @@ func TestAClauseNamesTheAgentTheRequestCameFrom(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.12 | negative
+// COVERS FR-7.12 | negative
 func TestAnAgentClauseDoesNotApplyToAnotherAgent(t *testing.T) {
 	t.Parallel()
 
@@ -120,7 +120,7 @@ func TestAnAgentClauseDoesNotApplyToAnotherAgent(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.12 | edge
+// COVERS FR-7.12 | edge
 func TestAnAgentAllowanceReachesOnlyTheCommandItsRuleNames(t *testing.T) {
 	t.Parallel()
 
@@ -140,7 +140,7 @@ func TestAnAgentAllowanceReachesOnlyTheCommandItsRuleNames(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.13 | positive
+// COVERS FR-7.13 | positive
 func TestTheMainSessionIsNamedByHavingNoAgentType(t *testing.T) {
 	t.Parallel()
 
@@ -167,7 +167,7 @@ func TestTheMainSessionIsNamedByHavingNoAgentType(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.13 | edge
+// COVERS FR-7.13 | edge
 func TestTheMainSessionClauseIsToldFromNoClauseAtAll(t *testing.T) {
 	t.Parallel()
 
@@ -228,7 +228,7 @@ reason = "A project may run its own tests."
   value = "git"
 `
 
-// COVERS: FR-7.14 | positive
+// COVERS FR-7.14 | positive
 func TestACwdClausePermitsInsideItsTreeOnly(t *testing.T) {
 	t.Parallel()
 
@@ -245,7 +245,7 @@ func TestACwdClausePermitsInsideItsTreeOnly(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.14a | property
+// COVERS FR-7.14a | property
 func TestACwdClauseReachesIntoSubdirectoriesAndNotOntoNeighbours(t *testing.T) {
 	t.Parallel()
 
@@ -268,7 +268,7 @@ func TestACwdClauseReachesIntoSubdirectoriesAndNotOntoNeighbours(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.14b | negative
+// COVERS FR-7.14b | negative
 func TestACwdClauseDeclinesWhenTheCallNamesNoDirectory(t *testing.T) {
 	t.Parallel()
 
@@ -282,7 +282,7 @@ func TestACwdClauseDeclinesWhenTheCallNamesNoDirectory(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.14b | negative
+// COVERS FR-7.14b | negative
 func TestARelativeCwdIsRefusedAtLoad(t *testing.T) {
 	t.Parallel()
 
@@ -326,7 +326,7 @@ func ruleSet(extra string) map[string]string {
 	return map[string]string{"00.toml": declarations + extra}
 }
 
-// COVERS: FR-4.35 | negative
+// COVERS FR-4.35 | negative
 func TestNothingIsPermittedByDefault(t *testing.T) {
 	t.Parallel()
 
@@ -346,7 +346,7 @@ func TestNothingIsPermittedByDefault(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.35 | positive
+// COVERS FR-4.35 | positive
 func TestAnAllowRulePermits(t *testing.T) {
 	t.Parallel()
 
@@ -405,7 +405,7 @@ reason = "Forcing suppresses the check that would have stopped this."
   option = "force"
 `
 
-// COVERS: FR-4.32, FR-4.33 | property
+// COVERS FR-4.32, FR-4.33 | property
 func TestTheHigherPrecedenceRuleWins(t *testing.T) {
 	t.Parallel()
 
@@ -434,7 +434,7 @@ func TestTheHigherPrecedenceRuleWins(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.34 | positive
+// COVERS FR-4.34 | positive
 func TestEveryReasonForARefusalIsListed(t *testing.T) {
 	t.Parallel()
 
@@ -465,7 +465,7 @@ reason = "Recursive removal is not permitted."
 	}
 }
 
-// COVERS: FR-4.28 | property
+// COVERS FR-4.28 | property
 func TestAVerdictNamesItsRuleAndQuotesTheCause(t *testing.T) {
 	t.Parallel()
 
@@ -495,7 +495,7 @@ reason = "Forcing is not permitted."
 	}
 }
 
-// COVERS: FR-4.34 | negative
+// COVERS FR-4.34 | negative
 func TestAnOutrankedRuleIsNotListedAmongTheReasons(t *testing.T) {
 	t.Parallel()
 
@@ -525,7 +525,7 @@ reason = "Forcing is not permitted."
 	}
 }
 
-// COVERS: FR-4.26 | negative
+// COVERS FR-4.26 | negative
 func TestMoreThanOneCommandIsRefusedOutright(t *testing.T) {
 	t.Parallel()
 
@@ -562,7 +562,7 @@ reason = "Everything."
 	}
 }
 
-// COVERS: FR-4.16 | negative
+// COVERS FR-4.16 | negative
 func TestAnUndeclaredCommandIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -586,7 +586,7 @@ reason = "Everything."
 	}
 }
 
-// COVERS: FR-4.24 | negative
+// COVERS FR-4.24 | negative
 func TestADeniedCommandHasNoEffect(t *testing.T) {
 	t.Parallel()
 
@@ -640,7 +640,7 @@ reason = "Removing a named file."
 	}
 }
 
-// COVERS: FR-4.27 | negative
+// COVERS FR-4.27 | negative
 func TestAClauseThatCannotBeAnsweredDoesNotMatch(t *testing.T) {
 	t.Parallel()
 
@@ -665,7 +665,7 @@ reason = "Only when forcing, which git does not declare."
 	}
 }
 
-// COVERS: FR-4.16a | regression
+// COVERS FR-4.16a | regression
 func TestAnUndeclaredCommandStillGetsItsStructuralReasons(t *testing.T) {
 	t.Parallel()
 
@@ -707,7 +707,7 @@ reason = "Redirections are not permitted."
 	}
 }
 
-// COVERS: FR-6.7 | negative
+// COVERS FR-6.7 | negative
 func TestAnUndeclaredOptionIsRefused(t *testing.T) {
 	t.Parallel()
 
@@ -736,7 +736,7 @@ reason = "Removing a named file."
 	}
 }
 
-// COVERS: FR-6.8 | property
+// COVERS FR-6.8 | property
 func TestEveryUnaccountedWordReachesTheVerdict(t *testing.T) {
 	t.Parallel()
 

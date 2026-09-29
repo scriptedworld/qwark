@@ -41,7 +41,7 @@ func held(t *testing.T, clause, src string) bool {
 	return judgeWith(t, clauseSet(clause), src).Denied()
 }
 
-// COVERS: FR-2.8 | positive
+// COVERS FR-2.8 | positive
 func TestAClauseNamingNodeTypes(t *testing.T) {
 	t.Parallel()
 
@@ -55,7 +55,7 @@ func TestAClauseNamingNodeTypes(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.4 | positive
+// COVERS FR-2.4 | positive
 func TestAClauseNamingOperators(t *testing.T) {
 	t.Parallel()
 
@@ -71,7 +71,7 @@ func TestAClauseNamingOperators(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.8 | positive
+// COVERS FR-2.8 | positive
 func TestAClauseNamingStatementFlags(t *testing.T) {
 	t.Parallel()
 
@@ -85,7 +85,7 @@ func TestAClauseNamingStatementFlags(t *testing.T) {
 	}
 }
 
-// COVERS: FR-2.6 | positive
+// COVERS FR-2.6 | positive
 func TestAClauseNamingAFact(t *testing.T) {
 	t.Parallel()
 
@@ -101,7 +101,7 @@ func TestAClauseNamingAFact(t *testing.T) {
 	}
 }
 
-// COVERS: FR-6.10 | positive
+// COVERS FR-6.10 | positive
 func TestAClauseSelectingPaths(t *testing.T) {
 	t.Parallel()
 
@@ -120,7 +120,7 @@ func TestAClauseSelectingPaths(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.2 | positive
+// COVERS FR-7.2 | positive
 func TestAGroupComparesTheWayItDeclares(t *testing.T) {
 	t.Parallel()
 
@@ -141,7 +141,7 @@ func TestAGroupComparesTheWayItDeclares(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.11, FR-5.12 | positive
+// COVERS FR-7.11, FR-5.12 | positive
 func TestAClauseWithNoIndexAsksAboutTheArguments(t *testing.T) {
 	t.Parallel()
 
@@ -157,7 +157,7 @@ func TestAClauseWithNoIndexAsksAboutTheArguments(t *testing.T) {
 	}
 }
 
-// COVERS: FR-7.8 | positive
+// COVERS FR-7.8 | positive
 func TestAClauseChoosesWhichReadingItTests(t *testing.T) {
 	t.Parallel()
 
@@ -174,7 +174,7 @@ func TestAClauseChoosesWhichReadingItTests(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.27 | positive
+// COVERS FR-4.27 | positive
 func TestAnInvertedClauseHoldsWhenNothingMatches(t *testing.T) {
 	t.Parallel()
 
@@ -190,7 +190,7 @@ func TestAnInvertedClauseHoldsWhenNothingMatches(t *testing.T) {
 	}
 }
 
-// COVERS: FR-8.3 | positive
+// COVERS FR-8.3 | positive
 func TestAClauseNamingATag(t *testing.T) {
 	t.Parallel()
 

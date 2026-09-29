@@ -64,7 +64,7 @@ func ruleFile(t *testing.T, body string) string {
 	return dir
 }
 
-// COVERS: FR-4.5, FR-4.6 | negative
+// COVERS FR-4.5, FR-4.6 | negative
 func TestABrokenRuleSetPermitsNothingAndSaysWhere(t *testing.T) {
 	t.Parallel()
 
@@ -96,7 +96,7 @@ func TestABrokenRuleSetPermitsNothingAndSaysWhere(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.3a | negative
+// COVERS FR-10.3a | negative
 func TestTheHookExitsTwoWhenItCannotDecide(t *testing.T) {
 	t.Parallel()
 
@@ -115,7 +115,7 @@ func TestTheHookExitsTwoWhenItCannotDecide(t *testing.T) {
 	}
 }
 
-// COVERS: FR-10.3a | edge
+// COVERS FR-10.3a | edge
 func TestTheHookWithNoRulesPathBlocks(t *testing.T) {
 	t.Parallel()
 
@@ -132,7 +132,7 @@ func TestTheHookWithNoRulesPathBlocks(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.8 | positive
+// COVERS FR-4.8 | positive
 func TestTheHookWritesDownWhatItDecided(t *testing.T) {
 	// Not parallel: Setenv moves the log for the whole process.
 	state := t.TempDir()
@@ -188,7 +188,7 @@ func TestTheHookWritesDownWhatItDecided(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.9c | positive
+// COVERS FR-4.9c | positive
 func TestTheLogTellsABlockFromADeny(t *testing.T) {
 	// Not parallel: Setenv moves the log for the whole process.
 	state := t.TempDir()
@@ -235,7 +235,7 @@ func TestTheLogTellsABlockFromADeny(t *testing.T) {
 	}
 }
 
-// COVERS: FR-4.8 | negative
+// COVERS FR-4.8 | negative
 func TestAnUnwritableLogDoesNotStopTheGateDeciding(t *testing.T) {
 	// Not parallel: Setenv moves the log for the whole process.
 	//
