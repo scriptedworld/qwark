@@ -418,6 +418,15 @@ caught by a rule about running code supplied as an argument.
    2026-09-29, `qwark judge /etc/qwark/rules -- ls` answers block, declared
    commands only. A registration built from the fragment would gate against
    that stale set.
+8. The voice of the rule-file comments, agreed in words before it is
+   written. Proposed 2026-09-29: drop the four "PROPOSED, needs your ruling"
+   lines (`10-commands.toml:12`, `20-paths.toml:18`, `30-options.toml:18`,
+   `40-state.toml:33`), since `group`, the path groups and `option` all load
+   and have cases; drop the dates from `00-allow.toml:19` and
+   `10-commands.toml:505` and `:733`, keeping what each says; rewrite the
+   comment lines that use bold or capitals for emphasis. No `reason` string
+   changes. From the clank inbox entry voice-review, whose documentation half
+   landed at `3af0642`.
 
 **3 and 4 are the priority.** The end state is three layers: a sandbox, the blast
 radius, then the manifest. The sandbox absorbs four of the six path groups in
