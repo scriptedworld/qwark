@@ -402,6 +402,22 @@ caught by a rule about running code supplied as an argument.
    no other task runner. Where the hook lives, given the global
    `core.hooksPath`, is silo's to answer:
    `clank/inbox/silo/pre-commit-runs-just-recipes-in-every-repository`.
+6. The Monitor tool runs a shell command and no hook sees it. Both
+   registrations, `.claude/settings.local.json` and
+   `install/settings-fragment.json`, match `Bash` alone, and Monitor's
+   `command` runs in the same shell environment as Bash. Widening the matcher
+   to `Bash|Monitor` would not gate it as it stands: `gate.Judged` refuses any
+   tool other than Bash as not modelled, so every Monitor call would be
+   refused. Whether to refuse Monitor outright, judge its `command` as a Bash
+   call, or leave it ungated is mine to decide. Recovered from
+   `inbox/qwark/hook-binary-missing-blocks-every-bash-call`, on clank's
+   `oslo-wip` at `44df00e`; its other half, a missing binary, was fixed there.
+7. `install/settings-fragment.json` registers `qwark hook /etc/qwark/rules`.
+   That path is abandoned and the live registration names
+   `~/.config/qwark/rules`. The old set is still there and loads: checked
+   2026-09-29, `qwark judge /etc/qwark/rules -- ls` answers block, declared
+   commands only. A registration built from the fragment would gate against
+   that stale set.
 
 **3 and 4 are the priority.** The end state is three layers: a sandbox, the blast
 radius, then the manifest. The sandbox absorbs four of the six path groups in
