@@ -7,23 +7,19 @@ do about it, and what is waiting on an answer.
 
 ## Next, in order
 
-1. **A near-miss case per rule.** The rules suite proves every rule fires on
-   something; it does not prove each stays quiet on the command beside it.
-   Asked for 2026-09-28 and not built: make the suite require a `quiet` case
-   per rule, then write them.
-2. `clank/tasks/qwark/rules/80-paths-inside-the-directory-and-out.planning`:
+1. `clank/tasks/qwark/rules/80-paths-inside-the-directory-and-out.planning`:
    blast radius for rule clauses (FR-9.6), file metadata, then the `rm` rules
    that depend on both. Split it before claiming it.
-3. `clank/tasks/qwark/gate/70-register-the-hook-on-lazlo.ready`: the global
+2. `clank/tasks/qwark/gate/70-register-the-hook-on-lazlo.ready`: the global
    registration on lazlo, a person's merge into `settings.json`. Until then
    only qwark sessions are gated on lazlo; every session on oslo is.
 
 ## Built, committed, and passing the gate
 
 Both jigs pass, every file above the 80% per-file floor including `main()`,
-which is measured, not exempted. There are 144 requirement rows, five of them
-retired, so 139 live; 17 have no test and every one of those is an open
-question. The traceability task reports 118 of 118 held to coverage.
+which is measured, not exempted. There are 145 requirement rows, five of them
+retired, so 140 live; 17 have no test and every one of those is an open
+question. The traceability task reports 119 of 119 held to coverage.
 
     bolt --definitions go-std-quality go-std-quality .
     bolt common-quality .

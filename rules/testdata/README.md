@@ -2,9 +2,13 @@
 
 `qwark cases rules/testdata` judges every file here and prints a result
 envelope. `just rules-suite` runs it as part of `just checks`. A run fails on a
-case that gets the wrong verdict, and on any rule a set includes that no case
-triggers, each named as a reason. So a rule added without a case fails the
-gate.
+case that gets the wrong verdict, on any rule a set includes that no case
+triggers, and on any rule no case holds quiet, each named as a reason. So a
+rule added without a case fails the gate, and so does one added without a
+near miss: a case naming it under `quiet:` whose command sits beside the one
+the rule exists for, the same command with the tag unset, the word as an
+operand, a quoted literal, a neighbouring subcommand. Nothing checks how near
+the miss is; that is for whoever reads the case.
 
     <set>/set.txt
     <set>/<verdict>/<name>.cmd

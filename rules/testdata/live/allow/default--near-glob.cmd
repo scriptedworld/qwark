@@ -1,0 +1,2 @@
+# quiet: no-glob
+cat '*'

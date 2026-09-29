@@ -5,10 +5,12 @@
 // set's rule files named in <set>/set.txt. rules/testdata/README.md describes
 // it for the people writing cases.
 //
-// A run fails when any case gets a verdict other than its directory's, and
-// when any rule the sets include is triggered by no case. A rule nothing
-// triggers is a rule nobody has seen decide anything, and one that can never
-// fire reads exactly like one that is working.
+// A run fails when any case gets a verdict other than its directory's, when
+// any rule the sets include is triggered by no case, and when any is held
+// quiet by no case. A rule nothing triggers is a rule nobody has seen decide
+// anything, and one that can never fire reads exactly like one that is
+// working. A rule nothing holds quiet is one nobody has seen stay out of the
+// command beside it, and one that fires on everything reads the same way.
 package suite
 
 import (
@@ -31,6 +33,7 @@ import (
 const (
 	KindCaseFailed       = "case-failed"
 	KindRuleNotTriggered = "rule-not-triggered"
+	KindRuleNotQuieted   = "rule-not-quieted"
 )
 
 // Names a case can take that stand for no rule: the engine's own refusal, and
@@ -64,6 +67,7 @@ type Statistics struct {
 	CasesFailed    int `json:"cases_failed"`
 	Rules          int `json:"rules"`
 	RulesTriggered int `json:"rules_triggered"`
+	RulesQuieted   int `json:"rules_quieted"`
 }
 
 // Metadata carries the statistics and what the run read.
@@ -105,8 +109,9 @@ func Run(dir string) (Envelope, error) {
 
 	env := Envelope{Metadata: Metadata{Evidence: map[string]string{"cases": dir}}}
 	triggered := map[string]bool{}
+	quieted := map[string]bool{}
 	for _, c := range cases {
-		problems := judge(sets[c.Set], c, triggered)
+		problems := judge(sets[c.Set], c, triggered, quieted)
 		for _, problem := range problems {
 			env.Reasons = append(env.Reasons, Reason{KindCaseFailed, c.Path + ": " + problem})
 		}
@@ -122,11 +127,17 @@ func Run(dir string) (Envelope, error) {
 				KindRuleNotTriggered, id + ": no case triggered this rule",
 			})
 		}
+		if !quieted[id] {
+			env.Reasons = append(env.Reasons, Reason{
+				KindRuleNotQuieted, id + ": no case held this rule quiet",
+			})
+		}
 	}
 
 	env.Metadata.Statistics.Cases = len(cases)
 	env.Metadata.Statistics.Rules = len(included)
 	env.Metadata.Statistics.RulesTriggered = len(included) - countMissing(included, triggered)
+	env.Metadata.Statistics.RulesQuieted = len(included) - countMissing(included, quieted)
 	env.Success = len(env.Reasons) == 0
 	return env, nil
 }
@@ -208,9 +219,9 @@ func parseCase(file, body string) Case {
 	return c
 }
 
-// judge evaluates one case, records every rule it triggered, and returns each
-// way the outcome differs from the case.
-func judge(set *rules.Set, c Case, triggered map[string]bool) []string {
+// judge evaluates one case, records every rule it triggered and every rule it
+// held quiet, and returns each way the outcome differs from the case.
+func judge(set *rules.Set, c Case, triggered, quieted map[string]bool) []string {
 	parsed, err := shell.Parse(c.Command)
 	if err != nil {
 		return []string{"does not parse: " + err.Error()}
@@ -225,14 +236,20 @@ func judge(set *rules.Set, c Case, triggered map[string]bool) []string {
 	outcome := set.Evaluate(parsed, ctx)
 
 	ids := fired(outcome)
-	for _, id := range append(ids, tagRules(set, outcome)...) {
+	acted := append(ids, tagRules(set, outcome)...)
+	for _, id := range acted {
 		triggered[id] = true
 	}
-	return compare(set, c, outcome, ids)
+	for _, id := range c.Headers["quiet"] {
+		if !slices.Contains(acted, id) {
+			quieted[id] = true
+		}
+	}
+	return compare(c, outcome, ids, acted)
 }
 
 // compare lists every way an outcome differs from its case.
-func compare(set *rules.Set, c Case, outcome rules.Outcome, ids []string) []string {
+func compare(c Case, outcome rules.Outcome, ids, acted []string) []string {
 	var problems []string
 	if outcome.Action != c.Verdict {
 		problems = append(problems,
@@ -245,7 +262,7 @@ func compare(set *rules.Set, c Case, outcome rules.Outcome, ids []string) []stri
 			problems = append(problems, fmt.Sprintf("the engine did not refuse it; reasons %v", ids))
 		}
 	default:
-		if !slices.Contains(append(ids, tagRules(set, outcome)...), c.Name) {
+		if !slices.Contains(acted, c.Name) {
 			problems = append(problems, fmt.Sprintf("%s did not fire; reasons %v", c.Name, ids))
 		}
 	}
@@ -255,7 +272,7 @@ func compare(set *rules.Set, c Case, outcome rules.Outcome, ids []string) []stri
 		}
 	}
 	for _, unwanted := range c.Headers["quiet"] {
-		if slices.Contains(ids, unwanted) {
+		if slices.Contains(acted, unwanted) {
 			problems = append(problems, unwanted+" fired and should not have")
 		}
 	}

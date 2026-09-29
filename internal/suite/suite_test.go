@@ -118,6 +118,33 @@ func TestARuleNoCaseTriggersFailsTheRun(t *testing.T) {
 	}
 }
 
+// COVERS: FR-4.37a | negative
+func TestARuleNoCaseHoldsQuietFailsTheRun(t *testing.T) {
+	t.Parallel()
+
+	// Both rules fire, so only the near-miss check can fail this. The quiet
+	// header on the rule that fired anyway does not count as holding it.
+	env := run(t, plant(t, map[string]string{
+		"block/no-shouting.cmd":            "# quiet: no-whispering\necho LOUD\n",
+		"block/no-whispering.cmd":          "echo quiet\n",
+		"block/no-whispering--both.cmd":    "# quiet: no-shouting\necho quiet LOUD\n",
+		"allow/default--nothing-fires.cmd": "echo hello\n",
+	}))
+
+	if env.Success {
+		t.Fatal("a run with a rule nothing held quiet passed")
+	}
+	if !hasReason(env, suite.KindRuleNotQuieted, "no-shouting") {
+		t.Errorf("reasons %+v, want no-shouting named as not quieted", env.Reasons)
+	}
+	if hasReason(env, suite.KindRuleNotQuieted, "no-whispering") {
+		t.Errorf("reasons %+v name a rule a case did hold quiet", env.Reasons)
+	}
+	if got := env.Metadata.Statistics; got.RulesTriggered != 2 || got.RulesQuieted != 1 {
+		t.Errorf("statistics %+v, want 2 triggered and 1 quieted", got)
+	}
+}
+
 // COVERS: FR-4.37 | negative
 func TestACaseWithTheWrongVerdictFailsTheRun(t *testing.T) {
 	t.Parallel()
