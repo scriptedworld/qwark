@@ -10,6 +10,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/scriptedworld/qwark/internal/command"
+	"github.com/scriptedworld/qwark/internal/reach"
 )
 
 // Everything that can be wrong with a rule set. Every one of them is fatal:
@@ -193,8 +194,35 @@ func read(path string) (File, error) {
 	if err := resolveHome(&parsed); err != nil {
 		return File{}, fmt.Errorf("%w: %s: %w", ErrUnreadable, path, err)
 	}
+	resolveLinks(&parsed)
 
 	return parsed, nil
+}
+
+// resolveLinks adds, beside each group member that is a whole path, the path
+// it resolves to, so a member written as a link also guards the file behind it
+// (FR-7.15). The word being judged is resolved at match time; this is the
+// member's half. A trailing separator is kept, since it is what stops
+// `/x/hooks/` matching `/x/hooksmith`.
+//
+// A fragment such as `/.claude/settings.json` names no file and cannot be
+// resolved, so it is compared as written and guards only that spelling.
+func resolveLinks(file *File) {
+	for name, group := range file.Group {
+		for _, member := range group.Members {
+			if !filepath.IsAbs(member) {
+				continue
+			}
+			resolved := reach.Resolve(filepath.Clean(member))
+			if strings.HasSuffix(member, string(filepath.Separator)) {
+				resolved += string(filepath.Separator)
+			}
+			if resolved != member && !slices.Contains(group.Members, resolved) {
+				group.resolved = append(group.resolved, resolved)
+			}
+		}
+		file.Group[name] = group
+	}
 }
 
 // resolveHome turns a leading `~/` in a group member into the running user's

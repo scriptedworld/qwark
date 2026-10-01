@@ -40,6 +40,11 @@ type File struct {
 type Group struct {
 	Match   Form     `toml:"match"`
 	Members []string `toml:"members"`
+
+	// resolved holds what a whole-path member resolves to, where that differs
+	// from how it was written. Members stays as written, so a listing and a
+	// refusal quote the rule file and not this machine's links.
+	resolved []string
 }
 
 // A Rule is a decision and the clauses that decide whether it applies.

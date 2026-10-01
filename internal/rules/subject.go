@@ -1,6 +1,7 @@
 package rules
 
 import (
+	"path/filepath"
 	"slices"
 
 	"github.com/scriptedworld/qwark/internal/command"
@@ -197,13 +198,38 @@ func (sub *subject) optionHolds(clause Clause) (bool, string) {
 
 // kindHolds tests every word the declaration says denotes this kind, whether it
 // arrived as an operand or as an option's value.
+//
+// A path is tested as written and as resolved (FR-7.15). Without the second,
+// a member naming a symbolic link is passed by the file it points at; without
+// the first, a member naming the target is passed by the link.
 func (sub *subject) kindHolds(clause Clause) (bool, string) {
 	for _, valued := range sub.options.Values(command.Kind(clause.Kind)) {
 		if !clause.statesTest() || sub.test(clause, valued.Value) {
 			return true, valued.Value
 		}
+		if clause.Kind != string(command.KindPath) {
+			continue
+		}
+		resolved := sub.resolve(valued.Value)
+		if resolved != valued.Value && sub.test(clause, resolved) {
+			return true, valued.Value + " -> " + resolved
+		}
 	}
 	return false, ""
+}
+
+// resolve is where a path word lands: joined to the call's directory when
+// relative, then through `..` and symbolic links as far as the path exists.
+// A relative word with no directory to join it to is left as written.
+func (sub *subject) resolve(word string) string {
+	full := word
+	if !filepath.IsAbs(full) {
+		if sub.cwd == "" {
+			return word
+		}
+		full = filepath.Join(sub.cwd, full)
+	}
+	return reach.Resolve(filepath.Clean(full))
 }
 
 // wordsHold tests the words at the ordinals the clause names.
@@ -282,9 +308,11 @@ func (sub *subject) groupHas(name, value string) bool {
 		return false
 	}
 
-	return slices.ContainsFunc(group.Members, func(member string) bool {
+	matches := func(member string) bool {
 		return group.compare(member, value)
-	})
+	}
+	return slices.ContainsFunc(group.Members, matches) ||
+		slices.ContainsFunc(group.resolved, matches)
 }
 
 // compare applies the group's declared comparison to one member.

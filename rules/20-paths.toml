@@ -3,19 +3,16 @@
 # These are class-three rules: they ask where a command reaches, not what it is
 # called. That needs two things the earlier files do not:
 #
-#   kind = "path"     select every word the DECLARATION says denotes a path,
+#   kind = "path"     select every word the declaration says denotes a path,
 #                     `rm`'s operands and `tar -f`'s value, and not the message
 #                     in `git commit -m "…"`. Which words are paths is declared
 #                     per command, never guessed.
 #
-#   match = "partial" on the group, because a protected path is a PREFIX. A
+#   match = "partial" on the group, because a protected path is a prefix. A
 #                     group of paths compared for exact equality would match
 #                     `/home/user/.claude` and miss
 #                     `/home/user/.claude/settings.json`, which is every
-#                     case that matters. Silent non-matching is the worst way
-#                     for a deny rule to fail.
-#
-# Both are PROPOSED and need your ruling.
+#                     case that matters.
 #
 # ---------------------------------------------------------------------------
 # The limit of this file:
@@ -25,29 +22,23 @@
 # `permissions.deny` entry in settings.json, and settings.json must itself be
 # unwritable.
 #
-# These rules also read the INTERPRETED value, which is the default and is
+# These rules also read the interpreted value, which is the default and is
 # load-bearing here: `rm /home/user/.cl\aude/x` reaches .claude, and a rule
 # reading what was written sees `.cl\aude` and misses.
 # ---------------------------------------------------------------------------
 #
 # ###########################################################################
-# Write these paths in resolved form. This is the footgun.
+# A link and the file behind it are two spellings, and a member must reach both.
 #
-# A command's path is resolved through its symbolic links before it is matched,
-# so a group member written as the LINK matches nothing at all, silently,
-# which is the worst way for a deny rule to fail.
+# A path word is matched as written and as resolved (FR-7.15). A member that is
+# a whole path, `~/` included, is held in both forms too, so it guards the link
+# and the file the link points at. A fragment such as `/.claude/settings.json`
+# names no file, cannot be resolved, and guards only its own spelling, along
+# with every other directory's `.claude/settings.json`.
 #
-# Measured on this machine:
-#
-#   ~/.claude/settings.json -> /home/user/.projects/dotfiles/claude/settings.json
-#
-# So `partial = "/.claude/settings.json"` never fires: by the time the rule
-# sees it, the path is the dotfiles one. Written in resolved form the rule
-# catches BOTH spellings, because both resolve to the same file.
-#
-# The members below are still written in link form and are therefore WRONG for
-# any of them that is a symlink on the machine they run on. They need checking
-# against `readlink -f` before this file is used.
+# So where a protected path is a symbolic link, write it as a whole path beside
+# its fragment. `~/.claude/settings.json` and `~/.claude/hooks` are links into
+# another tree on the machine these were written on.
 # ###########################################################################
 
 # ============================================================================
@@ -57,12 +48,8 @@
 # qwark's own control surfaces. An agent that can edit these is not constrained
 # by them.
 #
-# The list is the paths qwark reads or writes at runtime, and it is derived from
-# those rather than from where the rules were once installed. That distinction
-# is the whole of the defect this group carried: it named `/etc/qwark/` while
-# the install target moved to `~/.config/qwark/rules`, so the guard went on
-# refusing an `ls` of an abandoned directory while `cp` over the live rule set
-# and `rm` of the decision log were both permitted.
+# The list is the paths qwark reads or writes at runtime, derived from those
+# and not from an install location (FR-10.11, which records the failure).
 #
 # The two system paths stay. Neither holds anything today, and keeping them
 # costs nothing and covers a reinstall to either.
@@ -90,6 +77,8 @@ members = [
   "/.claude/shell-snapshots/",
   "/.claude/hooks/",
   "/.claude/plugins/",
+  "~/.claude/settings.json",
+  "~/.claude/hooks/",
 ]
 
 # Files a shell reads at startup, which is how the snapshot above gets its
@@ -111,7 +100,7 @@ members = [
   "/.githooks/",
 ]
 
-# The files that DEFINE what a task runner runs.
+# The files that define what a task runner runs.
 #
 # The sharpest statement of the threat in this project:
 #
