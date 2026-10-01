@@ -19,8 +19,7 @@ the agent can read.
 
 Every rule that objected is listed, each with the word that set it off. The
 reasons are elided above and printed in full. A reason is what a refused agent
-is shown, and it is the only thing between a denial and a session that does not
-understand why.
+is shown.
 
 It runs as a `PreToolUse` hook for Claude Code, which hands it the tool call on
 stdin before the command executes and lets its answer decide whether it does.
@@ -34,9 +33,7 @@ working against the person who ran it.
 So when qwark cannot account for something, it refuses. An unparseable command
 is denied. A rule file that will not load means no Bash at all. An undeclared
 command is denied, and so is an option the declaration does not name. A word
-whose value is not fixed by its own text is refused, not guessed at. A
-gate that degrades to permissive whenever it is confused is a gate whose
-confusion is the way through it.
+whose value is not fixed by its own text is refused, not guessed at.
 
 Matching text would not do. `rm -rf /` and `env rm -rf /` and
 `PATH=. rm -rf /` are three different programs behind one string, so qwark
@@ -73,8 +70,7 @@ recognise is treated as a denial.
 
 `judge` takes the same rule paths and the same request fields the hook does, so
 a rule can be exercised as the caller that will meet it before it is the reason
-something failed. A rule set that has never judged anything is a policy nobody
-has run.
+something failed.
 
     qwark ast [--debug] [command]   outline the syntax tree of a command
     qwark facts [command]           list the properties a command establishes
@@ -129,8 +125,8 @@ problem without solving it.
 limits.
 
 qwark never answers `defer`, because a gate that decides nothing has failed at
-its one job, and it never rewrites the call it was asked about: a gate that
-edits what it judges can no longer be said to have judged it.
+its one job, and it never rewrites the call it was asked about, since a verdict
+on an edited call is not a verdict on the call the agent made.
 
 The registration is fixed for a session. A subagent spawned inside a running
 session inherits its parent's command line, so varying policy by role is the

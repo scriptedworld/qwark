@@ -23,6 +23,5 @@ facts are reported separately and both present:
     redirect.truncate          1:5   │ > f.go
     redirect.heredoc           1:12  │ <<EOF package main EOF
 
-The rule was asked for while the failure was happening: every Go source file in
-this repository up to that point had been written by exactly that command shape,
-under a standing instruction to prefer Bash for file edits.
+A standing instruction to prefer Bash for file edits leads straight to this
+command shape, and this rule overrides it.

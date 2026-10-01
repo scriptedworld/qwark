@@ -26,7 +26,6 @@
 #    all. A fixed directory is what is forbidden, because bolt refuses one that
 #    already holds a run, so naming one works exactly once. The default is
 #    unique per run and `clean` removes them.
-#    Every project answering to the same two words is a settled decision.
 #
 # 3. It quotes the path it read. A verdict with no artifact beside it cannot be
 #    checked by whoever reads the output.
@@ -48,8 +47,8 @@
 # and nothing in either message says "definitions".
 #
 # So the next adopter would go and change their coverage or requirements
-# configuration instead of suspecting this file. qwark and skid both hit it
-# independently: two of two adopters, different languages, same cause.
+# configuration instead of suspecting this file. qwark and skid, in different
+# languages, both hit it independently.
 _verdict jig *flags:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -168,7 +167,7 @@ clean:
 #     secrets:  +  @just _verdict secrets   clean
 #
 # So both concluded the name was safe from a fixture that was clean by
-# accident. The fixture had inherited the habit of the thing it was testing.
+# accident.
 #
 # The verdict also depends on prose. This file stays clean with the `@`
 # removed, while the same three lines cut out of it flag, because the word
@@ -180,8 +179,6 @@ clean:
 # `leak-scan` is clean with no `@`, in isolation, and with a body that itself
 # invokes `bolt secrets`. The jig keeps its name: `bolt.secrets.yaml` is
 # toolbox's and is untouched. Only the recipe moved.
-#
-# Every project answering to the same two words is a settled decision.
 
 # the secrets jig alone
 leak-scan:

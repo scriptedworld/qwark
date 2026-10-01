@@ -5,9 +5,8 @@ already the house library, used by `dotfiles/go/internal/manifest`, and its
 `ParseError.ErrorWithPosition` renders a source excerpt with line and column,
 which this design needs:
 
-**If any rule file is unparseable, Bash is unusable.** Fail-closed. A gate that
-degrades to permissive when its own configuration is broken is a gate that
-reports success while guarding nothing.
+**If any rule file is unparseable, Bash is unusable.** Fail-closed: a broken
+configuration never degrades to permissive.
 
 The cost is that a typo denies every Bash command until it is fixed, so the
 denial has to name the file, the line and the text, and the escape route must not
@@ -60,6 +59,3 @@ default falls the other way: no rule fired means allow. On real traffic the two
 are indistinguishable, because real traffic always matches something. They
 diverge only on the empty ruleset, which is exactly the case the replay contains
 none of and the case the property is about.
-
-So outcome equivalence and default direction are separate claims, and only the
-second is a safety property.

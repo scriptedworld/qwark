@@ -44,11 +44,11 @@ The word stays available and the destructive form does not.
     index = "2"
     group = "git-reflog-writes"
 
-The worked example is `no-git-destroying-the-reflog`, and it exists because
-denying the whole word broke something. 40-state.toml tells a reader to look at
-`git reflog` before deleting after a rebase, and it clears the tag when they do.
-A denied command has no effect of any kind (FR-4.24), so denying the word left
-the instruction impossible to follow and the tag impossible to clear. Watch for a
+The worked example is `no-git-destroying-the-reflog`. 40-state.toml tells a
+reader to look at `git reflog` before deleting after a rebase, and it clears the
+tag when they do. A denied command has no effect of any kind (FR-4.24), so
+denying the whole word leaves the instruction impossible to follow and the tag
+impossible to clear. Watch for a
 denial whose own message names a refused command; that is the smell this shape
 fixes.
 
@@ -83,8 +83,6 @@ one.
 It is what actually holds the read-only git allowance narrow. `git help -w` opens
 a browser, `git log --ext-diff` runs an external program, and no rule names either
 of them; they are refused because `05-declarations.toml` lists neither option.
-Nobody had to enumerate the dangerous flags, and forgetting one buys a refusal
-instead of a hole.
 
 The inverse is the part to be careful about. **Declaring an option is what makes
 it reachable**, so the declaration file is the eligibility surface, and an
@@ -137,5 +135,4 @@ An inverted clause in a deny rule is the safe direction, because inversion is
 satisfied by absence, including absence qwark caused by not understanding
 something. Here that means a request whose directory could
 not be established does not satisfy `cwd`, so `absent = true` holds, so the
-denial stands. The rule fails closed on ignorance, which is what a deny rule
-must do and what the same clause in an allow rule would not.
+denial stands. In an allow rule the same clause would fail open.

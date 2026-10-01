@@ -4,18 +4,18 @@ qwark is written in Go and stays in Go. The estate's other tools are Rust and
 Python, and bolt was moved off Go deliberately, so this is a choice and not a
 default.
 
-## The Rust rewrite, reversed
+## Why not a Rust rewrite
 
-A rewrite in Rust was decided and is reversed. The parser drove it:
-tree-sitter-bash is a C library, which is cgo in Go and an ordinary crate in
-Rust, and the two grounds that chose `mvdan.cc/sh` were round-tripping, which
-this gate never uses, and no-cgo, which matters only inside a Go program. Its
-cost was `cap-std` as a dependency where `os.Root` is standard library, for a
-tool whose whole job is containment.
+The case for rewriting in Rust is the parser: tree-sitter-bash is a C library,
+which is cgo in Go and an ordinary crate in Rust, and the two grounds that chose
+`mvdan.cc/sh` were round-tripping, which this gate never uses, and no-cgo, which
+matters only inside a Go program. The cost is `cap-std` as a dependency where
+`os.Root` is standard library, for a tool whose whole job is containment.
 
-The premise underneath it did not hold. `what-the-two-parsers-actually-give.md`
-measured the two parsers, and tree-sitter-bash builds no better tree for what
-qwark judges and is worse in three places that carry deny rules.
+That case rests on tree-sitter-bash building a better tree, and it does not.
+`what-the-two-parsers-actually-give.md` measured the two parsers:
+tree-sitter-bash builds no better tree for what qwark judges and is worse in
+three places that carry deny rules.
 `silo/docs/DECISIONS/what-language-each-component-is-written-in.md` carries the
 estate's language ruling.
 
@@ -41,16 +41,9 @@ first layer needed.
 ## What that means today
 
 **Nothing in qwark calls `os.Root`.** The parser, the rule engine and the hook
-are ordinary Go and would have been ordinary anything. Judged on what is built,
-the choice is unexercised.
-
-It is recorded because the reason is invisible from the code, and because a
-reader who finds a Go program in an estate that moved its other Go program to
-Rust is owed the answer.
+are ordinary Go and would have been ordinary anything.
 
 ## What Go costs
-
-A decision naming only its upside is not one, so here are the costs.
 
 Branch coverage is reachable and not measurable. Go reports statements, so the
 toolchain can say what ran and not which way a condition went: an `if` with no
@@ -77,9 +70,8 @@ So `main` holds exactly one statement, and this is a requirement, not a style:
 costs almost nothing to run and proves the one unreachable statement executed.
 
 Rust needs none of this: an integration test runs the binary and the profile is
-one artifact. The entry-point pattern exists because of the language, not
-because it is better design, so when you meet it, know which of the two you are
-looking at.
+one artifact. The entry-point pattern is a cost of the language, not a design
+preference.
 
 ## The alternative that was live
 

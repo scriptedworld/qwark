@@ -14,7 +14,7 @@ breadth of the rule inside a regex the reader has to parse. A form named
 
 `pattern` is anchored to the whole value, because otherwise every pattern is
 quietly a partial and the broad reading becomes the one obtained by accident.
-That is the predecessor's mistake exactly: `archive-guard.sh` matched the
+An unanchored match is how `archive-guard.sh`, the predecessor, matched the
 substring `.archive`, blocked `web.archive.org`, and cost a legitimate research
 route. Nothing here prevents an author choosing that breadth, since
 `partial = ".archive"` does the same thing; choosing it is a visible act and

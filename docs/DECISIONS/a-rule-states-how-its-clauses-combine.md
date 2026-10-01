@@ -17,18 +17,17 @@ the rule by itself, so one clause written too broadly is enough. On a refusal
 that refuses too much, which fails safe. On a permit it permits too much, which
 does not.
 
-## What it replaced
+## What `any` leaves out
 
-A rule was several clauses, *all* of which had to match, with alternatives
-written as separate, nearly identical rules:
+Under `all` alone, alternatives are separate, nearly identical rules:
 
     rm -r -f     forbidden, because of -f
     rm -r        no -f: ask, warning that it is recursive
     rm -f        no -r: forbidden
 
-That was chosen because a rule you can check by reading it alone beats a
-compact one you cannot. `any` keeps that property for a flat list of
-alternatives. What it still leaves out is a mix, such as "git, and `-C` or
+Each of those can be checked by reading it alone, and that beats a compact rule
+that cannot. `any` keeps that property for a flat list of alternatives. What it
+leaves out is a mix, such as "git, and `-C` or
 `--git-dir`": a flat `any` would let the `git` clause fire alone. Where the
 alternatives are the same kind of clause, a group expresses them inside one
 clause instead. Nesting is left out until a real rule needs it.

@@ -24,8 +24,8 @@ can stop work will be turned off. What it must not do is silently lose records,
 since a log with gaps reads as a clean history.
 
 An audit also sees what no gate can: a pattern across calls that no single call
-would trip. That is the argument tags were built on, arriving from the other end,
-and it is why the log earns its place even where a store does not.
+would trip. Tags rest on the same argument, and it is why the log earns its place
+even where a store does not.
 
 This is also where an intention note would land. The proxy collects the stated
 reason; mode two is where it is compared against what the call actually did.
@@ -42,14 +42,12 @@ It turns denying into enumerating. qwark denies by default across the infinite
 space of things somebody might type. A proxy exposes a finite set of operations,
 so what exists is what was written down. Every hard problem in mode one follows
 from that space being infinite and the text ambiguous: quoting, escapes, aliases,
-shell functions, `PATH`, wrappers, interpreters, globs, substitutions. **A typed
-call cannot hide its own effect the way a command line can.**
+shell functions, `PATH`, wrappers, interpreters, globs, substitutions.
 
 The mechanicals mostly become API design. "Allowed as a word, refused in a shape"
 stops being a rule and becomes a parameter that is not offered: a `reflog`
-operation with no `expire`. "Refused unless" becomes a required argument. An
-operation that cannot be named cannot be attempted, and a refusal never has to be
-understood.
+operation with no `expire`. "Refused unless" becomes a required argument. Neither
+leaves a refusal for anyone to understand.
 
 The whole of the engine carries over, none of it being about shells. So FR-7.12
 and FR-7.13 are foundational and not interim: "these kinds of rules for the
@@ -73,4 +71,4 @@ What the proxy does not dissolve is the residue everything else left. If the
 proxy exposes an operation that runs `just checks`, the `justfile` still decides
 what that does, because the call is typed and its meaning is still in a file in
 the tree. The proxy has to own the recipe, or the recipe has to sit outside what
-the agent may write. Same residue as the sandbox, same answer: the manifest.
+the agent may write. As with the sandbox, the manifest is what closes it.

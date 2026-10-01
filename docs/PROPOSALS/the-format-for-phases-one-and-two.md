@@ -67,8 +67,7 @@ The comments are carrying two different things and only one of them is a
 comment:
 
 `reason` is what a refused agent is shown. It already exists and is already
-data. `CLAUDE.md` 4a: it is the only thing standing between a denial and a
-session that does not understand why.
+data, and `CLAUDE.md` rule 4a says why it matters.
 
 `why` is why the rule exists and why not to weaken it. Today this is a
 comment, so it reaches a maintainer reading the file and nothing else.
@@ -207,8 +206,8 @@ own reason.
 
 A verdict inherits down the subtree, and this is safe in one direction only.
 Denying `git` denies every verb under it; nothing beneath can re-open it,
-because there is no value that widens. The inheritance question the earlier
-proposal left open is not answered so much as deleted.
+because there is no value that widens. That removes the inheritance question
+`a-tree-of-declared-commands.md` left open.
 
 An explicit deny node earns its place through the message. `--force` absent
 is refused as "not declared" and the agent guesses. `--force` present with a
@@ -234,7 +233,7 @@ loaded first, which removes the whole class of bug
 
 Both passes fail closed. An unreadable file, an unknown phase, a duplicate
 spelling, a generated file with hand-written nodes, a verdict with no reason:
-each is a load error, and a load error is no Bash at all.
+each is a load error, and a load error refuses every Bash command.
 
 ## What phase three adds, and what it may not change
 
@@ -252,8 +251,7 @@ declares types for values it currently does nothing with.
 `docs/LESSONS/an-escape-defeats-a-path-rule.md` is what this buys: a path rule
 today reasons about the text of a command, so `rm /home/user/.cl\aude/x` reaches
 `.claude` past a rule matching the literal string. Once a node says an argument
-is a path, it can be unescaped and canonicalised before judging, because
-something knows which words deserve it.
+is a path, that argument can be unescaped and canonicalised before judging.
 
 ## Decisions this proposal makes
 

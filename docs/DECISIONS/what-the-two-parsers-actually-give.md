@@ -1,8 +1,7 @@
 # What the two parsers actually give
 
-The Rust rewrite, since reversed, rested on a premise nobody had checked: that
-tree-sitter-bash builds a better and more specific tree for judging a command.
-This record measures it.
+A Rust rewrite on tree-sitter-bash would rest on that parser building a better
+and more specific tree for judging a command. This record measures it.
 
 **It does not, for the thing qwark needs most, and it is worse in three places
 that currently carry deny rules.** qwark stays in Go on `mvdan.cc/sh`.
@@ -58,7 +57,7 @@ and with the current permissive allow rule the command would be **allowed**.
 allowed today, and `10-commands.toml` puts the general form as *the command word
 is not the command*.
 
-So the swap moves `time`, `let` and `coproc` out of the structural phase and
+So a swap moves `time`, `let` and `coproc` out of the structural phase and
 into the wrapper group, which is a rule change nobody proposed and which follows
 from the parser alone. `10-commands.toml` says outright that `time` is not in
 the wrapper group *because* it is a keyword and never a command word. That
@@ -90,7 +89,7 @@ carries them as fields on typed nodes.
 
 Expansions are separated by kind. `simple_expansion` for `$HOME` and
 `arithmetic_expansion` for `$((1+2))`, against mvdan's `ParamExp` and
-`ArithmExp`. A wash, but a clean one.
+`ArithmExp`. A wash.
 
 Backgrounding is a node, not a flag. mvdan sets `Background` on the statement;
 tree-sitter emits a sibling `'&'`. mvdan's is easier to test, which is why
@@ -113,20 +112,17 @@ tree-sitter emits a sibling `'&'`. mvdan's is easier to test, which is why
 `redirected_statement` and puts `file_redirect` inside, where mvdan hangs
 `Redirect` off the statement beside the `CallExpr`.
 
-## What this changes
+## What a swap would cost
 
-Not the language. Rust was ruled on tree-sitter being a C library and on the two
-grounds for `mvdan.cc/sh` being spent, and neither of those depends on the tree
-being better.
+The language does not turn on this measurement alone. Tree-sitter being a C
+library, and the two grounds for `mvdan.cc/sh` being spent, do not depend on the
+tree being better; `go-because-of-os-root.md` records why qwark stays in Go.
 
-It does change what the rewrite has to carry. Three deny rules stop working and
-have to be rewritten as command-word rules, one clause starts matching two
-things, and the existing requirement that an unknown node name is a
-configuration error at load is what makes the remap safe and not silent. That
-requirement is now the most load-bearing line in the format.
+A swap would carry three deny rules that stop working and have to be rewritten
+as command-word rules, and one clause that starts matching two things. The
+existing requirement that an unknown node name is a configuration error at load
+is what makes that remap safe and not silent, which makes it the most
+load-bearing line in the format.
 
-And it retires the claim. `docs/DECISIONS/why-a-parser-rather-than-a-matcher.md`
-said tree-sitter-bash loses on a typed tree and no cgo. Measured, it does not
-lose on the typed tree; it wins on assignments and operators and loses on three
-keyword forms. Neither parser is better at the job qwark most needs done,
-because that job is not parsing.
+On the typed tree, tree-sitter-bash does not lose: it wins on assignments and
+operators and loses on three keyword forms.

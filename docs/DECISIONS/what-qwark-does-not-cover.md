@@ -1,7 +1,5 @@
 # What qwark does not cover
 
-A control whose limits are not written down gets trusted past them.
-
 Other tools reach the filesystem without passing through qwark. qwark gates
 Bash. `Write` and `Edit` do not go through it, and they can reach the shell
 snapshot, `settings.json`, `.git/hooks`, a `justfile`, or a rule file. Every path
@@ -19,8 +17,7 @@ Some commands run content written by the agent. `go test` executes test files th
 agent authored; so do `pytest`, `npm test`, `cargo test`. `git commit` runs
 `.git/hooks`. `just`, `make` and `npm run` execute recipes from files in the tree.
 A coding agent that can write code and run its tests has arbitrary execution, and
-no rule set changes that. What qwark constrains is what is typed, not what the
-typed thing goes on to execute.
+no rule set changes that.
 
 A prefix assignment changes which binary runs. With `PATH=<dir>:$PATH rm …`,
 a script named `rm` in that directory ran instead. This is why prefix assignments

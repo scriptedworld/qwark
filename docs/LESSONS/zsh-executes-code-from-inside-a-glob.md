@@ -19,8 +19,9 @@ every tier-one check**, and under zsh it runs `rm -rf /`. The parser reads it as
 bash `ExtGlob`, a construct with no execution semantics whatsoever.
 
 Closing this while staying on zsh would mean banning globs outright, a large
-usability cost for one construct. Under bash the construct does not exist. That
-is what settles it, not parser tidiness:
+usability cost for one construct. Under bash the construct does not exist, and
+that is the deciding reason. The preference for a simpler shell was already
+stated:
 
 *"zsh has a lot of features I'd rather not have to deal with."*
 
@@ -37,7 +38,7 @@ reasons compound:
   configuration, and a bash shell does not load them. The alternative suggestion,
   starting the process by unsetting all aliases, is the same idea applied
   downstream, and the snapshot *already* opens with `unalias -a` and then
-  deliberately restores all 64. Removing the source beats fighting the restore.
+  deliberately restores all 64.
 - It is one auditable change, instead of a zsh-awareness qwark carries forever.
 
 From correlation, and not yet confirmed: the shell follows `$SHELL`, which is

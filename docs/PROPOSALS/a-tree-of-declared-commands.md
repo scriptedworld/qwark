@@ -89,12 +89,11 @@ property of each option.
 
 ## Verdicts
 
-Anything not listed is denied. Absence is refusal.
+Anything not listed is denied.
 
 Explicit deny nodes exist anyway, and they earn their place through the message,
-not the outcome. `CLAUDE.md` puts it exactly: a `reason` is what a
-refused agent is shown, so it is the only thing standing between a denial and a
-session that does not understand why.
+not the outcome: a `reason` is what a refused agent is shown, and `CLAUDE.md`
+rule 4a says why that matters.
 
     --force absent              "not declared"        the agent guesses
     --force: deny, with reason  names the hazard      the agent knows
@@ -111,13 +110,12 @@ every word looks the same.
 
 This is also the missing input to `os.Root`. `go-because-of-os-root.md`
 chose the language for kernel-enforced containment and says the feature is not
-used yet. A root can only be opened on something known to be a path, and the
-tree is what knows.
+used yet. Opening a root needs an argument known to be a path, and a node's type
+is what supplies that.
 
 ## Discovery is separated from execution
 
-A tool that finds things does not run things. `find` produces a list; a list
-goes into a file; a separate, judged step drives execution from that file. The
+`find` produces a list; a list goes into a file; a separate, judged step drives execution from that file. The
 file between the two can be read before anything acts on it, which a pipeline
 cannot offer.
 
@@ -166,8 +164,9 @@ capability becomes a reviewable diff instead of a rule change.
 
 And the `just` branch generates itself. `just --dump --dump-format json`
 gives every recipe with its parameters and whether it is private, so that
-subtree is derived per project and is never incomplete. The failure that put the
-last model in a drawer cannot happen on the half of the tree that is generated.
+subtree is derived per project and is never incomplete. Incomplete declarations,
+which keep the current declaration model undeployed, cannot occur on the
+generated half of the tree.
 
 ## What the corpus says the tree needs
 

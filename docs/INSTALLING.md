@@ -73,11 +73,9 @@ is worth very little. Each path a rule protects needs a twin entry in
 `permissions.deny`, which is one control written twice because two mechanisms
 enforce the two halves.
 
-The fragment carries one representative of each class the shipped rules protect:
-qwark's own rules and state, Claude Code's configuration and hooks, shell
-startup files, git hooks and config, and task definitions such as `Justfile`,
-`Makefile` and `package.json`. Keep it in step with the groups in
-`rules/20-paths.toml` by hand. Nothing checks that for you.
+The fragment carries one representative of each path group in
+`rules/20-paths.toml`. Keep the two in step by hand. Nothing checks that for
+you.
 
 Two things decide whether an entry works at all.
 
@@ -103,8 +101,8 @@ day.
 That reports what the deployed path holds: the shells declared, the groups, the
 declarations, and the rule count by action. Run it against `rules/` as well and
 compare the two, because a directory contributes every `.toml` file in it and
-nothing else, so a file that was never copied is not an error. The set loads
-cleanly and enforces less.
+nothing else, so a file that was never copied is not an error: the set loads
+cleanly without its rules.
 
 Compare by walking the shipped set, not the deployed one. A check that
 iterates the deployed directory never visits a file missing from it, so it

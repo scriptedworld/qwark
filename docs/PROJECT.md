@@ -22,8 +22,7 @@ against the person who ran it.
 So when qwark cannot account for something, it refuses. Unparseable command:
 denied. Unparseable rule file: no Bash at all. Undeclared command: denied.
 Undeclared option: denied. A word whose value is not fixed by its text: refused,
-never guessed at. A gate that degrades to permissive whenever it is confused is
-a gate whose confusion is the way through it.
+never guessed at.
 
 Declaring every command is a smaller job than it looks: *"you don't use that many
 tools."*
@@ -99,16 +98,15 @@ The general form is bolt's FR-6.1a: it reaches a verdict itself only where no
 adapter result is available to take, and each case says so where it arises.
 Reading the kind is how a caller tells which happened.
 
-The composition is one jig per run, not an overlay. `bolt -c a -c b` is gone with the rebuild;
-the current CLI is `bolt <jig> <directory>`, and flags come before the
-positionals. How the two quality jigs should compose is unsettled, and it is a
+The composition is one jig per run, not an overlay. The CLI is
+`bolt <jig> <directory>`, with flags before the positionals, and has no
+`-c a -c b` form. How the two quality jigs should compose is unsettled, and it is a
 question for the tooling, not for this repository.
 
 `bolt.qwark.yaml` is retired, not ported. It carried exactly one task,
 `entrypoint`, and that is now the shared jig's placeholder filled by the
 definitions file below, so porting it would have restated something already
-homed. An overlay was the right shape while the CLI composed jigs and is not a
-shape the CLI has.
+homed, and the CLI has no overlay to port it to.
 
 **`main()` is measured, not excluded.** Hard rule 5. The shared jig leaves an
 `entrypoint` placeholder defaulting to `true`; qwark fills it from
@@ -122,9 +120,8 @@ is why the chain lives in a script and not in the value.
 `just _verdict go-std-quality --definitions go-std-quality`. Without the flag
 the placeholder stays `true`, the entry point never runs, and
 `cmd/qwark/main.go` reports 0.0% against the floor. Both directions are
-checkable: `just _verdict go-std-quality` on its own still fails there. That is
-the jig being right, and the fix is to supply the value, never to exempt the
-file.
+checkable: `just _verdict go-std-quality` on its own still fails there. The fix
+for that failure is to supply the value, never to exempt the file.
 
 The secrets jig passes. It takes a `.secrets.baseline` when one exists and scans
 `git ls-files` when none does, so this tree needs no baseline. The recipe is
@@ -208,11 +205,11 @@ the loaded set is shape, inline programs, wrappers and git in place: a session
 commits, builds and runs the gate, and only compound shapes, `-c`-style
 programs, commands like `env` and `git -C` are refused.
 
-An early arming with declarations required and almost nothing declared refused
-`ls`, `cat`, `find`, `grep`, `go`, `bolt`, `git add -N` and `git commit -F`,
-most of them at `declared commands only`. That is the shape of a half-declared
-table and not a verdict on the design, and it is why the declaration work is
-sized by command plus option set.
+With declarations required and almost nothing declared, the gate refuses `ls`,
+`cat`, `find`, `grep`, `go`, `bolt`, `git add -N` and `git commit -F`, most of
+them at `declared commands only`. That is the shape of a half-declared table and
+not a verdict on the design, and it is why the declaration work is sized by
+command plus option set.
 
 Installing the full source set would still cost nine commands, listed in
 `NEXT_STEPS.md` under *What installing the source set costs*. Four of them are

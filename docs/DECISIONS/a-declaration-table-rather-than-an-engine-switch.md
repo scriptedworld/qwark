@@ -11,19 +11,18 @@ and that property is the whole of what qwark is. So the switch is documented in
 `00-allow.toml` with the way back written beside it, deleting the table restores
 FR-4.16 and FR-6.7 as written, and no shipped set is meant to keep it.
 
-What does not hold is the necessity. The sections below conclude that a
-structural-only phase cannot exist. It can: it needs a code change and a ruling,
-and both have been made.
+A structural-only phase is possible, but only with a code change and a ruling,
+and both are made. Without them the engine refuses every undeclared command, as
+the next section measures.
 
-## The plan this replaced
+## Arming in stages
 
-The intent was to arm qwark in stages: purely structural rules first, denying
-only the shapes tier one is about, logging everything, then introducing rules
-while watching what came through. Deny little, observe, treat the workarounds as
-data.
+Arming qwark in stages means purely structural rules first, denying only the
+shapes tier one is about and logging everything, then introducing rules while
+watching what comes through, with the workarounds treated as data.
 
-That plan does not survive contact with FR-4.16. **An undeclared command is
-refused by the engine**, at `internal/rules/evaluate.go`, unconditionally.
+FR-4.16 alone rules that out. **An undeclared command is refused by the
+engine**, at `internal/rules/evaluate.go`, unconditionally.
 Omitting `05-declarations.toml` does not produce a gate that judges by shape
 alone; it produces a gate that refuses everything, because the declaration check
 fires before shape ever decides anything.
@@ -36,8 +35,7 @@ allow rule:
     ls -la /etc                   deny  (engine) declared commands only  ls
 
 The rule set was sound. `qwark rules` reported 15 rules, 14 deny and 1 allow,
-and the allow rule provably fired the moment any declaration existed. The engine
-simply answered first.
+and the allow rule provably fired the moment any declaration existed.
 
 ## The decision
 
@@ -47,19 +45,15 @@ table. The alternative on the table was a rule-set-level switch, something like
 
 Rejected. The switch would make "qwark cannot account for this command" a
 configurable opinion, and that property is the whole of what qwark is: when it
-cannot account for something, it refuses. A gate whose confusion is the way
-through it is what this project is built to avoid, and a switch is that failure
-written as configuration instead of reached by accident.
+cannot account for something, it refuses.
 
-Declaring commands is the work the design always implied. It was described early
-as a smaller job than it looks, *"you don't use that many tools"*, and the
-corpus bears that out once the words a native tool already replaces are taken
-out of the count.
+Declaring commands is the work the design always implied. It is a smaller job
+than it looks, since few tools are in use, and the corpus bears that out once
+the words a native tool already replaces are taken out of the count.
 
 ## What it costs
 
-This is the part that is not obvious. **Declaring a command means declaring
-every option it is used with.** FR-6.7 refuses an option the table does not
+**Declaring a command means declaring every option it is used with.** FR-6.7 refuses an option the table does not
 name, so a half-declared command is refused in exactly the shapes people
 actually type, which reads as the gate being broken when the table is only
 incomplete.
@@ -81,7 +75,8 @@ the dangerous flags in order to be safe from them.
 Both tiers were declared. The nine where no native tool does the job (`git`,
 `go`, `gofmt`, `rm`, `mkdir`, `cp`, `mv`, `readlink`, `qwark`), and the
 read-only set that Grep, Read and Glob already replace (`ls`, `cat`, `head`,
-`tail`, `wc`, `grep`, `find`, `sort`, `cut`).
+`tail`, `wc`, `grep`, `find`, `sort`, `cut`). `rules/05-declarations.toml`
+holds their option sets.
 
 Declaring the second tier is a decision against the measurement, taken
 knowingly. The corpus says those are 32,462 occurrences, 36.1% of everything

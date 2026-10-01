@@ -1,7 +1,7 @@
 # Where this is heading, and it is not more git rules
 
-Asked which git commands should be reclaimed as guarded allows, the answer was
-none, and the reason resets the target:
+No git command is reclaimed as a guarded allow, and the reason resets the
+target:
 
 > Eventually the goal is that the agents will **never** be executing git
 > commands, and instead have a very specific command surface they are allowed.
@@ -13,19 +13,18 @@ none, and the reason resets the target:
 Three things follow.
 
 The allowed surface is per agent, not per machine. That is already the
-mechanism: rule files are named on the command line (FR-4.15), and an external
-process chooses which files a given agent gets (FR-10.6a). Narrowing by
-specialisation needs no new machinery, only more files.
+mechanism: rule files are named on the command line (FR-4.15), and a rule in
+them can be scoped to an agent type (FR-7.12, FR-7.13, FR-10.6a). Narrowing by
+specialisation needs no new machinery, only more rules.
 
 The read-only git allowance is a waypoint. It stands because it was ruled on,
 and the direction above says the eventual answer is narrower. It is the first
 thing to remove once the specific surfaces exist.
 
-The duplication was the open question, and the proxy settles it. An agent's
-prompt saying what it may run and a rule file deciding what it may run are two
-statements of one fact, and two statements of one fact drift. Generating the
-prompt from the rules and having the prompt reference them were both on the table,
-and the answer came out a third way:
+The proxy settles the duplication. An agent's prompt saying what it may run and
+a rule file deciding what it may run are two statements of one fact, and two
+statements of one fact drift. The answer is neither generating the prompt from
+the rules nor having the prompt reference them, but a third way:
 
 > The proxies then ALSO hold the details on what they expose, meaning they
 > include the details on what those agents can do … so we aren't repeating those

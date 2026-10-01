@@ -25,9 +25,9 @@ That clause names no command. It holds wherever the declaration table says some
 option means `no-verify`, so one rule covers every command that has such an
 option.
 
-The reason is what a refused agent is shown, so it does the work a comment never
-does: it is the only thing standing between a denial and a session that does not
-understand why. Write it for the reader who has just hit it.
+The reason is what a refused agent is shown, so it does work a comment never
+does. Write it for the reader who has
+just hit it.
 
 ## The four actions
 
@@ -65,7 +65,7 @@ A clause selects part of the call and then tests it.
 `nodes`, `flags` and `ops` name the parser's own vocabulary, exactly what
 `qwark ast` prints, and qwark refuses at load a clause naming one the parser
 does not have. A maintained mapping of node type to fact can be silently
-incomplete, and was.
+incomplete.
 
 `absent = true` inverts a clause, which is how a conditional refusal is written:
 forbidden unless the signing option is given is one deny rule with a clause
@@ -121,8 +121,7 @@ Two switches govern how strict this is, and one does not imply the other.
 command carries, so both are said or an absence somewhere else changes what the
 policy means. Declaring a command means declaring every option it is used with.
 Short options bundle, so `git log --oneline -10` decomposes to `-1` and `-0` and
-needs both. The unit of work is a command plus its option set, and twenty
-commands is not twenty lines.
+needs both. The unit of work is a command plus its option set.
 
 Leaving an option out is not a gap. It is refused, so an allowance stays narrow
 by construction and forgetting a dangerous flag costs a refusal, not a hole.

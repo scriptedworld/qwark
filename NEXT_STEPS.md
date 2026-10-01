@@ -72,12 +72,11 @@ bolt still holds a copy from before that fixing started.
 
 Adopting turned up two things, and the first is settled:
 
-1. `entrypoint` is a placeholder, not a task to define. Defining it in full
-   looked necessary, since *"a shared definition carries the rule and never the
-   subject"* and a task naming `./cmd/bolt` fails for every adopter in a way that
-   looks like the adopter's fault. The shared jig answers it better: the task
-   stays shared, and what varies is one substituted value, defaulting to `true`
-   so a project with no binary is unaffected. qwark supplies
+1. `entrypoint` is a placeholder, not a task to define. *"A shared definition
+   carries the rule and never the subject"*, and a task naming `./cmd/bolt`
+   fails for every adopter in a way that looks like the adopter's fault. So the
+   task stays shared, and what varies is one substituted value, defaulting to
+   `true` so a project with no binary is unaffected. qwark supplies
    `scripts/cover-entrypoint.sh` through
    `bolt.go-std-quality.definitions.yaml`, and the overlay that carried the task
    is retired.
@@ -97,8 +96,7 @@ Adopting turned up two things, and the first is settled:
 
 The Justfile pack is copied, not linked, and whether it should be linked is
 open. `Justfile` and `just/base.just` are byte-identical across adopters and
-drift the moment one improves, which is how this tree ran a stale pack until a
-checker found it. Linking them into toolbox is the same arrangement the jigs
+drift the moment one improves; this tree has already run a stale pack. Linking them into toolbox is the same arrangement the jigs
 already have, for the same reason. `just/lang.just` stays a real file either
 way, being this project's own.
 
@@ -148,10 +146,10 @@ duties."* An agent writing a `justfile` and then running `just` is not answered
 by an unwritable file. It is answered by making the agent that can write those
 files a different agent from the one allowed to run them.
 
-Doing it in the plumbing was ruled out. The base session has no `agent_type`, so a
-launcher-side partition means *"actively managing symlinks or something else …
-some form of ENV VAR that will have to be actively managed … which feels
-rickety"*. FR-10.6 had already chosen the payload over an environment variable,
+It does not go in the plumbing. A main-session call carries no `agent_type`,
+so a launcher-side partition means *"actively managing symlinks or something
+else … some form of ENV VAR that will have to be actively managed … which
+feels rickety"*. FR-10.6 chooses the payload over an environment variable,
 because the subject can reach an environment variable and cannot set its own
 `agent_type`.
 
@@ -165,8 +163,8 @@ Two requirements state the shape, and both carry tests:
   was stated, not only what it said, so the two cannot collapse.
 
 FR-7.13 is what removes the ricketiness: one rule set, named once in
-`settings.json`, carrying every role's policy inside it. No symlink swapping, no
-environment variable, nothing to keep in step outside the file being read.
+`settings.json`, carrying every role's policy inside it, with no symlink or
+environment variable to manage beside it.
 
 Try it:
 
@@ -295,10 +293,8 @@ the second and not a replacement. It matters for what to invest in now:
    file is illustrative and tags are deferred, so this is not a fault, but it does
    mean the worked example is exercised by nothing.
 
-   The related break in it was real and is fixed. `git reflog` had been denied as
-   history-rewriting, which made `no-deleting-after-a-rebase`'s own instruction
-   impossible to follow. The word is allowed, and `expire`, `delete` and `drop`
-   are denied at ordinal 2.
+   `no-deleting-after-a-rebase`'s own instruction can be followed: `git reflog`
+   is allowed, and `expire`, `delete` and `drop` are denied at ordinal 2.
 3. `no-touching-qwark` guards two paths that hold nothing, and neither of the
    two that hold everything. `group.qwark-control` names `/etc/qwark/` and
    `/var/lib/qwark/`. The first is abandoned and the second does not exist. The
@@ -308,20 +304,13 @@ the second and not a replacement. It matters for what to invest in now:
    `01-structure.toml` and `rm` of `decisions.jsonl` were both allow, while
    `ls /etc/qwark/rules` was refused.
 
-   The group was written when `/etc/qwark/rules` was the install target;
-   `gate/30-install-to-a-user-owned-path` moved the set and left the guard
-   pointing at the old address. This was the third of the three things FR-4.17's
-   retirement leaned on, after the `permissions.deny` twin, that was assumed to
-   hold and did not.
+   This is the third of the three things FR-4.17's retirement leaned
+   on, after the `permissions.deny` twin, that does not hold.
 
    Fixed in source at `7eacb72`, agreed in words first per hard rule 4a, with
    FR-10.11 and two tests. Both commands above now deny. **The live set is
    unchanged**, this phase being structural-only, so the open item is the
    deployment, not the rule. Measurement and repro are in the task tracker.
-
-   It stays listed here because the other two contradictions are open and this
-   one names the shape they share: a guard that outlives the address of its
-   subject protects nothing and reads as though it does.
 
 ## What installing the source set costs, measured
 
@@ -345,8 +334,7 @@ are how qwark gets built and gated:
 
 Each denial is correct about the general case and each stops the project
 developing itself. `78e0410` built the declaration table, and it does not help:
-these are deny rules, which fire whatever is declared. More declaration coverage
-cannot close this gap.
+these are deny rules, which fire whatever is declared.
 
 The remaining five are wanted, or nearly. `rm -rf` and reaching a PATH directory
 are deliberate. `ls` on the rules directory is the guard in contradiction 3,
@@ -409,13 +397,13 @@ caught by a rule about running code supplied as an argument.
    to `Bash|Monitor` would not gate it as it stands: `gate.Judged` refuses any
    tool other than Bash as not modelled, so every Monitor call would be
    refused. Whether to refuse Monitor outright, judge its `command` as a Bash
-   call, or leave it ungated is mine to decide. Recovered from
+   call, or leave it ungated is mine to decide. The filing is
    `inbox/qwark/hook-binary-missing-blocks-every-bash-call`, on clank's
-   `oslo-wip` at `44df00e`; its other half, a missing binary, was fixed there.
+   `oslo-wip` at `44df00e`.
 7. `install/settings-fragment.json` registers `qwark hook /etc/qwark/rules`.
    That path is abandoned and the live registration names
-   `~/.config/qwark/rules`. The old set is still there and loads: checked
-   2026-09-29, `qwark judge /etc/qwark/rules -- ls` answers block, declared
+   `~/.config/qwark/rules`. The old set is still there and loads:
+   `qwark judge /etc/qwark/rules -- ls` answers block, declared
    commands only. A registration built from the fragment would gate against
    that stale set.
 8. The voice of the rule-file comments, agreed in words before it is
@@ -450,9 +438,8 @@ layers*.
   live rules, `rm ~proj/x` is allowed.
 
   This is the failure `nothing-is-expanded` guards against, reached by a route
-  it does not cover. That decision enumerated command substitution, arithmetic
-  and `$HOME`; a named directory is a fourth case and the enumeration was of what
-  somebody thought of.
+  it does not cover. That decision enumerates command substitution, arithmetic
+  and `$HOME`, and a named directory is a case it does not list.
 
   It is a rule decision, not a code change. The available answers are to deny a
   word beginning `~` followed by anything but `/`, which is cheap and refuses a
@@ -478,13 +465,12 @@ layers*.
   permitted uses instead, which inverts the policy: a reader sees a list of
   allowances and cannot tell what it protects against, and anything nobody
   thought of is permitted by omission rather than refused by intent.
-  `docs/RULES.md` already names a list of exceptions nobody can read as a
-  policy as the failure to avoid; this is that failure reached from the other
-  side.
+  That is the failure `docs/RULES.md` names to avoid, a list of exceptions
+  nobody can read as a policy.
 
   Both are syntax, not engine. Neither is scheduled, and the rule set should not
   be grown further on the current spelling.
-- FR-4.18 has a live instance, found by being bitten. That requirement says
+- FR-4.18 has a live instance. That requirement says
   using a name the shell may resolve to something other than the intended
   program is refused, and notes that a backslash suppresses alias expansion but
   not a shell function. On this machine:
@@ -500,8 +486,8 @@ layers*.
 
   FR-4.18 is `[?]` and carries no test. This is the evidence for building it now
   instead of deferring it, and it is also a caution about qwark's own
-  measurements: any finding here derived from a recursive `grep` has a blind
-  spot the size of the gitignore.
+  measurements: any finding here derived from a recursive `grep` did not see a
+  gitignored file.
 - The `[shell]` policy is parsed and never consulted. `ShellPolicy.Verify`
   is defined at `internal/rules/shell.go:78` and called from nothing but
   `shell_test.go`, and no code reads `SHELL` from the environment. So FR-1.5,
@@ -509,11 +495,9 @@ layers*.
   `01-structure.toml` declares `allow = ["/bin/bash", "/usr/bin/bash"]` and
   reads as though bash were enforced. The task tracker holds the filing, along
   with the measurement that the Bash tool's shell is zsh carrying my aliases.
-- The observation phase is running. It was blocked on FR-4.16: the engine
-  denied an undeclared command unconditionally, so a rule set omitting
-  declarations denied everything instead of judging by shape. `f39b70b` settled
-  that the enforcement stays and gave it a switch, and the live `00-allow.toml`
-  sets `required = false`. Against the live set, `ls -la`, `cat`, `grep`,
+- The observation phase is running. FR-4.16's refusal of an undeclared command
+  stays and has a switch (`f39b70b`), and the live `00-allow.toml` sets
+  `required = false`, so a rule set omitting declarations judges by shape. Against the live set, `ls -la`, `cat`, `grep`,
   `go build` and `git commit -F` all run, and only shape is refused.
 - qwark gates Bash only. The Write and Edit tools reach the rule files, the
   shell snapshot, `.git/hooks` and `settings.json` without passing through it.
@@ -527,8 +511,8 @@ layers*.
   registration itself. `rm` through Bash and `Write` through the tool both
   reached `~/.config/qwark/rules` past them. So the property FR-4.17 dropped is
   carried by neither the twin nor, until contradiction 3 is fixed, by qwark's
-  own path group. **Nothing mechanical protects the live rules today**, and hard
-  rule 4a, an instruction to an agent, is the whole of it.
+  own path group. That leaves hard rule 4a, an instruction to an agent, as the
+  only protection the live rules have.
 
   The twin's replacement has a name, and it is not qwark. `grim`, in
   `repos.live.toml`: *"The mandatory tool proxy. Supplies the file tools and
@@ -559,8 +543,8 @@ layers*.
   never been registered anywhere. Check both scopes.
 
 - A coding agent that can write files and run its tests has arbitrary
-  execution regardless of qwark. `go test` runs code the agent just wrote. What
-  qwark constrains is what is typed, not what the typed thing executes.
+  execution regardless of qwark, since `go test` runs code the agent just
+  wrote. `docs/DECISIONS/what-qwark-does-not-cover.md` is the full statement.
 - The hook registration is fixed for a session. An external process can choose
   rule files per session launch, but a subagent spawned inside a running session
   gets the same command line. Varying policy per subagent would need qwark reading

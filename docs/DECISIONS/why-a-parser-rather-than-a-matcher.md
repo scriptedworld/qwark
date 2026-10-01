@@ -1,9 +1,8 @@
 # Why a parser rather than a matcher
 
-The predecessor was `claude/hooks/archive-guard.sh` in a dotfiles repository
-since retired: a `grep -E` over the raw command string. That tree has been
-deleted, so what follows is the only surviving record of the failure its own
-header described.
+The predecessor is `claude/hooks/archive-guard.sh`, from a dotfiles tree that no
+longer exists: a `grep -E` over the raw command string. This record is the only
+surviving copy of the failure its own header described.
 
 > `bin/repos status` in the dotfiles repo walked from a configured root,
 > reached the tree and enumerated it, and never contained the literal string —
@@ -15,22 +14,20 @@ question only for a command whose effect is fixed by its own text, and shell
 syntax exists largely to break that correspondence.
 
 So the gate works on structure. `mvdan.cc/sh/v3/syntax` gives a typed tree, needs
-no cgo, and round-trips; tree-sitter-bash was the alternative and loses on both
-counts.
+no cgo, and round-trips.
 
 Round-tripping is not a property this gate uses: it judges a command and never
-writes one back out. No-cgo holds for as long as qwark is Go, and it stays Go. A
-Rust rewrite that would have swapped in tree-sitter was decided and is
-reversed; `go-because-of-os-root.md` says why.
+writes one back out. No-cgo holds for as long as qwark is Go, and it stays Go;
+`go-because-of-os-root.md` says why.
 
-The rest of this record stands, because it is about parsing versus matching and
-not about which parser. The predecessor's failure, the glob hybrid, and the
-limit that a tool-layer gate cannot see a path named at runtime are all
-parser-independent.
+tree-sitter-bash is the alternative. `what-the-two-parsers-actually-give.md`
+measures the two parsers against each other: tree-sitter-bash does not build a
+better tree for what qwark judges, and is worse in three places that carry deny
+rules.
 
-`what-the-two-parsers-actually-give.md` measures the two parsers against each
-other. tree-sitter-bash does not build a better tree for what qwark judges, and
-is worse in three places that carry deny rules.
+The rest of this record is about parsing versus matching and not about which
+parser. The predecessor's failure, the glob hybrid, and the limit that a
+tool-layer gate cannot see a path named at runtime are all parser-independent.
 
 ## One tier-one rule is not a tree question, and it is a hybrid, not text
 
@@ -60,7 +57,7 @@ literal parts reproduced every verdict in the log, which is agreement on a
 corpus that does separate a whole-word predicate from a parts-aware one.
 
 It still does not make the gate a guarantee. The archive-guard header's
-conclusion stands unchanged: a tool-layer gate cannot stop a program that names a
+conclusion holds: a tool-layer gate cannot stop a program that names a
 path only at runtime, because the denial happens before the child process exists.
 qwark catches the explicit case early and says why. Where a real boundary is
 needed, it belongs in the filesystem.

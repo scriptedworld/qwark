@@ -70,14 +70,13 @@ refused. Three things follow from that.
 
 Try a rule before trusting it. `qwark judge` takes the same rule paths and
 request fields the hook does, so a rule can be exercised as the caller that will
-meet it. A rule set that has never judged anything is a policy nobody has run.
+meet it.
 
     qwark judge rules -- git push --force origin main
     qwark judge --agent=test-runner rules -- go test ./...
 
 Write the reason for the reader who has just hit it. It is what a refused agent
-is shown, and a denial nobody can act on gets routed around instead of
-understood.
+is shown.
 
 Adding a declaration is a wider change than adding a rule. An undeclared
 command is refused outright, so `05-declarations.toml` is the surface that
@@ -95,7 +94,7 @@ Conventional commits, and one concern per commit. The subject says what changed.
 The body says what it cost, in counts and verdicts, and where the rest lives.
 
 The reasoning belongs in the file the commit changed, and the requirement in
-`REQUIREMENTS.md`. A message that restates either has written one thing twice,
-and the log is the copy nobody can correct later.
+`REQUIREMENTS.md`, not restated in the message: the log is a copy nobody can
+correct later.
 
 A message can only cite backwards. Resolve a SHA before writing it.

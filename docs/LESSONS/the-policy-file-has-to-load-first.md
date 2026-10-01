@@ -2,8 +2,8 @@
 
 `[declarations] required = false` turns off FR-4.16, the refusal of an
 undeclared command. It only works if the file carrying it is loaded before the
-rules it governs. Nothing said so, nothing detected it, and the live rule
-set denied 100% of real commands for eleven days because of it.
+rules it governs. Nothing documented or detected that, and the live rule set
+denied 100% of real commands for eleven days because of it.
 
 ## Measured
 
@@ -33,8 +33,8 @@ rather than judging the ones it understands"*.
 
 That reads as though only declarations can fix it. Swapping two filenames fixes
 it entirely. The comment describes a real measurement and draws a conclusion the
-measurement does not support, which is why it survived: it was right about what
-happened and wrong about why.
+measurement does not support, and the accurate symptom is what kept the wrong
+cause from being questioned.
 
 ## What was done
 
@@ -60,5 +60,5 @@ leave the answer depending on which was read last."* Claiming stops two files
 disagreeing. It does not stop one file being read too late to matter, and that
 is the failure that happened.
 
-Anything reimplementing this gate should load in two passes and make the
-question unaskable.
+Anything reimplementing this gate should load in two passes, so that file order
+cannot change the policy.

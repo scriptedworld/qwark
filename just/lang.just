@@ -36,8 +36,8 @@ test:
 # never excluded, which is hard rule 5. `go test -race` needs cgo, which is why
 # CGO_ENABLED is 1 here and 0 in build.
 #
-# This duplicates scripts/cover-entrypoint.sh deliberately, and the adoption
-# notes withdrew the suggestion to collapse them. They have different consumers:
+# This duplicates scripts/cover-entrypoint.sh deliberately, and the two stay
+# separate because they have different consumers:
 # the script writes a coverage profile into bolt's work directory for the
 # adapter to merge, and this recipe prints a percentage for a person. Merging
 # them would make the human-facing output a side effect of a machine artefact,

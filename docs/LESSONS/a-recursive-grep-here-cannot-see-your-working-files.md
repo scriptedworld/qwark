@@ -2,7 +2,7 @@
 
 ## The measurement
 
-Same binary, same string, same file:
+The same binary and string, against the file and against its directory:
 
     \grep -n   "THE GATE IS ARMED" ~/.projects/qwark/START_HERE.md   ->  line 8
     \grep -rln "THE GATE IS ARMED" ~/.projects/qwark/                ->  no match
@@ -14,16 +14,16 @@ A recursive search does not reach `START_HERE.md`, and a direct one does.
 ## What it is
 
 `grep` here resolves to something gitignore-aware when given `-r`. A backslash
-did not fix it, which is how it was identified: `\` suppresses alias expansion
-and not a shell function, so this is a function, not an alias.
+does not change that, and `\` suppresses alias expansion and not a shell
+function, so this is a function, not an alias.
 
 That is FR-4.18 word for word, in this project's own requirements:
 
 > A backslash suppresses alias expansion but not a shell function, and both zsh
 > and bash accept a function named `/usr/bin/ls` which shadows the binary.
 
-FR-4.18 is `[?]`, carries no test, and was deferred as defence in depth. It is
-not theoretical. It is the shell this repository is worked in.
+FR-4.18 is `[?]`, carries no test, and was deferred as defence in depth. The
+case it describes is live in the shell this repository is worked in.
 
 ## What it cost
 
@@ -36,8 +36,7 @@ have inherited three dead references in the one file it is told to read first.
 
 The blind spot is **exactly the tier of file a session keeps its working state
 in**: the handoff, the scratch notes, the commit messages, the evidence under
-`.ephemera/`. Tracked source is visible and everything about the session's own
-work is not.
+`.ephemera/`.
 
 ## What to do instead
 
@@ -88,9 +87,9 @@ would have cost one command and caught it immediately.
 
 ## Why this belongs to qwark specifically
 
-qwark exists because a command's name does not reliably say what will run. This
-is that, in the tool the project uses to check its own claims, discovered by
-being bitten and not by reading the requirement that predicted it.
+qwark exists because a command's name does not reliably say what will run. Here
+it happened in the tool the project uses to check its own claims, and it was
+found through a false result, not by reading FR-4.18, which predicted it.
 
-It is also the argument for building FR-4.18 instead of deferring it further:
-the requirement was written from reasoning, and this is the incident.
+FR-4.18 was written from reasoning alone. This incident is the argument for
+building it instead of deferring it further.

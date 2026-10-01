@@ -14,8 +14,7 @@
 #     error: recipe `test` first defined on line 3 is redefined on line 15
 #
 # `just test`, `just checks`, all of them fail with the same error. The setting
-# turns that error into first-listed-wins. It is not a tidiness flag: removing
-# it stops the tree outright.
+# turns that error into first-listed-wins.
 #
 #     just/project.just   this project's own. No template writes it.
 #     just/lang.just      the language layer's.
@@ -23,8 +22,6 @@
 #
 # `default` is the exception and has to be here: defined in an import it is not
 # found, and bare `just` answers "justfile contains no default recipe".
-#
-# Every project here exposes the same two-word interface.
 set allow-duplicate-recipes := true
 
 import? 'just/project.just'

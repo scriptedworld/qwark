@@ -1,8 +1,7 @@
 # The proxy also asks for intention, and that is the proxy's job
 
-*"the point of the proxy is also to help include that we're asking each tool
-usage to include notes regarding the intention"*. Asked whether to build an
-intention clause into the Bash gate: **"No, the intent is for the PROXY."**
+Part of the proxy's point is asking each tool use to include notes on its
+intention. The Bash gate gets no intention clause; that belongs to the proxy.
 
 A scope boundary, recorded here for when the proxy is built.
 
@@ -15,14 +14,13 @@ unverified prose written by the thing being judged.
 that allows because the note says "running the standard gate" is defeated by
 typing that string, which is `[command.sh]` again in prose. Requiring one is safe
 for the opposite reason: nobody defeats a requirement by satisfying it honestly.
-This is the reasoning FR-10.6 used to prefer `agent_type` over an environment
+This is FR-10.6's reason for preferring `agent_type` over an environment
 variable, at full strength.
 
 A plausible note can launder a bad action. If whatever reviews these reads
 them credulously, the note is worse than no note, because it supplies a ready-made
 justification. The value is in comparing the stated intention against what the
-call actually did. The mismatch is the signal, and the note on its own is not
-evidence of anything.
+call actually did.
 
 What it buys: FR-4.8's log stops being a list of what happened and becomes
 checkable; both sides of every decision get recorded, since qwark's refusals

@@ -8,12 +8,10 @@ A session started after `.claude/settings.local.json` is written is gated from
 its first command, and **a change to an existing registration takes effect on
 the very next command**, with no restart and no approval.
 
-That needed establishing because an earlier observation had suggested otherwise:
-a registration was written, an `ls` ran normally afterwards, and arming appeared
-not to take effect mid-session. The two cases are different. Creating a
-registration where none existed is not the same as changing one, and treating
-them as one claim shaped a whole task around restarting Claude Code to find out
-something already answerable.
+Creating a registration where none existed is a different case. A registration
+was written, an `ls` ran normally afterwards, and arming appeared not to take
+effect mid-session. Treating that and a change as one claim shaped a whole task
+around restarting Claude Code to find out something already answerable.
 
 ## How it was measured
 
@@ -58,9 +56,9 @@ either leaves no way back.
 
 Keep one lever outside the deny. Either leave `settings.local.json` editable and
 accept that an agent can lift its own gate, or deny it and accept that only a
-person can unwedge the tree. Both are defensible; what is not defensible is
-choosing the second without knowing it, because it reads as a tightened bolt
-when it is a door with no handle on this side.
+person can unwedge the tree. Both are defensible. Choosing the second without
+knowing it is not, because the deny looks like a tightening and also removes the
+session's only way to undo the registration.
 
 A moved registration needs a note. A parked
 `.ephemera/settings.local.json.wedged` is indistinguishable from a broken one to
@@ -76,6 +74,6 @@ protects.
 
 `allow-trying-a-rule` closes that case, on the grounds that qwark parses and
 reports: what it is given is described, not executed, and nothing it is given
-is written. The general shape does not close with it. Every command the project
-needs to build, test and gate itself is a command some rule has a good reason to
-refuse, and each one has to be decided, never assumed.
+is written. The general shape does not close with it: every command the project
+needs to build, test and gate itself is one some rule has a good reason to
+refuse, so each needs an explicit decision of its own.

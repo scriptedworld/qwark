@@ -56,7 +56,7 @@ The reasoning that would otherwise survive only in a commit message.
 
 ## Lessons, `LESSONS/`
 
-What the shell turned out to do, each found the hard way. These are what a gate
+What the shell turned out to do. These are what a gate
 learns from having to read a command the same way the shell will, which is a
 narrower thing than knowing how shells behave.
 

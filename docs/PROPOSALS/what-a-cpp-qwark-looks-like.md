@@ -21,8 +21,8 @@ Four dependencies, and two of them are already how tree-sitter is written.
 
 ### The parser links in as plain C
 
-This is the argument that moved qwark off Go, and C++ takes it further than
-Rust does.
+This is the parser-interop argument the Rust ruling made for leaving Go, and
+C++ takes it further than Rust does.
 
     extern "C" const TSLanguage *tree_sitter_bash(void);
 
@@ -51,7 +51,7 @@ So the C is compiled as C and linked into the C++ program:
 
 Four lines in a build file instead of one, and the `extern "C"` declaration
 above is unchanged. That is still simpler than a crate with a build script, and
-building it is how all of this was established.
+everything in this section was measured by building it.
 
 ### Containment is the kernel call, not a wrapper around it
 
@@ -98,8 +98,7 @@ C++ does this with a struct and a pointer. Rust does it with `rkyv` or the same
     cmake, ninja, meson, gcovr, lcov, valgrind, conan, vcpkg, bear
                                                 ALL ABSENT
 
-Every absent one is in Debian at a usable version, so each is an install, not a
-problem:
+Every absent one is in Debian at a usable version:
 
     clang-tidy 1:19.0-63     cppcheck 2.17.1-2      clang-format 1:19.0-63
     cmake 3.31.6-2           ninja-build 1.12.1-1   gcovr 7.2
@@ -192,9 +191,8 @@ takes two crates, and containment is `openat2` called directly instead of
 recorded as the price of leaving Go.
 
 **It loses on memory safety, and for a containment tool that is the one to lose
-on.** The reason Zig lost was that a gate's failure mode is availability; the
-reason C++ loses is that a gate's other failure mode is being wrong in a way it
-cannot report.
+on.** Zig lost on availability. C++ loses because a memory defect can make the
+gate wrong in a way it cannot report.
 
 Nothing here is urgent, because the format is language-neutral.
 `the-format-for-phases-one-and-two.md` specifies YAML, a node map and a two-pass

@@ -9,8 +9,8 @@ record is greppable and a partial write costs one line rather than the file.
 The log is also the state tracker. Tier four asks questions of the form "was
 there a rebase in the last six commands?", which the log already answers. A
 separate store maintained alongside it would be a second copy of the same
-history, free to disagree with the first. Reading the tail of the log instead
-means the record that explains a decision *is* the record that produced it.
+history, free to disagree with the first, so tier four reads the tail of the
+log.
 
 ### Environment variables are a disclosure risk, and this log is durable
 
