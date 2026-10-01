@@ -129,9 +129,8 @@ operands = "text"
   # --fixed-strings, and takes no value. So `-F` fails the "same meaning on
   # every subcommand that can reach it" test that keeps `-w`, `-n` and `-s` out.
   #
-  # It is declared anyway because hard rule 3 mandates exactly this spelling for
-  # every commit on this machine, and a gate that refuses the one commit form
-  # the instructions require is a gate that gets turned off.
+  # It is declared anyway because hard rule 3 mandates exactly this spelling
+  # for every commit on this machine.
   #
   # What the collision can actually do, which is why it is tolerable: on
   # `git log` it would read the following word as `-F`'s value rather than as an

@@ -19,10 +19,9 @@
 # plus a permissive allow rule answers "(engine) declared commands only" to
 # `ls`, `rm -rf` and `git add -N` alike.
 #
-# Declaring commands instead was tried and abandoned for a stated reason: it
-# refused roughly two thirds of what sessions actually run, before any
-# replacement for those commands existed, which stops the work rather than
-# shaping it.
+# Declaring commands instead refuses roughly two thirds of what sessions
+# actually run, with no replacement for those commands yet, which stops the
+# work rather than shaping it.
 #
 # ############################################################################
 # What this gives up. Read it before assuming the gate is stronger than it is.

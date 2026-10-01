@@ -67,12 +67,12 @@
 # Why `nodes`, `flags` and `ops` and not a fact for each
 #
 # A fact table is a mapping somebody maintains, and a mapping can be incomplete
-# without saying so. It was: `TimeClause`, `LetClause`, `ArithmCmd`,
-# `CoprocClause` and `DeclClause` established no fact and carry no usable
-# command name, which left `time rm x`, `let x=1` and `((x=1))` addressable by
-# no rule that could be written. The parser's own vocabularies cannot fall
-# behind, so **an unknown node type name must be a configuration error at
-# load**, never a clause that quietly matches nothing.
+# without saying so. `TimeClause`, `LetClause`, `ArithmCmd`, `CoprocClause`
+# and `DeclClause` carry no usable command name, so a table missing them
+# leaves `time rm x`, `let x=1` and `((x=1))` addressable by no rule. The
+# parser's own vocabularies cannot fall behind, so **an unknown node type name
+# must be a configuration error at load**, never a clause that quietly matches
+# nothing.
 #
 # That takes what `fact` has to carry from twenty-two down to two:
 #

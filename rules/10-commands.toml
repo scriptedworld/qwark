@@ -190,9 +190,9 @@ members = [
 # `reflog` is not here. The subcommand is what writes, not the word: `git
 # reflog` reads, and only `expire`, `delete` and `drop` destroy. It sits in
 # git-reads, with those three refused by `no-git-destroying-the-reflog` below.
-# Denying the whole word made `no-deleting-after-a-rebase`'s own instruction
-# impossible to follow and its tag impossible to clear, since **a denied command
-# has no effect of any kind (FR-4.24)**.
+# Denying the whole word would make `no-deleting-after-a-rebase`'s own
+# instruction impossible to follow and its tag impossible to clear, since **a
+# denied command has no effect of any kind (FR-4.24)**.
 [group.git-rewrites-history]
 members = [
   "rebase", "filter-branch", "reset", "gc", "prune", "repack", "replace",
@@ -622,7 +622,7 @@ arbitrary execution."""
 # ############################################################################
 # Nothing runs on a declaration alone. Deny is the engine's default (FR-4.35),
 # so a command that is described and unobjected-to is still refused until an
-# allow rule names it. A rule set with no allow rules permits nothing.
+# allow rule names it.
 #
 # Every block above outranks everything here (FR-4.33), so an allow can never
 # widen one and a command appearing in both lists is refused.
