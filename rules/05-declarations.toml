@@ -245,6 +245,31 @@ operands = "path"
   long.canonicalize = { means = "canonicalise" }
 
 # ============================================================================
+# Script languages
+# ============================================================================
+#
+# The members of script-language in 10-commands.toml. No option is declared,
+# so `-c`, `-e`, `-m` and every other option is refused as unaccounted, and
+# only `<language> <file> [args]` gets as far as the rules. The operands are
+# paths, which over-reads a script's own arguments: every path rule applies to
+# them too, which refuses more than it needs to and never less.
+
+[command.python]
+operands = "path"
+
+[command.python3]
+operands = "path"
+
+[command.perl]
+operands = "path"
+
+[command.ruby]
+operands = "path"
+
+[command.node]
+operands = "path"
+
+# ============================================================================
 # qwark itself
 # ============================================================================
 #

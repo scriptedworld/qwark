@@ -32,14 +32,25 @@
 # and awk's `system()`. Allowing them safely would mean parsing their programs,
 # which is a second language. They stay denied: file manipulation the file
 # tools cannot do belongs in a full programming language, not in sed or awk.
+#
+# The languages in script-language below are not here. A script file in one of
+# them runs; a program written into the command line is still refused, by
+# 02-inline-code.toml (FR-4.36) and by their declarations naming no options.
 [group.interpreter]
 members = [
   "sh", "bash", "zsh", "dash", "ksh", "fish", "csh", "tcsh",
-  "python", "python2", "python3", "perl", "ruby", "node", "deno", "bun",
+  "python2", "deno", "bun",
   "php", "lua", "tclsh", "Rscript",
   "awk", "gawk", "mawk", "nawk", "sed",
   "ed", "vi", "vim", "nvim", "emacs", "gdb", "lldb",
 ]
+
+# Full programming languages whose script files may run. The file is written
+# with the file tools first, so what runs is a diff somebody can read.
+# `allow-running-a-script` names them, and each is declared in
+# 05-declarations.toml with no options, so `-c`, `-e` and `-m` stay refused.
+[group.script-language]
+members = ["python", "python3", "perl", "ruby", "node"]
 
 # These change what a later command resolves to or does. Their damage is not in
 # the call that runs them.
@@ -692,6 +703,24 @@ force is refused."""
   [[rule.clause]]
   option = "recursive"
   absent = true
+
+# A script file in a full language, run by naming it. The path clause is what
+# makes it a file: bare `python3` reads its program from stdin and is not
+# matched, and every path rule in 20-paths.toml still reads the operands.
+[[rule]]
+id     = "allow-running-a-script"
+action = "allow"
+reason = """
+Running a script file is permitted: it was written with the file tools, so what
+runs is a file somebody can read. A program written into the command line is
+not."""
+
+  [[rule.clause]]
+  index = "0"
+  group = "script-language"
+
+  [[rule.clause]]
+  kind = "path"
 
 [[rule]]
 id     = "allow-building-go"

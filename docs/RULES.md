@@ -176,11 +176,11 @@ A deployment names which files it loads, and the shipped set is not obliged to
 be the loaded set. The files are split so that the whole directory and the two
 structural files can answer differently:
 
-    $ qwark judge rules -- python3 -c "import os"
+    $ qwark judge rules -- bash tool.sh
     block
       no-interpreters                    This runs code supplied as an argument, …
 
-    $ qwark judge rules/01-structure.toml rules/00-allow.toml -- python3 tool.py
+    $ qwark judge rules/01-structure.toml rules/00-allow.toml -- bash tool.sh
     allow
       (engine) allow by default          No rule decided this, and the rule set allows …
 

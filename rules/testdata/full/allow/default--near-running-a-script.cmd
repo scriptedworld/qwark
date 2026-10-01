@@ -1,2 +1,2 @@
 # quiet: allow-running-a-script
-bash tool.sh
+python3

@@ -324,16 +324,20 @@ repository cannot be worked in without. Live allows 79 of 84, source allows 70.
 `.ephemera/can-work-continue.py` regenerates it; the results are kept in
 the task tracker.
 
-Nine commands are allowed today and refused by the source set. Four of them
+Eight commands are allowed today and refused by the source set. Three of them
 are how qwark gets built and gated:
 
     go test ./...                no-go-execution   compiles and runs this tree
     bolt common-quality .        no-executors      runs a recipe from the tree
-    python3 <script>             no-interpreters   runs code given as an argument
     sed -n 1,40p FILE            no-interpreters   same class, though this reads
 
-Each denial is correct about the general case and each stops the project
-developing itself. `78e0410` built the declaration table, and it does not help:
+`python3 <script>` was the fourth and now runs: script files in Python, Perl,
+Ruby and Node are allowed by `allow-running-a-script`, inline programs stay
+refused. `sed` and `awk` stay denied by ruling, so `sed -n` is a cost the
+source set keeps; the Read tool does the same job.
+
+The first two denials are correct about the general case and each stops the
+project developing itself. `78e0410` built the declaration table, and it does not help:
 these are deny rules, which fire whatever is declared.
 
 The remaining five are wanted, or nearly. `rm -rf` and reaching a PATH directory
@@ -356,10 +360,8 @@ a scoped allow lifts. Shape 6 in
 
 What is left is the policy, and it is a rules change. Which denials become
 tree-scoped, and to which trees, wants an answer in words before anything is
-written. The four that block this repository are the obvious first set:
-`no-go-execution`, `no-executors`, and `no-interpreters` for `python3` and for
-`sed`. The last one needs separating: `sed -n 1,40p FILE` reads a file and is
-caught by a rule about running code supplied as an argument.
+written. The two that block this repository are the obvious first set:
+`no-go-execution` and `no-executors`.
 
 ## Waiting on an answer
 
