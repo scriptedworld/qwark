@@ -5,7 +5,7 @@
 #
 # A declaration grants understanding, not permission (FR-4.23): it says how a
 # command's options decompose so that rules can be written about them, and it
-# permits nothing by existing. But an UNDECLARED command is refused outright
+# permits nothing by existing. But an undeclared command is refused outright
 # (FR-4.16), so adding a declaration is what moves a command from "denied
 # because qwark cannot account for it" to "eligible, and now decided by rules".
 # `[command.sh]` is a complete bypass written as configuration. Declarations sit
@@ -20,7 +20,7 @@
 # The rule for adding an option
 # ----------------------------------------------------------------------------
 #
-# **The declaration is per command WORD. git's options are per SUBCOMMAND.**
+# **The declaration is per command word. git's options are per subcommand.**
 # There is one `[command.git]` table and it is consulted for every git
 # subcommand alike, so declaring an option for the sake of one subcommand
 # declares it for all of them.
@@ -28,12 +28,12 @@
 # The case that decides the shape of this file:
 #
 #     git diff -w      ignore all whitespace          harmless
-#     git help -w      open the topic in a BROWSER    launches a program
+#     git help -w      open the topic in a browser    launches a program
 #
-# One `-w`, two meanings, one table. Declaring it for `git diff` would hand
-# `git help -w` a browser, and `help` is on the allowed list.
+# Declaring `-w` for `git diff` would hand `git help -w` a browser, and `help`
+# is on the allowed list.
 #
-# So an option goes in here only when BOTH hold:
+# So an option goes in here only when both hold:
 #
 #   1. It means the same thing on every subcommand that can reach it, because
 #      `means` is what rules match on and a wrong meaning makes a rule misfire
@@ -117,9 +117,8 @@ operands = "text"
   long.pretty    = { means = "pretty",    takes_value = true, kind = "text" }
   long.format    = { means = "format",    takes_value = true, kind = "text" }
 
-  # The two the mandated commit workflow needs. Hard rules 2 and 3 require
-  # `git add -N <path>` for a new file and `git commit <path> -F <file>`, and
-  # both were refused as undeclared before these existed.
+  # The two the mandated commit workflow needs: hard rules 2 and 3 require
+  # `git add -N <path>` for a new file and `git commit <path> -F <file>`.
   short.N   = { means = "intent-to-add" }
   long.file = { means = "message-file", takes_value = true, kind = "path" }
 
@@ -199,7 +198,7 @@ operands = "path"
 # rm
 # ============================================================================
 #
-# ONLY force and recursive are declared, and both are denied by rules in
+# Only force and recursive are declared, and both are denied by rules in
 # 30-options.toml. Every other rm option is left undeclared, so `rm -i` and
 # `rm -v` are refused as unaccounted.
 #
@@ -207,7 +206,7 @@ operands = "path"
 # option nobody declared is an option qwark cannot account for, and this is the
 # command where not accounting for something is most expensive.
 #
-# Declaring them is what lets the rules MATCH them. FR-6.2 compares by declared
+# Declaring them is what lets the rules match them. FR-6.2 compares by declared
 # meaning, so one clause catches `-f`, `-rf`, `-fr`, `-r -f`, `--force`,
 # `--forc`, `--fo` and `--f` alike. A rule comparing text would see two of eight.
 
@@ -259,7 +258,7 @@ operands = "path"
 # parser, with no os/exec and no file writing. `judge` and `ast` take a command
 # as an argv element and only parse it.
 #
-# `hook` is deliberately NOT allowed in 10-commands.toml. It reads its subject
+# `hook` is deliberately not allowed in 10-commands.toml. It reads its subject
 # from stdin, so what it judges is not in the command text, and driving it needs
 # a pipe, which tier one refuses anyway.
 
@@ -290,7 +289,7 @@ operands = "text"
 # replace these rather than competing with them.
 # ############################################################################
 #
-# The obsolete numeric forms `head -20` and `tail -3` are NOT declared, so they
+# The obsolete numeric forms `head -20` and `tail -3` are not declared, so they
 # are refused as unaccounted and the way through is `head -n 20`. That is a
 # behaviour change and it fails closed, which is the right direction for a form
 # whose leading digit is an option only by convention.
@@ -361,7 +360,7 @@ operands = "path"
   long.exclude = { means = "exclude", takes_value = true, kind = "text" }
   long.exclude-dir = { means = "exclude-dir", takes_value = true, kind = "text" }
 
-# `-exec`, `-execdir`, `-delete` and `-ok` are NOT declared, deliberately. The
+# `-exec`, `-execdir`, `-delete` and `-ok` are not declared, deliberately. The
 # first three run a program or remove files, and `no-option-supplied-program`
 # in 30-options.toml already denies anything meaning "execute". Leaving them
 # undeclared refuses them one level earlier, with a message about accounting

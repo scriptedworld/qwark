@@ -6,7 +6,7 @@
 #
 #   action = "tag"          set it
 #   tag    = "post-rebase"
-#   ttl    = 6              in COMMANDS, not seconds
+#   ttl    = 6              in commands, not seconds
 #
 #   action = "untag"        unset it, whatever its TTL had left
 #   tag    = "post-rebase"
@@ -18,19 +18,19 @@
 # answer depends on anything outside the command in front of it.
 #
 # ---------------------------------------------------------------------------
-# SETTLED
+# Settled
 #
 #   - The count is allowed or approved Bash commands. A denied command does not
 #     advance any TTL, and no other tool advances it either.
 #
-#   - Tags are SET or UNSET by a rule, never toggled. A rule states which it
+#   - Tags are set or unset by a rule, never toggled. A rule states which it
 #     does, so its effect never depends on what the tag already was.
 #
 #   - Tags do not stack. Setting one that is already set replaces it, TTL and
 #     all: six commands after the most recent rebase, not twelve after two.
 #     There is no count of how many rules set it and no order of unsetting.
 #
-# PROPOSED, needs your ruling
+# Open, FR-8.6a
 #
 #   - A tag with no `ttl` lives for the current evaluation only. An unbounded
 #     tag would be indistinguishable from a command permanently changing

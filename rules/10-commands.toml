@@ -5,17 +5,14 @@
 # A list is greppable, diffable, and adding a command to a class is a one-line
 # edit that does not touch the rule.
 #
-# A group is a set-membership test in ONE clause, so it does not reintroduce
+# A group is a set-membership test in one clause, so it does not reintroduce
 # the `or` that rules deliberately lack: the clause still either matches or
 # does not, and the rule still needs all its clauses.
 #
-# PROPOSED, needs your ruling: the `[group.…]` tables and the `group = "…"`
-# clause key.
-#
 # **A group declares how its members are compared.** `match` defaults to
 # "value", the whole word exactly. A group of paths must say `match = "partial"`
-# (see 20-paths.toml) because paths are prefixes, and comparing them exactly
-# would silently never match, which is the worst way for a deny rule to fail.
+# (see 20-paths.toml) because paths are prefixes and an exact comparison would
+# never match.
 #
 # An empty group should be a configuration error, for the same reason an empty
 # `partial` is: a deny rule whose group someone emptied stops firing while
@@ -31,10 +28,10 @@
 # The program is an argument rather than a file, so what runs is never visible
 # to a gate that reads command lines.
 #
-# TRADE-OFF, your call: `sed` and `awk` are here because both execute, through
-# GNU sed's `e` command and awk's `system()`, and both are everyday text tools.
-# Allowing them safely would mean parsing their programs, which is a second
-# language. Denying them costs real convenience. Nothing in between is honest.
+# `sed` and `awk` are here because both execute, through GNU sed's `e` command
+# and awk's `system()`. Allowing them safely would mean parsing their programs,
+# which is a second language. They stay denied: file manipulation the file
+# tools cannot do belongs in a full programming language, not in sed or awk.
 [group.interpreter]
 members = [
   "sh", "bash", "zsh", "dash", "ksh", "fish", "csh", "tcsh",
@@ -44,10 +41,10 @@ members = [
   "ed", "vi", "vim", "nvim", "emacs", "gdb", "lldb",
 ]
 
-# These change what a LATER command resolves to or does. Their damage is not in
+# These change what a later command resolves to or does. Their damage is not in
 # the call that runs them.
 #
-# `export`, `declare`, `readonly`, `local` and `typeset` are NOT here: they
+# `export`, `declare`, `readonly`, `local` and `typeset` are not here: they
 # parse as declaration keywords rather than command words, and are denied by
 # the `declaration` fact in 01-structure.toml.
 [group.resolution]
@@ -72,14 +69,12 @@ members = [
 # Read this before adding a name. **The list is not what makes this safe.**
 #
 # Deny-by-default is. A command absent from every group is refused anyway
-# (FR-4.16, FR-4.35), so adding a name here buys a REASON, not a refusal: it
+# (FR-4.16, FR-4.35), so adding a name here buys a reason, not a refusal: it
 # turns "nothing permitted this" into a message that says what the class is and
 # why nobody gets it (FR-4.21).
 #
-# The measurement that prompted this: `just checks` was refused by
-# `no-executors`, naming the threat. `bolt run` was refused by "(engine) deny by
-# default", naming nothing, and bolt is this project's own gate. So were poe,
-# task, mise, uv, poetry, bazel, pre-commit and twelve more.
+# A runner in this group is refused by `no-executors`, naming the threat. One
+# missing from it is refused by "(engine) deny by default", naming nothing.
 #
 # **Completing this list is not achievable and is not the goal.** A task runner
 # nobody here has heard of is still denied. Write the name down when you meet
@@ -120,7 +115,7 @@ members = ["test", "run", "generate", "tool"]
 # git, classified
 # ----------------------------------------------------------------------------
 #
-# **Most git commands are NOT okay for the agent to execute.** Read-only is
+# **Most git commands are not okay for the agent to execute.** Read-only is
 # allowed, the rest denied by class, each class carrying its own reason. All 64
 # porcelain commands are classified, checked against `git --list-cmds`.
 #
@@ -164,11 +159,9 @@ members = ["test", "run", "generate", "tool"]
 # rule 1 depends on. Listing `commit` here would refuse `git commit` precisely
 # because it runs the check that has to run.
 #
-# Against a live gate with `commit` listed, `git commit <path> -F <msg>` was
-# refused by this rule, by `commit-must-be-signed`, and by `-F` being
-# undeclared, while hard rule 3 mandates exactly that command for every commit
-# here. The corpus holds 1,124 `git commit` invocations. A gate that stops
-# every commit the instructions require is a gate that gets switched off.
+# With `commit` listed, `git commit <path> -F <msg>`, the command hard rule 3
+# mandates for every commit, would be refused. The corpus holds 1,124
+# `git commit` invocations.
 #
 # The general reason still stands for the other sixteen members: a hook is a
 # file the agent can write, and running one is running that file. `commit` is
@@ -194,7 +187,7 @@ members = [
 # Rewrites or discards what is recorded, so the copy that would show what was
 # lost is the thing being changed.
 #
-# `reflog` is NOT here. The subcommand is what writes, not the word: `git
+# `reflog` is not here. The subcommand is what writes, not the word: `git
 # reflog` reads, and only `expire`, `delete` and `drop` destroy. It sits in
 # git-reads, with those three refused by `no-git-destroying-the-reflog` below.
 # Denying the whole word made `no-deleting-after-a-rebase`'s own instruction
@@ -220,7 +213,7 @@ members = [
   "sparse-checkout",
 ]
 
-# Changes what a LATER git command does. The damage is never in the call that
+# Changes what a later git command does. The damage is never in the call that
 # runs it, which is the same reason `eval` and `export` are denied.
 #
 # `init` is here because it reinitialises an existing repository; `bisect`
@@ -263,7 +256,7 @@ members = ["add", "stage"]
 # allowed**, and eligibility is not permission: an allow rule still has to name
 # them, and every deny above still outranks it.
 #
-# git-shape-dependent above is NOT here. Those are the "allowed only in a
+# git-shape-dependent above is not here. Those are the "allowed only in a
 # particular shape" commands and belong in the mechanicals list, not in a group
 # that allows the bare word.
 #
@@ -319,7 +312,7 @@ with a reason recorded."""
 
 # Two commands that are mostly fine and have a few subcommands that are not.
 # The clauses compose: ordinal 0 names the command, ordinal 1 the subcommand,
-# and BOTH must match for the rule to apply, so `go build` is untouched by this
+# and both must match for the rule to apply, so `go build` is untouched by this
 # rule and settled elsewhere.
 
 [[rule]]
@@ -339,7 +332,7 @@ this tree, including code written moments ago. `go build` and `go vet` do not.""
 
 # The six git denials by class. Each names one class and states that class's
 # reason, so a command in more than one is refused with each reason given, which
-# is what tells its author whether a different spelling would help. It would not.
+# tells its author that no other spelling would help.
 
 # The three classes that follow are denies and not blocks, so that an ask can
 # hand one narrow case of them to a person: a hard reset, a pruning gc, a
@@ -502,8 +495,8 @@ permitted precisely so that it is there to read."""
   index = "2"
   group = "git-reflog-writes"
 
-# Narrowed 2026-08-28 rather than given an exception, because the guarantee it
-# protects is about CONTENT and `git add -N` carries none.
+# Narrowed instead of given an exception, because the guarantee it protects is
+# about content and `git add -N` carries none.
 #
 # The index is shared between concurrent sessions in one worktree, so one
 # session staging content and another committing puts the first one's work into
@@ -517,9 +510,8 @@ permitted precisely so that it is there to read."""
 #
 # Written as an inverted clause rather than as a second allow rule so the way
 # out sits inside the denial that a refused agent reads. That shape is only
-# honest when the option it excepts is declared, which `-N` now is; the same
-# shape on `commit-must-be-signed` was dishonest for exactly that reason and
-# that rule has been removed.
+# honest when the option it excepts is declared, which `-N` is. 30-options.toml
+# says why the same shape fails on signing.
 
 [[rule]]
 id     = "no-git-staging"
@@ -585,12 +577,9 @@ core.pager and core.hooksPath that name a program to run."""
   index = "1"
   value = "-c"
 
-# The same thing as the rule above, in the spelling that persists. `git -c` was
-# denied by name and `git config` was not, so the durable form of the attack was
-# the one that got through, refused only by deny-by-default with a message that
-# said nothing about why.
-#
-# Measured before this rule existed:
+# The same thing as the rule above, in the spelling that persists. Without this
+# rule `git config` is refused only by deny-by-default, whose message says
+# nothing about why:
 #
 #     git config core.hooksPath /tmp/x   -> deny, "(engine) deny by default"
 #     git config alias.st "!sh -c rm"    -> deny, "(engine) deny by default"
@@ -729,9 +718,8 @@ reason = "`gofmt` rewrites formatting and changes no behaviour."
   index = "0"
   value = "gofmt"
 
-# So a rule can be tried before it is the reason a command failed. An armed
-# qwark denied `qwark` on 2026-08-28, which made `qwark judge` unavailable in
-# exactly the tree that needed it.
+# So a rule can be tried before it is the reason a command failed. Without
+# this, an armed qwark refuses `qwark judge` in the tree that develops it.
 #
 # Safe because nothing qwark does writes or executes: its whole command line is
 # internal/cli/cli.go, importing fmt, io, strings and the parser, with no

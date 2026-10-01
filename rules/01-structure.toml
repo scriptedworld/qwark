@@ -14,17 +14,17 @@
 # ask over deny. Order therefore never changes a verdict. Nothing lifts a
 # block; an allow lifts a deny. Every refusal in this file is a block.
 #
-# A clause SELECTS and then TESTS.
+# A clause selects and then tests.
 #
-#   nodes = ["CmdSubst", …]   the tree holds a node of ANY of these types. The
+#   nodes = ["CmdSubst", …]   the tree holds a node of any of these types. The
 #                             names are the parser's own, exactly what
 #                             `qwark ast` prints.
 #
-#   flags = ["Background", …] a statement carries ANY of these flags. The four
+#   flags = ["Background", …] a statement carries any of these flags. The four
 #                             are Negated, Background, Coprocess and Disown,
 #                             named for the fields on the parser's statement.
 #
-#   ops = ["|", "&&", ">>"]   the tree holds an operator of ANY of these.
+#   ops = ["|", "&&", ">>"]   the tree holds an operator of any of these.
 #                             `qwark ast` prints them as `op=|`.
 #
 #   fact = "sequence"         a property none of the three can express.
@@ -33,13 +33,13 @@
 #                             the last; ranges use `..` and a list may mix
 #                             them: "1,3..5,-1"
 #   group = "wrapper"         the word is a member of a named set
-#   option = "force"          an option with this declared MEANING was given
+#   option = "force"          an option with this declared meaning was given
 #   kind = "path"             every word the declaration says denotes a path
 #
 #   agent = "gate-runner"     the request came from this agent type, so one
 #                             rule set carries a different policy per role:
-#                             the agent that may WRITE a task definition is not
-#                             the agent that may RUN it.
+#                             the agent that may write a task definition is not
+#                             the agent that may run it.
 #   agent = ""                the main session, which reliably carries no agent
 #                             type. **Stating no `agent` at all is the
 #                             different case: it covers every caller.** The two
@@ -60,7 +60,7 @@
 #
 #   value / partial / pattern   the whole word / anywhere within / a regex over
 #                               the whole word (anchored)
-#   reading = "interpreted"     what the shell will pass (DEFAULT)
+#   reading = "interpreted"     what the shell will pass (the default)
 #   reading = "written"         the source, escapes and quotes intact
 #
 # ---------------------------------------------------------------------------
@@ -76,7 +76,7 @@
 #
 # That takes what `fact` has to carry from twenty-two down to two:
 #
-#   sequence   a COUNT of statements
+#   sequence   a count of statements
 #   glob       an unquoted literal whose content holds a wildcard; quoting
 #              decides it, so `grep "*"` is not one
 # ---------------------------------------------------------------------------
@@ -96,7 +96,7 @@
 # is worth exactly as much as the environment that reports it, which must be
 # unwritable like these files.
 #
-# WHOLE PATHS, NOT NAMES. Comparing basenames would accept any file called bash
+# Whole paths, not names. Comparing basenames would accept any file called bash
 # anywhere, including one written into a directory the agent can reach. A
 # relative entry here is a configuration error for the same reason.
 #
@@ -112,8 +112,8 @@ allow = ["/bin/bash", "/usr/bin/bash"]
 #
 # These are one property, not several bans: the command's effect is fixed by
 # its own text. Everything above depends on it. Deciding which paths a command
-# reaches is unsound the moment a substitution can produce one at runtime, which
-# is how the predecessor of this project was walked past.
+# reaches is unsound the moment a substitution can produce one at runtime.
+# docs/DECISIONS/why-a-parser-rather-than-a-matcher.md has the case.
 
 [[rule]]
 id     = "no-substitution"
@@ -133,13 +133,12 @@ nothing here is ever expanded to find out."""
 # A rule about where a command reaches reads the words it was given. `rm *`
 # gives it one word that denotes no path at all, so every path rule in
 # 20-paths.toml is silent on it. And zsh executes code from inside a glob:
-# `rm *(e:'rm -rf /':)` satisfied every other rule in this file and was ALLOWED
-# before this one existed. See
+# `rm *(e:'rm -rf /':)` satisfies every other rule in this file. See
 # docs/LESSONS/zsh-executes-code-from-inside-a-glob.md.
 #
 # Quoting decides it, so this does not reach `grep "*" file`.
 #
-# THE COST: `ls *.go` and `grep x *.md` are refused. The way through is to name
+# The cost: `ls *.go` and `grep x *.md` are refused. The way through is to name
 # the files, which is also the only way the verdict can be about the files.
 
 [[rule]]
@@ -235,7 +234,7 @@ reason = "Subshells and brace groups are not permitted."
 # A program rather than an invocation
 # ============================================================================
 #
-# One rule where there were three, because the reason is one reason. Note that
+# One rule, because the reason is one reason. Note that
 # `ForClause` covers both `for f in …` and `for ((;;))`, so the C-style loop
 # needs no name of its own.
 
@@ -258,10 +257,10 @@ escapes one: both shells accept a function named `/usr/bin/ls`."""
 # Command forms that carry no command name
 # ============================================================================
 #
-# None of these is a `CallExpr`, so ordinal 0 holds either the WRONG name or
+# None of these is a `CallExpr`, so ordinal 0 holds either the wrong name or
 # nothing at all. `time rm x` puts `rm` at ordinal 0; `((x=1))` and `let x=1`
 # put nothing there. A clause naming `time` as a command word can never fire,
-# which is the whole argument for naming node types.
+# so these are matched by node type.
 
 [[rule]]
 id     = "no-time-prefix"
@@ -299,12 +298,11 @@ own pipes, outliving the call that started it."""
 # ============================================================================
 #
 # `Assign` is the prefix form, `DeclClause` the keyword form: `export`,
-# `declare`, `readonly`, `local`, `typeset`. Both decide what a LATER command
+# `declare`, `readonly`, `local`, `typeset`. Both decide what a later command
 # does, and the damage is never in the call that runs them.
 #
-# Demonstrated: `PATH=<dir>:$PATH rm --anything-at-all` ran a script named `rm`
-# from that directory. Every option rule and every command rule is beside the
-# point when the program is not the declared one.
+# `PATH=<dir>:$PATH rm --anything-at-all` runs a script named `rm` from that
+# directory, which no option or command rule can see.
 
 [[rule]]
 id     = "no-setting-names"

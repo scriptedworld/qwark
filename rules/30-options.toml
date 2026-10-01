@@ -1,21 +1,19 @@
 # qwark, denials by option.
 #
-# These rules depend on the DECLARATION table, which is what says that `-f`
+# These rules depend on the declaration table, which is what says that `-f`
 # means force to `rm` and file to `tar`. Without a declaration for a command,
 # no clause here can fire, and that is not a gap, because an undeclared command
 # is denied outright.
 #
-#   option = "force"   an option whose DECLARED MEANING is force was given,
+#   option = "force"   an option whose declared meaning is force was given,
 #                      however it was spelled
 #
 # Why this matches meaning rather than text: `rm -f`, `rm -rf`,
 # `rm -fr`, `rm -r -f`, `rm --force`, `rm --forc`, `rm --fo` and `rm --f` all
 # force. GNU accepts any unambiguous abbreviation, and short options bundle, so
 # a clause comparing an argument against `-f` or `--force` sees it in two of
-# those eight. It also correctly does NOT fire on `rm -- -f`, where the `-f` is
+# those eight. It also correctly does not fire on `rm -- -f`, where the `-f` is
 # a filename.
-#
-# `option` is PROPOSED and needs your ruling.
 
 # ============================================================================
 # The worked example
@@ -66,13 +64,13 @@ runs, not by anything this command names. Check the path before confirming."""
   option = "recursive"
 
 # ============================================================================
-# Forbidden UNLESS
+# Forbidden unless
 # ============================================================================
 #
 # A conditional refusal, written as one rule with an inverted clause rather
 # than as two rules where one outranks the other.
 #
-#   absent = true    the clause holds when what it names is NOT there
+#   absent = true    the clause holds when what it names is not there
 #
 # This is how an exception to a block is written: inside the rule it modifies,
 # since nothing outranks a block. An exception to a deny can instead be an
@@ -96,8 +94,8 @@ runs, not by anything this command names. Check the path before confirming."""
 # And it is the worked example of the dishonest form of this shape.
 # `--gpg-sign` is not declared, so the inverted clause is satisfied by the
 # absence of a declaration and not by the absence of the option, and the rule
-# tells somebody who has signed that they must sign. The verdict fails safe and
-# the message does not.
+# tells somebody who has signed that they must sign. The refusal is safe and
+# its message is false.
 #
 # The lesson: a "refused unless" rule is only honest when the
 # option it excepts is declared. Written up as shape 3 in
@@ -112,7 +110,7 @@ runs, not by anything this command names. Check the path before confirming."""
 # ============================================================================
 #
 # Not a group of commands but a single clause with no command named at all:
-# ANY declared command given an option meaning force. A rule that named the
+# any declared command given an option meaning force. A rule that named the
 # commands would need editing every time a declaration is added, and would be
 # wrong in the interval.
 

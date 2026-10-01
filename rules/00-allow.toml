@@ -5,7 +5,7 @@
 # `03-wrappers.toml` and `04-git-in-place.toml`.
 #
 # `05-declarations.toml`, `10-commands.toml`, `20-paths.toml`, `30-options.toml`
-# and `40-state.toml` exist in the source tree and are deliberately NOT loaded.
+# and `40-state.toml` exist in the source tree and are deliberately not loaded.
 # They deny by command class, by path and by option, and those are later phases.
 # ############################################################################
 #
@@ -14,10 +14,10 @@
 # ----------------------------------------------------------------------------
 #
 # FR-4.16 refuses a command qwark holds no declaration for, and it arrives
-# BEFORE shape decides anything. So a rule set of structural rules alone refuses
-# every command rather than judging the ones it understands. Measured
-# 2026-08-28: `01-structure.toml` plus a permissive allow rule answered
-# "(engine) declared commands only" to `ls`, `rm -rf` and `git add -N` alike.
+# before shape decides anything. So a rule set of structural rules alone refuses
+# every command rather than judging the ones it understands: `01-structure.toml`
+# plus a permissive allow rule answers "(engine) declared commands only" to
+# `ls`, `rm -rf` and `git add -N` alike.
 #
 # Declaring commands instead was tried and abandoned for a stated reason: it
 # refused roughly two thirds of what sessions actually run, before any
@@ -36,9 +36,9 @@
 # `sudo`, `curl`, `chmod`, `just`, `make` and every task runner are permitted on
 # the same terms.
 #
-# **This phase is observation, not containment.** The corpus figures describing
-# what qwark would refuse were measured against a rule set that refused
-# undeclared words, and they do not describe this one.
+# **This phase is observation, not containment.** The corpus figures for what
+# qwark would refuse assume undeclared words are refused, so they do not
+# describe this set.
 #
 # The way back is to declare commands and then delete the `[declarations]` table
 # below. It is a single boolean with no middle ground on purpose: a partial
@@ -48,7 +48,7 @@
 
 # Both are said, and both are needed, because the two refusals sit at different
 # levels. `required` covers the command word. `accounted` covers the options a
-# DECLARED command carries (FR-6.7). An undeclared command's options are never
+# declared command carries (FR-6.7). An undeclared command's options are never
 # decomposed, so while nothing is declared, `accounted` looks unnecessary and is
 # not: declare one command for any reason, including wanting to write a rule
 # about it later, and every option it carries starts being refused again.
