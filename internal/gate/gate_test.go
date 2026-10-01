@@ -194,9 +194,9 @@ func TestAToolInputThatIsNotABashCallIsRefused(t *testing.T) {
 func TestTheAgentTypeFromThePayloadReachesTheRules(t *testing.T) {
 	t.Parallel()
 
-	// The agent clause is a mechanism nothing feeds unless the payload's
-	// agent_type arrives here. This is the wiring that makes separation of
-	// duties real and not merely expressible.
+	// The agent clause does nothing unless the payload's agent_type arrives
+	// here. Without this wiring a per-agent rule could be written and never
+	// apply.
 	const perAgent = `
 [command.echo]
 operands = "text"

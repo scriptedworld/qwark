@@ -57,10 +57,9 @@ func TestPartialMatchesAnywhereWithin(t *testing.T) {
 func TestPartialIsTheBroadFormAndSaysSo(t *testing.T) {
 	t.Parallel()
 
-	// The predecessor blocked web.archive.org by matching the substring
-	// `.archive`. Partial still does exactly that; nothing here prevents it.
-	// The difference is that the author has to name the form, so a reader of
-	// the rule can see the breadth without deducing it from a regex.
+	// Partial `.archive` matches web.archive.org, and nothing here prevents
+	// it. The form has to be named, so a reader of the rule can see the
+	// breadth without deducing it from a regex.
 	match, err := rules.Partial(".archive")
 	if err != nil {
 		t.Fatalf("Partial = %v", err)

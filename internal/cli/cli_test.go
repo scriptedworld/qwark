@@ -138,8 +138,8 @@ func TestRulesReportsWhatARuleSetHolds(t *testing.T) {
 	if status != statusOK {
 		t.Fatalf("status = %d, want %d (stderr: %s)", status, statusOK, errOut)
 	}
-	// A rule set can be found wrong here, before it is the reason every
-	// command is failing.
+	// Every section has to appear, so a rule set can be checked here before
+	// it gates anything.
 	for _, want := range []string{"shells:", "groups:", "declarations:", "rules:", "block"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("report lacks %q:\n%s", want, out)
@@ -169,8 +169,7 @@ func TestJudgeRefusesWhatNothingAllows(t *testing.T) {
 	t.Parallel()
 
 	// The repository's own rules block forcing, and a block outranks the
-	// observation default and every allow. Showing that is what the command is
-	// for.
+	// observation default and every allow.
 	out, errOut, status := invoke(t, "", "judge", "../../rules", "--", "rm", "-rf", "/")
 
 	if status != statusOK {
@@ -294,15 +293,12 @@ func TestAnUnreadableStdinIsReported(t *testing.T) {
 func TestJudgeCanBeToldWhichAgentIsAsking(t *testing.T) {
 	t.Parallel()
 
-	// A rule set that has never judged anything is a policy nobody has run, and
-	// that goes double for one whose verdicts differ by role: an agent clause
-	// nobody can exercise from the command line is a rule nobody can check
-	// before it is the reason something failed.
+	// An agent clause can only be tried from the command line if judge can be
+	// told which agent is asking.
 	//
-	// The flag is taken from the front only. Everything after the rules path
-	// may be the command being judged, and a gate that ate an argument out of
-	// the middle of a command would be judging something other than what was
-	// typed, so this also proves the split still works around it.
+	// The flag is taken from the front only, because everything after the rules
+	// path may be the command being judged. This also checks that the split
+	// between rules path and command still holds with the flag in front.
 	out, errOut, status := invoke(t, "",
 		"judge", "--agent=gate-runner", "../../rules", "--", "git", "status")
 

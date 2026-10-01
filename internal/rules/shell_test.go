@@ -11,8 +11,8 @@ import (
 )
 
 // permitted is the declaration these tests verify against.
-// /bin is a symlink to usr/bin on the machine this was written for, so these
-// are two spellings of one root-owned binary, not two binaries.
+// On a merged-/usr system /bin is a symlink to usr/bin, so these are two
+// spellings of one root-owned binary.
 func permitted() rules.ShellPolicy {
 	return rules.ShellPolicy{Allow: []string{"/bin/bash", "/usr/bin/bash"}}
 }
@@ -36,8 +36,7 @@ func TestAPermittedShellIsAccepted(t *testing.T) {
 func TestAnotherShellIsRefused(t *testing.T) {
 	t.Parallel()
 
-	// zsh is the case this was written for: the tool named Bash was running
-	// zsh 5.9 on the machine where qwark was written.
+	// zsh comes first because the tool named Bash can be running zsh.
 	//
 	// `/bin/sh` must not be in this list. On Arch `/bin/sh` is a symlink to
 	// `bash`, and Verify resolves both sides before comparing (deliberately, so
@@ -91,9 +90,8 @@ func TestSomethingMerelyNamedBashIsRefused(t *testing.T) {
 func TestTwoSpellingsOfOneShellReachOneAnswer(t *testing.T) {
 	t.Parallel()
 
-	// /bin is a symlink to usr/bin on this machine, so the
-	// two permitted paths are one file. A rule about a shell must not be a
-	// rule about one way of writing its name.
+	// On a merged-/usr system the two permitted paths are one file, and either
+	// spelling has to reach the same answer.
 	dir := t.TempDir()
 	target := filepath.Join(dir, "realbash")
 	link := filepath.Join(dir, "linkbash")
@@ -149,7 +147,7 @@ func TestOmittingTheDeclarationIsARefusal(t *testing.T) {
 	t.Parallel()
 
 	// A rule file that simply left this out would otherwise disable the check
-	// silently. Absence is not permission.
+	// silently.
 	var undeclared rules.ShellPolicy
 
 	if err := undeclared.Verify("/bin/bash"); !errors.Is(err, rules.ErrShellUndeclared) {
@@ -184,7 +182,7 @@ func TestARelativeEntryIsAConfigurationError(t *testing.T) {
 func TestAnUnreportedShellIsARefusal(t *testing.T) {
 	t.Parallel()
 
-	// An environment that says nothing is not an environment that says bash.
+	// An environment that reports no shell is refused, never read as bash.
 	for _, reported := range []string{"", "   "} {
 		if err := permitted().Verify(reported); !errors.Is(err, rules.ErrShellUnreported) {
 			t.Errorf("Verify(%q) = %v, want %v", reported, err, rules.ErrShellUnreported)

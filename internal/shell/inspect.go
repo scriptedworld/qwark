@@ -12,10 +12,9 @@ import (
 // depth, giving the node type, whatever distinguishes that node from others of
 // its type, and the source text it covers.
 //
-// This exists to be read by a person authoring a rule. A rule names node types,
-// so the vocabulary a rule may use has to be visible before the rule is
-// written: guessing at it is how the string-matching guard this replaces got
-// its blind spot.
+// This exists to be read while writing a rule. A rule names node types, so the
+// vocabulary a rule may use has to be visible before the rule is written
+// instead of guessed at.
 func (p *Parsed) Inspect(w io.Writer) error {
 	depth := 0
 	var werr error
@@ -149,10 +148,9 @@ func flags(stmt *syntax.Stmt) string {
 // oneLine collapses a node's source onto a single line, and caps it so a long
 // here-document cannot push a report off screen.
 //
-// It returns the text and nothing else. An earlier version returned it already
-// decorated for the outline, and that decoration then travelled into every
-// message quoting what set a rule off: "caused by: │ $HOME". Presentation
-// belongs where something is presented.
+// It returns the text and nothing else. The outline's decoration is added by
+// the outline, because this text is also quoted in every message saying what
+// set a rule off, where a tree glyph would read as "caused by: │ $HOME".
 func oneLine(src string) string {
 	const maximum = 64
 

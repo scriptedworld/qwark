@@ -38,8 +38,8 @@ func decisionIn(t *testing.T, out string) (string, string) {
 		t.Fatalf("the reply is not valid JSON: %v\nreply was: %q", err, out)
 	}
 
-	// Claude Code validates a reply against the event it asked about, so
-	// answering a different one is not a partial answer but none at all.
+	// Claude Code validates a reply against the event it asked about, and a
+	// reply naming a different one counts as no answer.
 	if reply.Specific.Event != "PreToolUse" {
 		t.Errorf("event = %q, want PreToolUse", reply.Specific.Event)
 	}
@@ -49,11 +49,10 @@ func decisionIn(t *testing.T, out string) (string, string) {
 // ruleFile writes a rule file into a directory this user can write, which is
 // every directory a test can make.
 //
-// FR-4.17, which made a writable rule set the one condition the hook refused
-// outright, is retired. A writable rule set loads like any other, and what
-// these tests cover is the loading half. What the
-// gate does once it has a rule set is `internal/gate`'s to prove, and it is a
-// separate package for that reason.
+// A writable rule set loads like any other: FR-4.17, which refused one, is in
+// the Retired section of REQUIREMENTS.md. These tests cover the loading half.
+// What the gate does once it has a rule set is `internal/gate`'s to prove, and
+// it is a separate package for that reason.
 func ruleFile(t *testing.T, body string) string {
 	t.Helper()
 
@@ -73,8 +72,8 @@ func TestABrokenRuleSetPermitsNothingAndSaysWhere(t *testing.T) {
 	// every command until it is fixed, so the refusal has to name where, and
 	// the way out must not itself need Bash.
 	//
-	// Loading is the only fault preflight can find, since FR-4.17 is retired,
-	// so there is no second fault to list alongside it.
+	// Loading is the only fault preflight checks, so there is no second fault
+	// to list alongside it.
 	broken := ruleFile(t, "[[rule]]\nid = \"unclosed\n")
 
 	out, _, status := invoke(t, payload(t, "git status"), "hook", broken)

@@ -136,8 +136,8 @@ func TestASymlinkLeavingTheRadiusIsNotContained(t *testing.T) {
 	t.Parallel()
 
 	// A purely lexical check calls this contained: every component of the text
-	// is inside the radius. The shell writes through the link to somewhere
-	// else entirely, which is the answer that matters.
+	// is inside the radius. The shell writes through the link to outside it,
+	// and containment has to follow the link the same way.
 	root := t.TempDir()
 	inside := filepath.Join(root, "work")
 	outside := filepath.Join(root, "elsewhere")

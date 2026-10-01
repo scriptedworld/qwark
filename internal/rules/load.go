@@ -62,9 +62,8 @@ const ruleFileSuffix = ".toml"
 // cannot run it past a deny stated elsewhere.
 type Set struct {
 	// Digest identifies this rule set by its content, so a decision recorded
-	// in the log says which policy produced it. A verdict is only comparable
-	// to another verdict made under the same rules, the way a measurement is
-	// only comparable within a tool version.
+	// in the log says which policy produced it, and verdicts are compared only
+	// with others made under the same rules.
 	//
 	// It is computed over content and never over paths, so the same rules
 	// installed live and sitting in the repository hash the same. That makes it
@@ -275,8 +274,8 @@ func (s *Set) merge(path string, file File) error {
 
 	// Claimed like any other definition, so two files cannot each say something
 	// about whether declarations are required and leave the answer depending on
-	// which was read last. Turning FR-4.16 off is the single widest change a
-	// rule file can make, and it must be traceable to one file that said so.
+	// which was read last. Turning FR-4.16 off is the widest change a rule file
+	// can make, so exactly one file may make it.
 	if file.Declarations != nil {
 		if err := s.claim(path, "declarations", "whether declarations are required"); err != nil {
 			return err

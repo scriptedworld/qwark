@@ -70,8 +70,7 @@ func TestTheRegistrationCarriesTheDenyListQwarkCannotEnforce(t *testing.T) {
 	// protected against a shell and against nothing else.
 	//
 	// A fragment can explain at length that a permissions.deny twin is needed
-	// and carry none. This test catches a control that exists only in the
-	// paragraph describing it.
+	// and carry none, so this reads the deny list itself.
 	body, err := os.ReadFile(filepath.Join("..", "..", "install", "settings-fragment.json"))
 	if err != nil {
 		t.Fatalf("reading the shipped registration: %v", err)
@@ -92,8 +91,7 @@ func TestTheRegistrationCarriesTheDenyListQwarkCannotEnforce(t *testing.T) {
 	}
 
 	// One representative of each class the rule files protect. Naming them
-	// individually means a class dropped from the list fails here, before
-	// whoever is attacked through it notices.
+	// individually means a class dropped from the list fails here.
 	classes := map[string]string{
 		"qwark's own rules":    "/etc/qwark/",
 		"the shell snapshot":   "shell-snapshots",
@@ -116,11 +114,10 @@ func TestTheRegistrationCarriesTheDenyListQwarkCannotEnforce(t *testing.T) {
 func TestTheShippedRulesDenyWrappersByName(t *testing.T) {
 	t.Parallel()
 
-	// Wrappers are refused by an explicit rule, not by being undeclared, so
-	// that the refusal states why, records that they were considered and not
-	// forgotten, and survives someone later declaring one for a harmless
-	// flag. An absence provides none of the three, and an absence is also
-	// what this test would be checking if it merely asserted they do not run.
+	// Wrappers are refused by an explicit rule, not by being undeclared. The
+	// rule's refusal says why, and it still holds if one is later declared for
+	// a harmless flag. A test that only asserted they do not run would pass on
+	// their being undeclared, so this checks the rule names them.
 	set, err := rules.Load([]string{filepath.Join("..", "..", "rules")})
 	if err != nil {
 		t.Fatalf("the repository's rule files do not load: %v", err)
@@ -153,8 +150,7 @@ func TestTheShippedRulesDenyTaskRunnersByName(t *testing.T) {
 	//
 	// A runner missing from the group is still refused, but by "(engine) deny
 	// by default", which names nothing, where `just checks` gets
-	// `no-executors`, which names the threat. bolt, this project's own gate,
-	// was the runner found missing that way.
+	// `no-executors`, which names the threat.
 	//
 	// The list is not what makes this safe: deny-by-default already refuses an
 	// unnamed command. What the list buys is a refusal that explains itself, so
@@ -187,15 +183,14 @@ func TestTheShippedRulesDenyTaskRunnersByName(t *testing.T) {
 func TestTheGuardCoversThePathsQwarkActuallyUses(t *testing.T) {
 	t.Parallel()
 
-	// A group that names the paths qwark used to use protects nothing. With
-	// the group still naming /etc/qwark/ and /var/lib/qwark/ after the install
-	// target moved to ~/.config/qwark/rules and the log to ~/.local/state,
-	// `cp` over the live 01-structure.toml and `rm` of decisions.jsonl were
-	// both allowed while `ls /etc/qwark/rules` was refused.
+	// A group naming paths qwark does not use protects nothing. A group
+	// naming /etc/qwark/ and /var/lib/qwark/, while the rules live in
+	// ~/.config/qwark/rules and the log in ~/.local/state, allows `cp` over the
+	// live 01-structure.toml and `rm` of decisions.jsonl and refuses
+	// `ls /etc/qwark/rules`.
 	//
-	// So this asserts the subject is covered, not that the rule is present.
-	// A test naming the rule passes throughout that failure, even in a rule
-	// set that is otherwise heavily tested.
+	// So this asserts the subject is covered, not that the rule is present: a
+	// test naming the rule passes through that failure.
 	set, err := rules.Load([]string{filepath.Join("..", "..", "rules")})
 	if err != nil {
 		t.Fatalf("the repository's rule files do not load: %v", err)
@@ -237,11 +232,11 @@ func TestTheGuardCoversThePathsQwarkActuallyUses(t *testing.T) {
 func TestTheDenyTwinCoversThePathsQwarkActuallyUses(t *testing.T) {
 	t.Parallel()
 
-	// The other half of one control, and it drifted the same way for the same
-	// reason: the twin named //etc/qwark/** and //var/lib/qwark/** while the
-	// live set sat in ~/.config. A path held by the rule group and absent from
-	// the twin is protected against a shell and against nothing else, since
-	// Write and Edit never reach qwark at all.
+	// The other half of one control, open to the same drift: a twin naming
+	// //etc/qwark/** and //var/lib/qwark/** misses the live set in ~/.config.
+	// A path held by the rule group and absent from the twin is protected
+	// against a shell and against nothing else, since Write and Edit never
+	// reach qwark at all.
 	body, err := os.ReadFile(filepath.Join("..", "..", "install", "settings-fragment.json"))
 	if err != nil {
 		t.Fatalf("reading the shipped registration: %v", err)

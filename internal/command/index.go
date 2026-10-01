@@ -9,8 +9,7 @@ import (
 )
 
 // Errors a malformed index can produce. A rule file carrying one is a
-// configuration error, and configuration errors are fatal by design: an index
-// nobody can read is a rule nobody can check.
+// configuration error, and configuration errors are fatal by design.
 var (
 	ErrEmptyIndex = errors.New("index selects nothing")
 	ErrOrdinal    = errors.New("ordinal is not a whole number")
@@ -24,8 +23,7 @@ var (
 )
 
 // rangeSeparator is spelled `..` and not `-` because an endpoint may be
-// negative, and `-3--1` cannot be read at a glance. The separator that works in
-// both directions is the one that is used in both directions.
+// negative, and `-3--1` cannot be read at a glance.
 const rangeSeparator = ".."
 
 // An Index selects word ordinals within a simple command.

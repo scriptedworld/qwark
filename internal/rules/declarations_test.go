@@ -90,8 +90,8 @@ func TestAnUndeclaredOptionIsRefusedByDefault(t *testing.T) {
 	t.Parallel()
 
 	// `rm` is declared and carries only `-f`, so `-r` is an option qwark cannot
-	// account for. Refusing it is what makes the declaration table fail closed:
-	// leaving an option out costs a refusal, not a hole.
+	// account for. Refusing it makes the declaration table fail closed: an
+	// option left out of it is refused, never permitted.
 	outcome := judged(t, declaring, "rm -r somewhere")
 
 	if outcome.Action != rules.ActionBlock {
@@ -128,9 +128,8 @@ func TestTurningOffTheCommandCheckDoesNotTurnOffTheOptionCheck(t *testing.T) {
 
 	// The trap this pins: with `required = false` and nothing declared, no
 	// option is ever examined, so `accounted` looks unnecessary. Declare one
-	// command and every option it carries starts being refused again. A phase
-	// that wants neither has to say so twice, and this test makes that
-	// checkable instead of something to remember.
+	// command and every option it carries starts being refused again, so a
+	// phase that wants neither check has to turn off both.
 	outcome := judged(t,
 		declaring+"\n[declarations]\nrequired = false\n",
 		"rm -r somewhere")
@@ -192,8 +191,8 @@ func TestAnAllowDefaultPermitsWhatNoRuleDecided(t *testing.T) {
 func TestAnAllowDefaultLiftsNoAskAndNoDeny(t *testing.T) {
 	t.Parallel()
 
-	// A catch-all allow rule would outrank both. The default decides only
-	// where nothing else did.
+	// A catch-all allow rule would outrank both. The default applies only
+	// where no deciding rule matched, so the ask and the deny stand.
 	if got := judged(t, observing, "echo maybe").Action; got != rules.ActionAsk {
 		t.Errorf("action = %v, want the ask to stand", got)
 	}

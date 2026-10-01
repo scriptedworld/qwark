@@ -69,8 +69,8 @@ func TestADirectoryContributesEveryRuleFileInIt(t *testing.T) {
 func TestNothingToLoadIsARefusal(t *testing.T) {
 	t.Parallel()
 
-	// An empty rule set would permit everything a deny rule would have caught.
-	// Finding no rules is not the same as having no rules to apply.
+	// An empty rule set would permit everything a deny rule would have caught,
+	// so finding no rules is a load error.
 	if _, err := rules.Load(nil); !errors.Is(err, rules.ErrNoRuleFiles) {
 		t.Errorf("Load(nil) = %v, want %v", err, rules.ErrNoRuleFiles)
 	}
@@ -262,9 +262,8 @@ func TestATestWithNoIndexIsACompleteClause(t *testing.T) {
 func TestThisRepositorysOwnRuleFilesLoad(t *testing.T) {
 	t.Parallel()
 
-	// The drafts in rules/ are the only rule set anybody has read, and a draft
-	// that does not load is worse than no draft: it is a policy nobody can
-	// run, reviewed as though it were one that could.
+	// rules/ is what gets reviewed and installed, so a file there that does
+	// not load is a policy read as though it could run.
 	set, err := rules.Load([]string{filepath.Join("..", "..", "rules")})
 	if err != nil {
 		t.Fatalf("the repository's own rule files do not load: %v", err)

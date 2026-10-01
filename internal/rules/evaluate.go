@@ -110,8 +110,8 @@ func (s *Set) Evaluate(parsed *shell.Parsed, ctx Context) Outcome {
 	// types, operators, flags or a fact needs no table, and letting the
 	// declaration check short-circuit them means the refusal says only "this
 	// is undescribed" about a command that also piped, redirected and
-	// substituted. The verdict is the same either way; what changes is whether
-	// the reader is told everything that was wrong or one thing that was.
+	// substituted. The verdict is the same either way, and consulting the rules
+	// first lets the refusal list everything that was wrong.
 	options, undeclared := command.Decompose(simple, s.table())
 
 	out := s.judge(&subject{
@@ -142,7 +142,7 @@ func (s *Set) declarationsHold(
 	// anything, so requiring it means refusing every command instead of
 	// judging the ones the structural rules understand. Absent, the answer is
 	// yes and FR-4.16 holds as written. See DeclarationPolicy for what turning
-	// it off gives up, which is more than it looks.
+	// it off gives up.
 	if undeclared != nil && s.required() {
 		out.Action = ActionBlock
 		out.Findings = append([]Finding{{
@@ -175,8 +175,7 @@ func (s *Set) declarationsHold(
 
 // unaccounted turns each fault decomposition recorded into a finding of its
 // own, so a refusal names every word it could not account for, not only the
-// first. One denial that says everything wrong is one round trip; three that
-// each say one thing are three.
+// first, and fixing them takes one round trip instead of one per word.
 func unaccounted(options command.Options) []Finding {
 	findings := make([]Finding, 0, len(options.Faults))
 	for _, fault := range options.Faults {
@@ -235,8 +234,8 @@ func (s *Set) judge(sub *subject) Outcome {
 // settle reduces an outcome to the findings that produced it, and strips the
 // tag changes from a refusal.
 //
-// A refused command has no effect of any kind: it sets and clears no tags and
-// advances no countdown, because it did not happen.
+// A refused command never runs, so it sets and clears no tags and advances no
+// countdown.
 func settle(out Outcome) Outcome {
 	if out.Action.Refuses() {
 		out.Tags = nil

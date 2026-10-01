@@ -10,10 +10,10 @@ import (
 // the operators used, and the flags a statement carries.
 //
 // These are the parser's own names and not a summary of them, which is what
-// keeps them from falling behind. A summary can be silently incomplete, as the
-// fact tables were: `TimeClause`, `LetClause`, `ArithmCmd`, `CoprocClause` and
-// `DeclClause` established no fact for as long as nobody had written one,
-// leaving `time rm x` and `((x=1))` addressable by no rule at all.
+// keeps them from falling behind. A hand-written summary can be silently
+// incomplete: a fact table establishes nothing for `TimeClause`, `LetClause`,
+// `ArithmCmd`, `CoprocClause` or `DeclClause` until somebody adds an entry,
+// and without one `time rm x` and `((x=1))` are reachable by no rule.
 
 // HasNode reports whether a node of this type appears anywhere in the command,
 // and the source text of the first one.
@@ -37,8 +37,7 @@ func lookup(from map[string]string, key string) (string, bool) {
 // Under bash only two of these are reachable. `Coprocess` is mksh's `|&` and
 // `Disown` is zsh's `&|` and `&!`, and the bash parser
 // rejects both: a rejected command being a denied one. They are here so that
-// the vocabulary does not have to grow if the variant ever changes, which is
-// the failure the node types actually suffered.
+// the vocabulary does not have to grow if the variant ever changes.
 const (
 	FlagNegated    = "Negated"
 	FlagBackground = "Background"
@@ -58,9 +57,9 @@ func everyFlag() []string {
 // KnownNode reports whether a rule file names a node type that exists.
 //
 // This list is maintained by hand, and unlike a fact table its falling behind is
-// loud: a name missing from it is refused at load, where the author sees it
-// immediately. A name missing from a fact table means a construct no rule can
-// reach, and nobody sees that at all.
+// loud: a name missing from it is refused at load, so it shows up the moment
+// the rule file is loaded. A name missing from a fact table means a construct no rule can
+// reach, and nothing reports it.
 func KnownNode(name string) bool {
 	return slices.Contains(everyNode(), name)
 }

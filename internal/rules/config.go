@@ -13,8 +13,8 @@ type File struct {
 	Shell *ShellPolicy `toml:"shell"`
 
 	// Declarations says whether a command must be described before it may run.
-	// Absent means yes, which is FR-4.16 and the default this project is built
-	// around: when qwark cannot account for something, it refuses.
+	// Absent means yes, which is FR-4.16: a command qwark holds no declaration
+	// for is refused.
 	Declarations *DeclarationPolicy `toml:"declarations"`
 
 	// Group holds named sets a clause can test membership of.
@@ -66,8 +66,8 @@ type Rule struct {
 // A Combination is how a rule's clauses combine.
 type Combination string
 
-// The combinations. Unstated is all, so every rule written before match
-// existed means what it always meant.
+// The combinations. Unstated is all, so a rule with no match key requires
+// every clause.
 const (
 	CombineAll Combination = "all"
 	CombineAny Combination = "any"
@@ -96,10 +96,9 @@ type Action string
 //
 // A block is a refusal nothing lifts. A deny is a refusal with a reason that
 // any matching allow or ask lifts, however many denies matched. An ask shows
-// the person a warning and lets them decide, which is how a narrow case of
-// something denied is handed to a person: deleting a branch is denied,
-// deleting your own is asked. A refusal meant to hold whatever else is written
-// is a block.
+// me a warning and lets me decide, which is how a narrow case of something
+// denied is handed back to me: deleting a branch is denied, deleting your own
+// is asked.
 const (
 	ActionBlock Action = "block"
 	ActionAllow Action = "allow"
@@ -224,9 +223,8 @@ type Clause struct {
 	// working directory of whichever process asked, which has nothing to do
 	// with where the agent was started.
 	//
-	// A request carrying no cwd does not satisfy this clause, on the same
-	// reading as every other unanswerable clause: qwark's own ignorance is not
-	// grounds for an allow rule to match.
+	// A request carrying no cwd does not satisfy this clause, like every other
+	// clause qwark cannot answer, so an allow rule resting on it does not match.
 	Cwd string `toml:"cwd"`
 
 	// Reading says which form of a word is tested: the interpreted value the

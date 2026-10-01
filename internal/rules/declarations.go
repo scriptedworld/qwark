@@ -4,9 +4,8 @@ package rules
 //
 // # Why this exists, and why the default is the strict one
 //
-// FR-4.16 refuses a command qwark holds no declaration for. That is the heart of
-// what qwark is: when it cannot account for something, it refuses, so a gate's
-// confusion is never the way through it.
+// FR-4.16 refuses a command qwark holds no declaration for, the same as
+// anything else qwark cannot account for.
 //
 // It is also all-or-nothing, and it arrives before shape decides anything. A
 // rule set carrying only structural rules therefore refuses every command
@@ -66,7 +65,7 @@ type DeclarationPolicy struct {
 	//
 	// It is a setting and not a catch-all allow rule because an allow rule
 	// outranks every ask and deny it matches, so a rule matching every command
-	// would lift them all. A default decides only where nothing else did.
+	// would lift them all.
 	Default Action `toml:"default"`
 }
 

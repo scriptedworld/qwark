@@ -125,7 +125,7 @@ func TestAGroupComparesTheWayItDeclares(t *testing.T) {
 	t.Parallel()
 
 	// A group of paths must compare partially: comparing whole would match the
-	// directory and miss everything in it, which is every case that matters.
+	// directory itself and miss every path inside it.
 	const partial = "  [[rule.clause]]\n  kind = \"path\"\n  group = \"protected\"\n"
 	if !held(t, partial, `rm /etc/passwd`) {
 		t.Error("a partial group did not match a path inside one of its members")

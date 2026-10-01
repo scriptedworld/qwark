@@ -167,8 +167,8 @@ func TestACaseWithTheWrongVerdictFailsTheRun(t *testing.T) {
 func TestACaseMustTriggerTheRuleItIsNamedAfter(t *testing.T) {
 	t.Parallel()
 
-	// Blocked, as its directory says, but by the other rule: the name is a
-	// claim too.
+	// Blocked, as its directory says, but by the other rule. The case's file
+	// name says which rule should fire, and that is checked as well.
 	env := run(t, plant(t, map[string]string{
 		"block/no-shouting.cmd":    "echo quiet LOUD\n",
 		"block/no-whispering.cmd":  "echo quiet\n",

@@ -71,9 +71,8 @@ func (sub *subject) holds(clause Clause) (bool, string) {
 // evaluate answers what the clause names, before any inversion.
 //
 // A clause that cannot be evaluated does not match. An option clause against a
-// command with no declaration has nothing to test, and counting an unanswerable
-// clause as satisfied is what would let an allow rule permit on the strength of
-// qwark's own ignorance.
+// command with no declaration has nothing to test, and counting it as satisfied
+// would let an allow rule permit a command qwark cannot describe.
 func (sub *subject) evaluate(clause Clause) (bool, string) {
 	switch {
 	case len(clause.Nodes) > 0:
@@ -141,8 +140,8 @@ func (sub *subject) agentIs(name string) (bool, string) {
 // `/home/x/proj` is a prefix of `/home/x/project` while neither directory
 // contains the other, and a scoping clause that got this wrong would hand one
 // repository's policy to its neighbour on the strength of a shared spelling.
-// Symlinks are resolved on both sides for the same reason they are everywhere
-// else here: two spellings of one directory must reach one answer.
+// Symlinks are resolved on both sides, as they are everywhere else here, so two
+// spellings of one directory reach one answer.
 //
 // Both failure modes decline to match. A rule naming a relative
 // directory cannot be placed, and a request carrying no cwd cannot be located,

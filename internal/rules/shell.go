@@ -38,10 +38,10 @@ var (
 // into a directory the agent can reach. For a gate whose subject can create
 // files, "it is called bash" is not a property worth checking.
 //
-// On the machine this was written for, `/bin` is a symlink
-// to `usr/bin`, so `/bin/bash` and `/usr/bin/bash` are the same file, both
-// resolving to `/usr/bin/bash` and both root-owned with mode 755. Listing both
-// is therefore belt and braces: either spelling resolves to the same binary.
+// On a merged-/usr system `/bin` is a symlink to `usr/bin`, so `/bin/bash`
+// and `/usr/bin/bash` are the same file, both resolving to `/usr/bin/bash`
+// and both root-owned with mode 755. Either entry alone would accept both
+// spellings, so listing both only makes the list readable without resolving.
 type ShellPolicy struct {
 	Allow []string `toml:"allow"`
 }
@@ -52,14 +52,11 @@ type ShellPolicy struct {
 //
 // qwark's parser is fixed to one shell's grammar, and reading a command in the
 // wrong grammar does not fail loudly. Of ten zsh constructs put through the
-// bash parser, only two were rejected while four parsed cleanly and meant
-// something else: `**/`, `*(.)`, `$foo[2]`, and the `noglob`
-// precommand modifier. Worse, `rm *(e:'rm -rf /':)` carries no substitution,
-// pipe, redirection or logical concatenation, so it satisfies every tier-one
-// rule, and zsh executes the quoted code as a glob qualifier.
-//
-// A gate reading the wrong language therefore does not error. It answers, and
-// the answer is wrong.
+// bash parser, it rejects only two, and four parse cleanly while meaning
+// something else: `**/`, `*(.)`, `$foo[2]`, and the `noglob` precommand
+// modifier. Worse, `rm *(e:'rm -rf /':)` carries no substitution, pipe,
+// redirection or logical concatenation, so it satisfies every tier-one rule,
+// and zsh executes the quoted code as a glob qualifier.
 //
 // # What this is not
 //
@@ -90,13 +87,12 @@ func (p ShellPolicy) Verify(reported string) error {
 	}
 
 	// Both sides are resolved through their symbolic links before comparing.
-	// `/bin` is a symlink to `usr/bin` here, so `/bin/bash`
-	// and `/usr/bin/bash` are one file under two names, and comparing the names
-	// would make a rule about a shell a rule about one way of spelling it.
+	// On a merged-/usr system `/bin/bash` and `/usr/bin/bash` are one file
+	// under two names, and comparing names would accept only one of them.
 	//
 	// It also closes what an exact comparison could not: if a permitted path
 	// were itself replaced by a link to something else, the text would still
-	// match while the program would not. Resolved, it no longer does.
+	// match while the program would not, and resolving catches that.
 	target := reach.Resolve(running)
 	for _, permitted := range p.Allow {
 		if reach.Resolve(permitted) == target {
@@ -108,9 +104,8 @@ func (p ShellPolicy) Verify(reported string) error {
 		ErrShellMismatch, running, p.list())
 }
 
-// list renders the permitted shells for a message. A refusal that does not say
-// what was wanted leaves the reader guessing, in the one situation where every
-// command they try is failing.
+// list renders the permitted shells for a message. A shell mismatch refuses
+// every command, so the refusal has to say which shells would be accepted.
 func (p ShellPolicy) list() string {
 	return strings.Join(p.Allow, ", ")
 }

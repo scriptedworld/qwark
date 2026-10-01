@@ -132,8 +132,8 @@ func TestAWithheldValueIsRecordedAsPresent(t *testing.T) {
 func TestOpeningALogAppendsRatherThanTruncating(t *testing.T) {
 	t.Parallel()
 
-	// A log with earlier entries missing reads as a clean history, which is
-	// worse than no log: it answers "what happened" confidently and wrongly.
+	// Reopening the log must keep what it held. A log with earlier entries
+	// missing answers "what happened" with a clean history that is wrong.
 	path := filepath.Join(t.TempDir(), "state", "decisions.jsonl")
 
 	first, err := audit.To(path)
@@ -238,9 +238,8 @@ func TestClosingAWriterThatIsNotAFileIsNotAnError(t *testing.T) {
 func TestTheLogDirectoryIsCreatedAndNotWorldReadable(t *testing.T) {
 	t.Parallel()
 
-	// The log carries every command a session ran, which is not a thing to
-	// leave readable by other users on principle, whatever this machine's
-	// account list happens to look like today.
+	// The log carries every command a session ran, so it is kept from other
+	// users even on a machine that has none.
 	path := filepath.Join(t.TempDir(), "nested", "deeper", "decisions.jsonl")
 
 	log, err := audit.To(path)

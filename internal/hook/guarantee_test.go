@@ -20,9 +20,6 @@ func TestQwarkRunsInOneGoroutine(t *testing.T) {
 	// complete while there is one goroutine: recover catches a panic in the
 	// goroutine that deferred it and in no other, so a panic anywhere else
 	// would take the process down past every safeguard in this package.
-	//
-	// This is therefore an architectural invariant, not a style preference,
-	// and a test enforces it so nobody has to remember it.
 	found := goStatementsIn(t, filepath.Join("..", ".."))
 
 	if len(found) != 0 {
@@ -37,16 +34,14 @@ func TestQwarkNeverExecutesAnything(t *testing.T) {
 
 	// qwark reads rule files, shell snapshots and `.git/HEAD`: all of them
 	// files its own subject can write. Running any of them would be running the
-	// subject's code inside the judge, which is the mistake this project keeps
-	// finding in other places: sourcing the snapshot to ask what an alias is,
-	// or asking git what branch it is on when an alias in `.git/config`
-	// executes on a plain invocation.
+	// subject's code inside the judge. Sourcing the snapshot to ask what an
+	// alias is does that, and so does asking git what branch it is on, since an
+	// alias in `.git/config` executes on a plain invocation.
 	//
 	// The ban is on the calls that spawn a process, not on whole packages.
 	// Banning `syscall` outright is too blunt in both directions: it forbids
-	// asking who owns a file, which a check that the rule files are not
-	// writable needs, while a package ban says nothing about
-	// `os.StartProcess`, which is in a package nothing could ban.
+	// harmless calls such as asking who owns a file, while a package ban says
+	// nothing about `os.StartProcess`, which is in a package nothing could ban.
 	root := filepath.Join("..", "..")
 
 	if found := importsOf(t, root, []string{`"os/exec"`, `"plugin"`}); len(found) != 0 {

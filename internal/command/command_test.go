@@ -177,9 +177,10 @@ func TestQuotingIsResolvedWithoutExpandingAnything(t *testing.T) {
 func TestEscapesResolveTheWayTheShellResolvesThem(t *testing.T) {
 	t.Parallel()
 
-	// Every expectation here was read off bash, not recalled:
-	// `bash -c "printf '[%s]' <word>"`. The quoted rule is not the
-	// unquoted rule, and only measuring says which is which.
+	// Each expectation is what bash prints for
+	// `bash -c "printf '[%s]' <word>"`, so a case can be rechecked by running
+	// it. A backslash inside double quotes follows a different rule from an
+	// unquoted one.
 	cases := []struct {
 		name string
 		word string

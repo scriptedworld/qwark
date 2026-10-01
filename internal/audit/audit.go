@@ -7,8 +7,7 @@
 // everything, and add rules while watching what comes through. Without a record
 // the second half of that sentence has nothing to work from: a refusal exists
 // only in the transcript of the session that was refused, and that goes away
-// when the session does. A gate that denies and remembers nothing teaches
-// nobody.
+// when the session does.
 //
 // # What a log write must never do
 //
@@ -20,10 +19,10 @@
 //
 // That is the permissive direction, and it is chosen deliberately against this
 // project's usual instinct. It is also a real hole: somebody who can fill the
-// disk can stop the recording without stopping the commands. The honest fix is
-// the one FR-8.7 and the leaking-bucket note already describe for tag state,
-// which is a writer the subject is not, and that arrives with the proxy, not
-// here. It stays an open question until then; it is not solved quietly.
+// disk can stop the recording without stopping the commands. The fix is the
+// one FR-8.7 and the leaking-bucket note already describe for tag state, a
+// writer the subject is not, and it arrives with the proxy. Until then it is
+// an open question.
 package audit
 
 import (
@@ -97,14 +96,14 @@ const (
 // To opens a recorder writing to a file, creating the directory if needed.
 //
 // It does not truncate. The file is opened for append, so a restart adds to
-// the record instead of replacing it: a log with earlier entries missing reads
-// as a clean history, which is worse than no log.
+// the record instead of replacing it. A log with earlier entries missing reads
+// as a clean history.
 func To(path string) (*Recorder, error) {
 	// Cleaned before it is used, not after it is opened. The path comes
 	// from a flag or from DefaultPath, so it is not the subject's to choose,
 	// but a traversal reaching this far would be opened for append with the
-	// record's own permissions, and the log is the one file whose contents are
-	// the evidence that anything was judged at all.
+	// record's own permissions, and the log is the only record of what was
+	// judged.
 	path = filepath.Clean(path)
 
 	if err := os.MkdirAll(filepath.Dir(path), logDirMode); err != nil {

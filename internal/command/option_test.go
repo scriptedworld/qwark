@@ -10,7 +10,7 @@ import (
 )
 
 // table is the declaration these tests decompose against. rm and tar are here
-// because they disagree about `-f`, which is the whole reason a table exists.
+// because they disagree about `-f`, so options have to be declared per command.
 func table() command.Table {
 	return command.Table{Commands: map[string]command.Declaration{
 		"rm": {
@@ -341,7 +341,8 @@ func TestAFaultSaysWhichArgumentAndWhy(t *testing.T) {
 		t.Fatal("no fault for an undeclared option")
 	}
 
-	// A denial that names only its rule cannot be checked by the reader.
+	// The fault names the option and its position, so a denial built from it
+	// can be checked against the command without reading the rule.
 	message := options.Faults[0].Error()
 	for _, want := range []string{"-q", "argument 1"} {
 		if !strings.Contains(message, want) {

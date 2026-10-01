@@ -89,7 +89,7 @@ func TestADeclarationOptionHasNoNameAndStillPrints(t *testing.T) {
 	t.Parallel()
 
 	// The -x in `declare -x A=1` parses as an Assign with a value and no name,
-	// and reading its name was a nil dereference that killed `qwark ast`.
+	// so reading its name without a nil check crashes `qwark ast`.
 	got := outlineOf(t, `declare -x A=1`)
 
 	if !strings.Contains(got, "name=A") {

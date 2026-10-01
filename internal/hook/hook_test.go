@@ -188,8 +188,8 @@ func TestQwarkNeverRewritesTheCommand(t *testing.T) {
 
 	// Claude Code accepts `updatedInput` and will rewrite the tool call from
 	// it. qwark does not send one: rewriting the subject's command would make
-	// qwark the author of what runs, and a gate that edits what it judges can
-	// no longer be said to have judged it.
+	// qwark the author of what runs, and its verdict would be on a command the
+	// subject never proposed.
 	var out strings.Builder
 	if err := hook.Answer(hook.DecisionAllow, "fine").Write(&out); err != nil {
 		t.Fatalf("Write = %v", err)
@@ -217,8 +217,8 @@ func TestQwarkNeverAnswersDefer(t *testing.T) {
 	t.Parallel()
 
 	// `defer` means the hook declines to decide and the dispatcher continues
-	// past it. qwark is designed never to decide nothing, so `defer` must
-	// never be what Answer produces by default or by accident.
+	// past it. qwark always answers allow, deny or ask, so `defer` must never
+	// be what Answer produces by default or by accident.
 	for _, decision := range []hook.Decision{
 		hook.DecisionAllow, hook.DecisionDeny, hook.DecisionAsk,
 	} {
@@ -245,10 +245,10 @@ func TestAMainSessionCallCarriesNoAgentAndIsStillRead(t *testing.T) {
 	// parent's command line and a per-agent partition chosen by the launcher
 	// collapses.
 	//
-	// The emptiness asserted below is not a gap. A main-session call is the one
-	// caller reliably carrying no agent type, so absence identifies it
-	// exactly, and a rule can name that case the way it names any other role
-	// (FR-7.13). This test is what makes that dependable instead of assumed.
+	// The emptiness asserted below identifies that caller. A main-session call
+	// is the one caller reliably carrying no agent type, so absence identifies
+	// it exactly, and a rule can name that case the way it names any other role
+	// (FR-7.13).
 	const mainSession = `{
 	  "session_id": "s-1",
 	  "cwd": "/home/user/.projects/qwark",

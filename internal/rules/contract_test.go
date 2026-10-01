@@ -151,8 +151,8 @@ func TestACommandFormWithNoCommandIsRefused(t *testing.T) {
 	t.Parallel()
 
 	// `((x=1))` and `let x=1` evaluate instead of running, and hold no command
-	// for a declaration to be looked up by. Finding no command to check is not
-	// the same as finding nothing to check.
+	// for a declaration to be looked up by, so even an allow-everything rule
+	// set refuses them.
 	permissive := ruleSet(`
 [[rule]]
 id = "allow-anything"

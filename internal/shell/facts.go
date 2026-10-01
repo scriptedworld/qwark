@@ -58,9 +58,8 @@ const (
 // These matter more than their obscurity suggests. A rule reaches a command
 // either by naming the word at ordinal zero or by naming a fact, and each of
 // these has no word at ordinal zero: `time rm x` puts `rm` there, and
-// `((x=1))` and `let x=1` put nothing there at all. Before these facts existed
-// such a statement carried no fact and offered no name, which left it
-// addressable by no rule that could be written.
+// `((x=1))` and `let x=1` put nothing there at all. Without these facts such a
+// statement would carry no fact and offer no name, and no rule could reach it.
 const (
 	FactTime        Fact = "time"
 	FactCoproc      Fact = "coproc"
@@ -70,7 +69,7 @@ const (
 
 // A Finding is one node that established a fact, with enough of the source to
 // name it in a message. A denial that quotes the offending text and its position
-// can be checked by the person reading it; one that only names the rule cannot.
+// can be checked by reading it; one that only names the rule cannot.
 type Finding struct {
 	Fact Fact
 	Line uint

@@ -20,8 +20,8 @@ import (
 	"strings"
 )
 
-// What containment cannot establish. Each is a refusal, not a malfunction: a
-// path qwark cannot place is one it cannot judge.
+// What containment cannot establish. Each means qwark cannot place the path,
+// so a caller refuses the command instead of reporting a fault.
 var (
 	ErrRelativeRoot = errors.New("the blast radius is not an absolute path")
 	ErrRelativeBase = errors.New("the directory to resolve against is not absolute")
@@ -86,8 +86,7 @@ func within(root, path string) bool {
 //
 // Anything that is a symlink is resolved to its full path, wherever a path is
 // compared: containment, the permitted shells, the protected paths. Two
-// spellings of one file must reach one answer, or a rule about a file is a rule
-// about one way of writing its name.
+// spellings of one file must reach one answer.
 //
 // The reattaching matters most. A rule about writing is asked about files that
 // have not been created, so the leaf usually does not exist and cannot be

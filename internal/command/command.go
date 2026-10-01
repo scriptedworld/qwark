@@ -120,11 +120,9 @@ func simpleOf(parsed *shell.Parsed, call *syntax.CallExpr) Simple {
 //
 // This is deliberately hand-written instead of delegating to expand.Literal.
 // That function resolves `$HOME` to the empty string and returns no error, so
-// a caller cannot tell a fixed word from one it
-// silently guessed at. It refuses command substitution properly, but the silent
-// case is the dangerous one: deciding about `rm -rf /x` when the shell will act
-// on `rm -rf /home/user/x` is exactly the mistake a parser was adopted to
-// stop making.
+// a caller cannot tell a fixed word from one it silently guessed at. It
+// refuses command substitution properly, but the silent case would have qwark
+// decide about `rm -rf /x` when the shell will act on `rm -rf /home/user/x`.
 func literal(word *syntax.Word) (value string, escaped, determined bool) {
 	var built strings.Builder
 

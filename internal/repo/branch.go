@@ -30,9 +30,9 @@ import (
 	"strings"
 )
 
-// What a repository lookup can fail to establish. Each is a fact about the
-// world, not a malfunction, so a caller decides what it means: a gate
-// that denies on "no branch" is making a policy choice, not handling an error.
+// What a repository lookup can fail to establish. Each describes the
+// repository, and the caller decides what it means: a gate that denies on
+// "no branch" is making a policy choice.
 var (
 	ErrNoRepository = errors.New("no repository at or above this directory")
 	ErrDetached     = errors.New("no branch is checked out")

@@ -130,8 +130,7 @@ func TestAnAgentAllowanceReachesOnlyTheCommandItsRuleNames(t *testing.T) {
 	// become a general permission attached to the role.
 	//
 	// This is the direction to test, because getting it wrong turns a
-	// per-command allowance into a per-agent one, which is how a role quietly
-	// accumulates everything anybody ever granted it.
+	// per-command allowance into a per-agent one.
 	outcome := judgeAs(t, ruleSet(duties), "gate-runner", `rm x`)
 
 	if !outcome.Denied() {
@@ -483,7 +482,8 @@ reason = "Forcing is not permitted."
 	}
 	found := outcome.Findings[0]
 
-	// A decision nobody can check is one nobody can correct.
+	// The finding names the rule, its reason and what set it off, so a wrong
+	// refusal can be traced to the rule that needs correcting.
 	if found.Rule != "deny-force" {
 		t.Errorf("Rule = %q, want the rule that refused", found.Rule)
 	}
@@ -645,8 +645,8 @@ func TestAClauseThatCannotBeAnsweredDoesNotMatch(t *testing.T) {
 	t.Parallel()
 
 	// git is declared, but nothing declares what `force` means to it. An allow
-	// rule resting on that clause must not fire: qwark never permits on the
-	// strength of its own ignorance.
+	// rule resting on that clause must not fire, because a clause qwark cannot
+	// answer counts as not holding.
 	outcome := judgeWith(t, ruleSet(`
 [[rule]]
 id = "allow-forced-git"
@@ -713,9 +713,8 @@ func TestAnUndeclaredOptionIsRefused(t *testing.T) {
 
 	// Decomposition records this fault, and a verdict that did not consult it
 	// would let the allow rule below permit `rm -Z x` while the fault sat
-	// unread beside it. An option nobody declared is the same
-	// ignorance that refuses an undeclared command one level up: qwark does not
-	// know what the command was told to do.
+	// unread beside it. An option nobody declared is refused for the same
+	// reason as an undeclared command one level up.
 	outcome := judgeWith(t, ruleSet(`
 [[rule]]
 id = "allow-rm"

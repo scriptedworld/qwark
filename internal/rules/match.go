@@ -10,8 +10,8 @@ import (
 )
 
 // Errors a badly stated match produces. All are fatal, like every other
-// configuration error: a clause that does not say what it tests for is a rule
-// with a hole in it, and a hole reads as a clean run.
+// configuration error, because a clause that does not say what it tests for
+// would load as a rule and test nothing.
 var (
 	ErrPattern  = errors.New("pattern will not compile")
 	ErrNoForm   = errors.New("clause states no match")
@@ -32,11 +32,9 @@ const (
 	// FormPartial matches anywhere within the value. `partial = ".claude"`
 	// matches any path containing it.
 	//
-	// This is the form that must be chosen, never fallen into. The
-	// predecessor of this project matched the substring `.archive` and thereby
-	// blocked `web.archive.org`, costing a legitimate research route. Nothing
-	// here prevents that; naming the form is what makes it a decision the
-	// author made and a reader can see.
+	// This form has to be chosen by name. Matching the substring `.archive`
+	// also blocks `web.archive.org`. Nothing here prevents that, but naming the
+	// form makes it a visible decision in the rule file.
 	FormPartial Form = "partial"
 
 	// FormPattern matches a regular expression against the whole value.

@@ -21,8 +21,7 @@
 //     be smuggled in through an environment variable the agent might reach.
 //   - `permissionDecision` has four values, not three. Alongside allow, deny
 //     and ask there is `defer`, which the dispatcher treats as "this hook
-//     declines to decide" and continues past. It is the *no opinion* verdict,
-//     precisely the one qwark never returns.
+//     declines to decide" and continues past. qwark never returns it.
 package hook
 
 import (
@@ -38,8 +37,8 @@ import (
 var ErrNotJSON = errors.New("the tool call could not be read")
 
 // EventPreToolUse names the event this package speaks for. Claude Code
-// validates a reply against the event it asked about, so answering a different
-// one is no answer at all.
+// validates a reply against the event it asked about, and a reply naming a
+// different one counts as no answer.
 const EventPreToolUse = "PreToolUse"
 
 // ToolBash names the tool qwark's first mode gates.
@@ -119,8 +118,7 @@ type Decision string
 // The decisions Claude Code accepts.
 //
 // DecisionDefer is listed for completeness and is never returned: it means the
-// hook declines to decide, and qwark is designed above all never to decide
-// nothing.
+// hook declines to decide, and qwark always answers allow, deny or ask.
 const (
 	DecisionAllow Decision = "allow"
 	DecisionDeny  Decision = "deny"
@@ -132,7 +130,7 @@ const (
 type Reply struct {
 	Specific Specific `json:"hookSpecificOutput"`
 
-	// SystemMessage is shown to the person and not to the agent, so a
+	// SystemMessage is shown on screen and not to the agent, so a
 	// refusal can be visible without being something to argue with.
 	SystemMessage string `json:"systemMessage,omitempty"`
 }
@@ -162,11 +160,6 @@ func Answer(decision Decision, reason string) Reply {
 // A hook that has decided exits 0 and puts its decision in this JSON. A
 // non-zero exit says *the hook failed to run*, which is a different claim, and
 // one that a caller may reasonably treat differently from a refusal.
-//
-// The predecessor of this project recorded that distinction in its own header
-// and it still holds: "Exit 0 always: the decision travels in the JSON on
-// stdout, per the PreToolUse contract. A non-zero exit would report that the
-// hook failed to run, which is a different claim."
 func (r Reply) Write(to io.Writer) error {
 	encoded, err := json.Marshal(r)
 	if err != nil {

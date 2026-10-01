@@ -107,8 +107,9 @@ func (failingWriter) Write([]byte) (int, error) {
 func TestADecisionThatCannotBeDeliveredExitsTwo(t *testing.T) {
 	t.Parallel()
 
-	// The decision was reached and could not be delivered. Exiting 0 would
-	// deliver silence, which reads as no decision at all.
+	// The decision was reached and could not be delivered. Exiting 0 with no
+	// JSON hands the call to the normal permission flow, as though qwark had
+	// not run.
 	var errOut strings.Builder
 	status := hook.Run(strings.NewReader(payload), failingWriter{}, &errOut,
 		func(hook.Request) (hook.Decision, string) {
@@ -124,8 +125,7 @@ func TestADecisionThatCannotBeDeliveredExitsTwo(t *testing.T) {
 func TestEveryPathEndsInADecisionOrARefusal(t *testing.T) {
 	t.Parallel()
 
-	// The property the whole file exists for: there is no way out of Run that
-	// leaves the command neither judged nor blocked.
+	// No way out of Run leaves the command neither judged nor blocked.
 	cases := []struct {
 		name   string
 		body   string

@@ -283,8 +283,7 @@ func TestAStatementWithNoCommandNameIsStillAddressable(t *testing.T) {
 	// These carry no usable command name: `time rm x` puts `rm` at ordinal
 	// zero, not `time`, and the other two put nothing there. A rule can only
 	// reach them by fact. Without FR-2.8 each of them reports no facts at all,
-	// which leaves them addressable by no rule that could be written, in a
-	// gate whose default is to deny what it cannot account for.
+	// so no rule could allow one and the default would deny them all.
 	for _, src := range []string{`time rm x`, `((x=1))`, `let x=1`, `coproc foo`} {
 		t.Run(src, func(t *testing.T) {
 			t.Parallel()

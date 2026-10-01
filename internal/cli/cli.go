@@ -156,7 +156,6 @@ func check(paths []string, stdout, stderr io.Writer) int {
 // every reason for it.
 //
 // This exists so a rule can be tried before it is the reason a command failed.
-// A rule set that has never judged anything is a policy nobody has run.
 func judge(args []string, stdout, stderr io.Writer) int {
 	args, agent, cwd := contextOf(args)
 
@@ -221,8 +220,8 @@ const (
 // `--cwd` exercises a caller the hook will never see, and a cwd clause
 // declines instead of matching. That is the safe direction and it is still a
 // trap: a rule tried without `--cwd` looks inert. Nothing defaults it to the
-// process's own directory, because a gate answering about where it happens to
-// be standing is answering a question nobody asked.
+// process's own directory, because where qwark is run from says nothing about
+// the caller being judged.
 //
 // Only leading occurrences are taken. Everything after the rules path may be
 // the command being judged, and a gate that ate an argument out of the middle

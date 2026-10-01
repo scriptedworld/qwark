@@ -38,8 +38,7 @@ func runHook(paths []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	log, err := audit.To(audit.DefaultPath())
 	if err != nil {
 		// A gate that cannot open its log still judges. Refusing here would
-		// make an unwritable directory a way to stop every command, and the
-		// verdict is not less correct for going unrecorded.
+		// make an unwritable directory a way to stop every command.
 		_, _ = fmt.Fprintf(stderr, "qwark could not open its log: %v\n", err)
 	}
 	defer func() { _ = log.Close() }()
@@ -52,7 +51,7 @@ func runHook(paths []string, stdin io.Reader, stdout, stderr io.Writer) int {
 // The decision is made first and recorded second, and the recording cannot
 // change it. A failed write is reported on stderr and the verdict stands. The
 // alternative, refusing when the log is unwritable, would turn a full disk into
-// an estate-wide outage and make the audit trail the way to stop the machine.
+// a refusal of every command in every session.
 //
 // That is the permissive direction and it is a real hole: somebody who can fill
 // the disk can stop the recording without stopping the commands. Closing it
@@ -139,7 +138,7 @@ func joinReasons(refusals []string) string {
 // unloadable is the reason a broken rule set gives for permitting nothing.
 //
 // A gate that becomes permissive when its own configuration is broken reports
-// success while guarding nothing, so the answer is a refusal and not a shrug.
+// success while guarding nothing, so the answer is a refusal.
 // The cost is that a typo denies every command until it is fixed, which
 // is why the message carries the parser's position and names a way out that
 // does not itself need Bash: editing the rule file with the Edit tool.

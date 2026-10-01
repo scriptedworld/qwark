@@ -19,16 +19,15 @@ import (
 //
 // So a gate that crashes, or that exits 1 the way a Unix program usually
 // reports failure, lets the command through. Exit 2 is the only status that
-// refuses on qwark's behalf when qwark itself has broken, which makes it the
-// only honest failure exit here.
+// refuses on qwark's behalf when qwark itself has broken, so it is the only
+// failure exit used here.
 const (
 	StatusDecided = 0
 	StatusBroken  = 2
 )
 
 // ErrPanicked reports that judging a command raised a panic. It is a sentinel
-// so that a caller can tell a fault in the gate from a fault in the payload,
-// which are different things to go and look at.
+// so that a caller can tell a fault in the gate from a fault in the payload.
 var ErrPanicked = errors.New("qwark panicked while judging")
 
 // A Decider judges one request. It returns the decision and the reason for it.

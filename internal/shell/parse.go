@@ -43,15 +43,14 @@ func (e *ParseError) Unwrap() error { return e.Err }
 // Parse reads one command string as Bash.
 //
 // The shell has to be established, not inferred from the tool's name. Claude
-// Code's Bash tool runs zsh 5.9 on the machine this was written on, where `$0`
-// is `/bin/zsh` and `BASH_VERSION` is unset. The decision is to force that
-// shell to bash instead of teaching qwark zsh, and it is recorded in
+// Code's Bash tool can run zsh, with `$0` set to `/bin/zsh` and `BASH_VERSION`
+// unset. The decision is to force that shell to bash instead of teaching qwark
+// zsh, and it is recorded in
 // docs/LESSONS/the-shell-is-zsh-and-the-decision-is-to-change-it.md.
 //
 // That decision is what makes this variant correct, so it is a precondition and
-// not a default. Reading zsh as bash fails silently: of ten zsh constructs
-// tried, two were rejected and four parsed cleanly while meaning something
-// else. A gate reading the wrong language does not error; it answers wrongly.
+// not a default. Reading zsh as bash fails silently: of ten zsh constructs, the
+// bash parser rejects two, and four parse cleanly while meaning something else.
 func Parse(src string) (*Parsed, error) {
 	parser := syntax.NewParser(
 		syntax.Variant(syntax.LangBash),

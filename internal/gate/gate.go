@@ -10,8 +10,9 @@
 // a question about the deployment, not about the call in front of it, and it is
 // answered outside qwark entirely: by the rule that an agent does not edit
 // these files without a person, and by the
-// `permissions.deny` twin in the hook registration. FR-4.17, retired, was the
-// permission check that once answered it, and records what would bring it back.
+// `permissions.deny` twin in the hook registration. FR-4.17, a permission
+// check on the rule files, is retired; the Retired section of REQUIREMENTS.md
+// records what would bring it back.
 package gate
 
 import (
@@ -26,8 +27,8 @@ import (
 // Decider judges each request against one rule set.
 //
 // Tag changes are deliberately dropped. Tags are deferred to a later version
-// and there is no store to put them in, so honouring some of the machinery and
-// not the rest would make the half that works look like the whole of it.
+// and there is no store to put them in, so honouring some of the machinery
+// would make tags look supported when they are not.
 func Decider(set *rules.Set) hook.Decider {
 	judged := Judged(set)
 
@@ -56,9 +57,8 @@ type Judge func(hook.Request) Judgement
 //
 // The reason string is written for a model to read and is deliberately prose.
 // The names are for the record: an entry in the log saying a command was denied
-// without saying which rule did it cannot be counted, grouped, or compared
-// against the same command under a different rule set, which is the whole
-// purpose of writing it down.
+// without saying which rule did it cannot be counted by rule or compared
+// against the same command under a different rule set.
 //
 // The engine's own refusals are named here too, as `(engine) …`, because a
 // refusal for being unparseable or for naming a tool qwark does not model is
@@ -193,11 +193,10 @@ func oneLine(reason string) string {
 
 // wrongTool is the reason for a call qwark was never registered to judge.
 //
-// It refuses instead of waving the call through, on the same reasoning as any
-// command form qwark does not model: finding no command to check is not the
-// same as finding nothing to check. A matcher wide enough to send Write and
-// Edit here will therefore block loudly. That is the better failure, since the
-// alternative is a gate that silently judges nothing while looking installed.
+// It refuses instead of waving the call through, the same as for any command
+// form qwark does not model. A matcher wide enough to send Write and Edit here
+// therefore blocks loudly, where allowing would leave a gate that looks
+// installed and judges nothing.
 func wrongTool(name string) string {
 	return fmt.Sprintf(
 		"qwark gates Bash and was asked to judge %q, which it does not model.\n"+
