@@ -18,13 +18,15 @@
 # answer depends on anything outside the command in front of it.
 #
 # ---------------------------------------------------------------------------
-# Settled
-#
-#   - The count is allowed or approved Bash commands. A denied command does not
-#     advance any TTL, and no other tool advances it either.
+# Settled and tested, FR-8.5
 #
 #   - Tags are set or unset by a rule, never toggled. A rule states which it
 #     does, so its effect never depends on what the tag already was.
+#
+# Agreed, waiting on the tag store: FR-8.4 and FR-8.6
+#
+#   - The count is allowed or approved Bash commands. A denied command does not
+#     advance any TTL, and no other tool advances it either.
 #
 #   - Tags do not stack. Setting one that is already set replaces it, TTL and
 #     all: six commands after the most recent rebase, not twelve after two.

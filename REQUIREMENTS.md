@@ -199,8 +199,8 @@ evaluator emits tag changes and a clause can test a tag, but there is no store
 behind it and there will not be one until there are concrete scenarios worth
 limiting this way.
 
-Everything below is therefore marked `[?]`: decided in principle, carrying no
-test, and not waiting on anybody.
+A row the evaluator can show without a store carries a test. The rest are
+marked `[?]`: decided in principle, carrying no test until the store exists.
 
 *Derives from:* Tags have lifetimes; The decision model.
 
@@ -210,7 +210,7 @@ test, and not waiting on anybody.
 | FR-8.2 | A tag is set with a TTL, measured in commands. The worked example: after a rebase, deletion is denied for the next six. | [?] |
 | FR-8.3 | Any other rule may test a tag in a clause, on the same footing as a node, an option or a path. | [A] |
 | FR-8.4 | A denied command advances no TTL, so a countdown is never spent by a command that did not run. | [?] |
-| FR-8.5 | A tag is set or unset by a rule, never toggled. A rule says which of the two it does, so its effect never depends on what the tag already was. | [?] |
+| FR-8.5 | A tag is set or unset by a rule, never toggled. A rule says which of the two it does, so its effect never depends on what the tag already was. | [A] |
 | FR-8.6 | Tags do not stack. Setting a tag that is already set replaces it, TTL and all: six commands after the most recent rebase, not twelve after two. There is no count of how many rules set it and no order in which they must be unset. | [?] |
 | FR-8.6a | A tag with no TTL lives for the current evaluation only. An unbounded tag would be indistinguishable from a command permanently changing policy. | [?] |
 | FR-8.7 | Tag state must not be writable by the user qwark runs as. A countdown the subject can reset is not a constraint on the subject: the same reasoning as the rule files, one level down, and reachable by `Write` without any shell. | [?] |
