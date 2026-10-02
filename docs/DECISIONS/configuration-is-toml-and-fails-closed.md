@@ -33,14 +33,13 @@ half an unparseable-file check does not: a rule set that parses and matches
 nothing.
 
     qwark judge <dir holding a valid file with no rules> -- ls -la
-      deny  (engine) declared commands only
-            (engine) deny by default
-              Nothing permitted this. Being allowed means an allow rule
-              matched, and none did.
+    block
+      (engine) declared commands only    This command has no declaration, …
 
-Being allowed *means* an allow rule matched, so an empty policy permits nothing
-and a ruleset that silently stopped matching denies everything instead of
-approving everything. The two silences are both refusals, which is the only
+Being allowed means a rule file said so: an allow rule matched, or the set
+states `default = "allow"`, as the live set does while it observes. An empty
+policy says neither, so it permits nothing, and a ruleset that silently
+stopped matching denies everything instead of approving everything. The two silences are both refusals, which is the only
 arrangement where forgetting to check costs a false denial and not a false
 allow.
 

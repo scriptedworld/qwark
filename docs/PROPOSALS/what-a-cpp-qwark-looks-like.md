@@ -196,9 +196,8 @@ gate wrong in a way it cannot report.
 
 Nothing here is urgent, because the format is language-neutral.
 `the-format-for-phases-one-and-two.md` specifies YAML, a node map and a two-pass
-load, none of which cares. The parser measurement queued at
-`clank/tasks/qwark/rewrite/20-measure-the-two-parsers.ready` does not care
-either.
+load, none of which cares. Nor does the parser measurement,
+`docs/DECISIONS/what-the-two-parsers-actually-give.md`.
 
 The C++ jig is worth building whatever qwark is written in, and it does not need
 qwark as its first adopter. `toolbox/tests/` and a small fixture tree would
@@ -221,7 +220,7 @@ depending on it being up, and a correct answer that is obvious by inspection.
 That is the same test `palette-print` passed when Zig needed one, and it is why
 Zig is being proved there and not in qwark.
 
-There are three candidates, and I would pick the third.
+There were three candidates, and the third is done.
 
 The wrench C++ pack is the best fit on paper. The contract is specified before
 any pack is written, so it is written from a document instead of by reading the
@@ -236,9 +235,6 @@ it is the piece whose behaviour the format work needs pinned down anyway. It
 answers the C++ question and the parser question in one build, and it throws
 away cleanly.
 
-The third is the parser comparison itself, `20-measure-the-two-parsers.ready`.
-It has to be written in something, it has to link tree-sitter, and writing that
-side in C++ tests the exact interop claim this document makes while producing
-the measurement the rewrite is blocked on. It is the smallest of the three, it
-is already agreed work, and nothing is wasted whichever way either question
-comes out.
+The third was the parser comparison itself. It is measured, in
+`docs/DECISIONS/what-the-two-parsers-actually-give.md`, and was done without
+C++, so the first two remain.
