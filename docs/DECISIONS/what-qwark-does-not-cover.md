@@ -3,7 +3,7 @@
 Other tools reach the filesystem without passing through qwark. qwark gates
 Bash. `Write` and `Edit` do not go through it, and they can reach the shell
 snapshot, `settings.json`, `.git/hooks`, a `justfile`, or a rule file. Every path
-qwark protects with a class-three rule needs the other half, a `permissions.deny`
+qwark protects with a path rule needs the other half, a `permissions.deny`
 entry, and that file must itself be unwritable.
 
 Some commands run other commands. `env`, `xargs`, `sudo`, `nohup`, `timeout`,

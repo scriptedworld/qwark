@@ -503,7 +503,7 @@ layers*.
   `go build` and `git commit -F` all run, and only shape is refused.
 - qwark gates Bash only. The Write and Edit tools reach the rule files, the
   shell snapshot, `.git/hooks` and `settings.json` without passing through it.
-  Every class-three rule needs a `permissions.deny` twin. A twin naming
+  Every path rule needs a `permissions.deny` twin. A twin naming
   `settings.local.json` itself removes the escape hatch from the session, so
   the documented way out, deleting the `hooks` key with the Edit tool, stops
   being available to anyone but a person.
